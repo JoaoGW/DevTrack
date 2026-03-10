@@ -23,56 +23,76 @@ import {
   Users,
   Trophy,
   LayoutTemplate,
+  Search,
+  BarChart2,
+  Star,
 } from "lucide-react";
+import AnimatedStat from "@/components/AnimatedStat";
 
 const features = [
   {
-    icon: Code2,
-    title: "Análise Automática de Repositórios",
+    icon: Search,
+    title: "GitHub Project Analyzer",
     description:
-      "Conecte seu GitHub e o DevTrack analisa todos os seus repos, extraindo linguagens, frameworks e conquistas técnicas.",
+      "A IA analisa seus projetos e gera descrição profissional, stack detectada, complexidade estimada e destaques para recrutadores.",
+    tag: "IA",
+    color: "blue",
+  },
+  {
+    icon: LayoutTemplate,
+    title: "Portfolio Generator",
+    description:
+      "DevTrack gera automaticamente uma página de portfólio completa com todos os seus projetos organizados profissionalmente.",
     tag: "Automático",
-    color: "violet",
+    color: "sky",
   },
   {
     icon: Globe,
-    title: "Portfólio Público Compartilhável",
+    title: "DevTrack Public Profile",
     description:
-      "Gera um portfólio público com URL personalizada, totalmente atualizado e pronto para enviar a qualquer recrutador.",
+      "Cada usuário recebe automaticamente uma página pública com URL exclusiva para compartilhar com qualquer recrutador.",
     tag: "Online",
-    color: "indigo",
+    color: "blue",
   },
   {
     icon: FileText,
-    title: "Currículo Otimizado para ATS",
+    title: "Resume Generator",
     description:
-      "Cria currículos que passam pelos filtros automáticos das maiores empresas de tecnologia do mundo.",
+      "DevTrack gera automaticamente um currículo profissional otimizado para ATS com base nos seus projetos do GitHub.",
     tag: "ATS-Ready",
-    color: "violet",
+    color: "sky",
   },
   {
     icon: Briefcase,
-    title: "Adapta para Vagas Específicas",
+    title: "Resume Adapter",
     description:
-      "Cole a descrição de uma vaga e receba seu currículo adaptado automaticamente com as palavras-chave certas.",
-    tag: "IA",
-    color: "indigo",
+      "Cole a descrição da vaga e o DevTrack adapta o currículo automaticamente com as palavras-chave certas para cada posição.",
+    tag: "Smart",
+    color: "blue",
+  },
+  {
+    icon: BarChart2,
+    title: "DevTrack Score",
+    description:
+      "Sistema que avalia o perfil do usuário e fornece insights acionáveis para melhorar sua presença profissional.",
+    tag: "Score",
+    color: "sky",
   },
   {
     icon: Brain,
-    title: "Preparação para Entrevistas",
+    title: "Interview Simulator",
     description:
-      "Receba perguntas técnicas personalizadas com base nos seus projetos e no stack de tecnologia que você usa.",
-    tag: "Smart",
-    color: "violet",
+      "Simulador de entrevista técnica com perguntas personalizadas com base no seu stack e nos projetos do seu GitHub.",
+    tag: "Simulador",
+    color: "blue",
   },
   {
     icon: Sparkles,
-    title: "Detecção de Habilidades",
+    title: "E muito mais!",
     description:
-      "Identifica e destaca automaticamente suas principais competências técnicas com base no código que você já escreveu.",
-    tag: "IA",
-    color: "indigo",
+      "DevTrack está em constante evolução, com novas funcionalidades chegando para tornar sua jornada profissional ainda mais poderosa.",
+    tag: "Em breve",
+    color: "sky",
   },
 ];
 
@@ -108,17 +128,52 @@ const steps = [
 ];
 
 const stats = [
-  { value: "5k+", label: "Desenvolvedores", icon: Users },
-  { value: "50k+", label: "Repositórios Analisados", icon: Code2 },
-  { value: "3×", label: "Mais entrevistas", icon: Zap },
-  { value: "98%", label: "Satisfação", icon: Trophy },
+  { numericValue: 2, suffix: "k+", label: "Desenvolvedores", icon: Users },
+  {
+    numericValue: 11,
+    suffix: "k+",
+    label: "Repositórios Analisados",
+    icon: Code2,
+  },
+  { numericValue: 3, suffix: "×", label: "Mais entrevistas", icon: Zap },
+  { numericValue: 98, suffix: "%", label: "Satisfação", icon: Trophy },
 ];
 
-const highlights = [
-  "Currículo adaptado por IA",
-  "Portfólio sempre atualizado",
-  "Pronto em minutos",
-  "Sem necessidade de design",
+const testimonials = [
+  {
+    initials: "RC",
+    name: "Rafael Costa",
+    role: "Dev Full Stack",
+    company: "Startup SP",
+    text: "Eu tinha medo de mostrar meu GitHub para recrutadores. Depois do DevTrack, meu portfólio ficou tão profissional que consegui 3 entrevistas na primeira semana.",
+  },
+  {
+    initials: "JM",
+    name: "Juliana Mendes",
+    role: "Engenheira Backend",
+    company: "Remote First",
+    text: "O Resume Adapter é incrível. Colei a descrição de uma vaga e em segundos meu currículo estava adaptado com todas as palavras-chave certas. Passei no ATS de primeira.",
+  },
+  {
+    initials: "LF",
+    name: "Lucas Ferreira",
+    role: "Dev Junior",
+    company: "Bootcamp Aluno",
+    text: "Pensei que não tinha nada para colocar no portfólio. O DevTrack analisou meus projetos pessoais e transformou tudo em algo que parece profissional de verdade.",
+  },
+  {
+    initials: "AS",
+    name: "Ana Silva",
+    role: "Engenheira de Software",
+    company: "Big Tech BR",
+    text: "O Interview Simulator me preparou com perguntas específicas para minha stack. Fui muito mais confiante para a entrevista e fui aprovada na primeira tentativa.",
+  },
+];
+
+const problems = [
+  "Portfólio profissional a partir do seu GitHub",
+  "Currículo que passa em qualquer ATS",
+  "Preparação real para entrevistas técnicas",
 ];
 
 export default function Home() {
@@ -131,7 +186,7 @@ export default function Home() {
       <header className="sticky top-0 z-50 border-b border-white/6 bg-[#080810]/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
-            <div className="flex size-8 items-center justify-center rounded-lg bg-violet-600">
+            <div className="flex size-8 items-center justify-center rounded-lg bg-blue-600">
               <GitBranch className="size-4 text-white" />
             </div>
             <span className="text-lg font-bold tracking-tight">DevTrack</span>
@@ -160,7 +215,7 @@ export default function Home() {
             </Button>
             <Button
               size="sm"
-              className="bg-violet-600 text-white hover:bg-violet-500 shadow-lg shadow-violet-950/50"
+              className="bg-blue-600 text-white hover:bg-blue-500 shadow-lg shadow-blue-950/50"
             >
               Começar grátis
             </Button>
@@ -172,9 +227,9 @@ export default function Home() {
       <section className="relative overflow-hidden">
         {/* Glow blobs */}
         <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-          <div className="absolute left-1/2 top-[-10%] h-175 w-175 -translate-x-1/2 rounded-full bg-violet-600/15 blur-[120px]" />
-          <div className="absolute right-[-5%] top-[30%] h-100 w-100 rounded-full bg-indigo-600/10 blur-[100px]" />
-          <div className="absolute left-[-5%] top-[40%] h-75 w-75 rounded-full bg-fuchsia-600/8 blur-[90px]" />
+          <div className="absolute left-1/2 top-[-10%] h-175 w-175 -translate-x-1/2 rounded-full bg-blue-600/15 blur-[120px]" />
+          <div className="absolute right-[-5%] top-[30%] h-100 w-100 rounded-full bg-sky-600/10 blur-[100px]" />
+          <div className="absolute left-[-5%] top-[40%] h-75 w-75 rounded-full bg-cyan-600/8 blur-[90px]" />
           {/* Subtle grid */}
           <div
             className="absolute inset-0"
@@ -188,7 +243,7 @@ export default function Home() {
 
         <div className="mx-auto max-w-6xl px-6 pb-28 pt-24 text-center">
           {/* Pill badge */}
-          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-violet-500/25 bg-violet-500/8 px-4 py-1.5 text-sm text-violet-300">
+          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-blue-500/25 bg-blue-500/8 px-4 py-1.5 text-sm text-blue-300">
             <Sparkles className="size-3.5" />
             <span>Portfólio gerado por IA em segundos</span>
             <ChevronRight className="size-3.5 opacity-60" />
@@ -212,7 +267,7 @@ export default function Home() {
               className="block mt-1"
               style={{
                 background:
-                  "linear-gradient(135deg, #a78bfa 0%, #818cf8 50%, #60a5fa 100%)",
+                  "linear-gradient(135deg, #60a5fa 0%, #38bdf8 50%, #7dd3fc 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
@@ -244,18 +299,11 @@ export default function Home() {
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <Button
               size="lg"
-              className="h-12 gap-2 bg-violet-600 px-8 text-base text-white shadow-xl shadow-violet-950/60 hover:bg-violet-500 transition-all duration-200"
+              className="h-12 gap-2 bg-blue-600 px-8 text-base text-white shadow-xl shadow-blue-950/60 hover:bg-blue-500 transition-all duration-200"
             >
               <Github className="size-4" />
               Conectar com GitHub
               <ArrowRight className="size-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="h-12 border-white/10 bg-white/3 px-8 text-base text-zinc-300 hover:border-white/20 hover:bg-white/7 hover:text-white transition-all duration-200"
-            >
-              Ver demonstração
             </Button>
           </div>
 
@@ -268,10 +316,11 @@ export default function Home() {
                   key={stat.label}
                   className="flex flex-col items-center gap-1 rounded-2xl border border-white/6 bg-white/2 px-4 py-5"
                 >
-                  <Icon className="mb-1 size-4 text-violet-400 opacity-70" />
-                  <span className="text-3xl font-bold text-white">
-                    {stat.value}
-                  </span>
+                  <Icon className="mb-1 size-4 text-blue-400 opacity-70" />
+                  <AnimatedStat
+                    value={stat.numericValue}
+                    suffix={stat.suffix}
+                  />
                   <span className="text-sm text-zinc-500">{stat.label}</span>
                 </div>
               );
@@ -283,14 +332,14 @@ export default function Home() {
       {/* ── FEATURES ── */}
       <section id="features" className="relative py-24">
         <div className="pointer-events-none absolute inset-0 -z-10">
-          <div className="absolute left-0 top-1/2 h-125 w-100 -translate-y-1/2 rounded-full bg-indigo-600/8 blur-[100px]" />
+          <div className="absolute left-0 top-1/2 h-125 w-100 -translate-y-1/2 rounded-full bg-sky-600/8 blur-[100px]" />
         </div>
         <div className="mx-auto max-w-6xl px-6">
           {/* Section header */}
           <div className="mb-14 text-center">
             <Badge
               variant="outline"
-              className="mb-5 border-indigo-500/25 bg-indigo-500/8 px-3 py-1 text-indigo-300"
+              className="mb-5 border-blue-500/25 bg-blue-500/8 px-3 py-1 text-blue-300"
             >
               Funcionalidades
             </Badge>
@@ -299,40 +348,40 @@ export default function Home() {
               <span className="text-zinc-500">para se destacar</span>
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-zinc-400">
-              De repositórios brutos a uma presença profissional completa —
+              De repositórios brutos a uma presença profissional completa,
               automaticamente.
             </p>
           </div>
 
           {/* Feature cards */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {features.map((feature) => {
               const Icon = feature.icon;
-              const isViolet = feature.color === "violet";
+              const isBlue = feature.color === "blue";
               return (
                 <Card
                   key={feature.title}
-                  className="group border-white/6 bg-white/2 transition-all duration-300 hover:border-violet-500/20 hover:bg-white/5"
+                  className="group border-white/6 bg-white/2 transition-all duration-300 hover:border-blue-500/20 hover:bg-white/5"
                 >
                   <CardHeader className="pb-2">
                     <div className="mb-4 flex items-start justify-between">
                       <div
                         className={`flex size-10 items-center justify-center rounded-xl ${
-                          isViolet ? "bg-violet-500/10" : "bg-indigo-500/10"
+                          isBlue ? "bg-blue-500/10" : "bg-sky-500/10"
                         }`}
                       >
                         <Icon
                           className={`size-5 ${
-                            isViolet ? "text-violet-400" : "text-indigo-400"
+                            isBlue ? "text-blue-400" : "text-sky-400"
                           }`}
                         />
                       </div>
                       <Badge
                         variant="outline"
                         className={`text-xs ${
-                          isViolet
-                            ? "border-violet-500/20 bg-violet-500/8 text-violet-300"
-                            : "border-indigo-500/20 bg-indigo-500/8 text-indigo-300"
+                          isBlue
+                            ? "border-blue-500/20 bg-blue-500/8 text-blue-300"
+                            : "border-sky-500/20 bg-sky-500/8 text-sky-300"
                         }`}
                       >
                         {feature.tag}
@@ -387,15 +436,15 @@ export default function Home() {
                         width: "calc(100% - 5rem)",
                         height: "1px",
                         background:
-                          "linear-gradient(to right, rgba(139,92,246,0.4), transparent)",
+                          "linear-gradient(to right, rgba(59,130,246,0.4), transparent)",
                       }}
                     />
                   )}
 
                   {/* Icon circle */}
-                  <div className="relative mb-5 flex size-12 items-center justify-center rounded-2xl bg-linear-to-br from-violet-600 to-indigo-600 shadow-lg shadow-violet-950/50">
+                  <div className="relative mb-5 flex size-12 items-center justify-center rounded-2xl bg-linear-to-br from-blue-600 to-sky-600 shadow-lg shadow-blue-950/50">
                     <Icon className="size-5 text-white" />
-                    <div className="absolute -right-1.5 -top-1.5 flex size-5 items-center justify-center rounded-full bg-[#080810] text-[10px] font-bold text-violet-400 ring-1 ring-violet-500/40">
+                    <div className="absolute -right-1.5 -top-1.5 flex size-5 items-center justify-center rounded-full bg-[#080810] text-[10px] font-bold text-blue-400 ring-1 ring-blue-500/40">
                       {index + 1}
                     </div>
                   </div>
@@ -413,27 +462,85 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── HIGHLIGHTS BANNER ── */}
+      {/* ── TESTIMONIALS ── */}
+      <section className="py-24">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="mb-14 text-center">
+            <Badge
+              variant="outline"
+              className="mb-5 border-sky-500/25 bg-sky-500/8 px-3 py-1 text-sky-300"
+            >
+              Depoimentos
+            </Badge>
+            <h2 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
+              Quem usou, <span className="text-zinc-500">aprovou</span>
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-zinc-400">
+              Desenvolvedores reais que transformaram sua presença profissional
+              com o DevTrack.
+            </p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            {testimonials.map((t) => (
+              <Card
+                key={t.name}
+                className="border-white/6 bg-white/2 transition-all duration-300 hover:border-blue-500/20 hover:bg-white/5"
+              >
+                <CardHeader className="pb-2">
+                  <div className="mb-2 flex items-center gap-3">
+                    <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-sm font-bold text-blue-300">
+                      {t.initials}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-white">
+                        {t.name}
+                      </p>
+                      <p className="text-xs text-zinc-500">
+                        {t.role} · {t.company}
+                      </p>
+                    </div>
+                    <div className="ml-auto flex gap-0.5">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star
+                          key={i}
+                          className="size-3.5 fill-yellow-400 text-yellow-400"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm leading-relaxed text-zinc-400 italic">
+                    &ldquo;{t.text}&rdquo;
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── PROBLEMS BANNER ── */}
       <section className="py-12">
         <div className="mx-auto max-w-6xl px-6">
           <div
-            className="relative overflow-hidden rounded-2xl border border-violet-500/12 p-10 text-center sm:p-14"
+            className="relative overflow-hidden rounded-2xl border border-blue-500/12 p-10 text-center sm:p-14"
             style={{
               background:
-                "linear-gradient(135deg, rgba(109,40,217,0.12) 0%, rgba(8,8,16,0) 50%, rgba(79,70,229,0.10) 100%)",
+                "linear-gradient(135deg, rgba(37,99,235,0.12) 0%, rgba(8,8,16,0) 50%, rgba(14,165,233,0.10) 100%)",
             }}
           >
-            {/* Inner glow */}
             <div
               className="pointer-events-none absolute inset-0"
               style={{
                 background:
-                  "radial-gradient(ellipse at 50% 50%, rgba(139,92,246,0.12) 0%, transparent 70%)",
+                  "radial-gradient(ellipse at 50% 50%, rgba(59,130,246,0.12) 0%, transparent 70%)",
               }}
             />
 
             <div className="relative">
-              <p className="mb-2 text-sm font-medium tracking-widest text-violet-400 uppercase">
+              <p className="mb-2 text-sm font-medium tracking-widest text-blue-400 uppercase">
                 Por que DevTrack?
               </p>
               <h2 className="mx-auto mb-4 max-w-2xl text-3xl font-bold text-white sm:text-4xl">
@@ -445,11 +552,11 @@ export default function Home() {
               <p className="mx-auto mb-8 max-w-lg text-zinc-400">
                 Recrutadores passam menos de{" "}
                 <span className="font-semibold text-white">10 segundos</span>{" "}
-                olhando um currículo. Garanta que o seu se destaque —
+                olhando um currículo. Garanta que o seu se destaque,
                 automaticamente.
               </p>
-              <div className="flex flex-wrap items-center justify-center gap-5 text-sm text-zinc-300">
-                {highlights.map((item) => (
+              <div className="flex flex-col items-center gap-4 text-sm text-zinc-300 sm:flex-row sm:justify-center">
+                {problems.map((item) => (
                   <div key={item} className="flex items-center gap-2">
                     <CheckCircle className="size-4 shrink-0 text-emerald-400" />
                     <span>{item}</span>
@@ -464,7 +571,7 @@ export default function Home() {
       {/* ── FINAL CTA ── */}
       <section id="cta" className="relative py-32">
         <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-          <div className="absolute left-1/2 top-1/2 h-125 w-125 -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-600/12 blur-[120px]" />
+          <div className="absolute left-1/2 top-1/2 h-125 w-125 -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-600/12 blur-[120px]" />
           <div
             className="absolute inset-0"
             style={{
@@ -476,9 +583,9 @@ export default function Home() {
         </div>
 
         <div className="mx-auto max-w-3xl px-6 text-center">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-violet-500/25 bg-violet-500/8 px-4 py-1.5 text-sm text-violet-300">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-500/25 bg-blue-500/8 px-4 py-1.5 text-sm text-blue-300">
             <Sparkles className="size-3.5" />
-            Junte-se a mais de 5k desenvolvedores
+            Junte-se a mais de 2k desenvolvedores
           </div>
 
           <h2 className="mb-5 text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl">
@@ -486,7 +593,7 @@ export default function Home() {
             <span
               style={{
                 background:
-                  "linear-gradient(135deg, #a78bfa 0%, #818cf8 50%, #60a5fa 100%)",
+                  "linear-gradient(135deg, #60a5fa 0%, #38bdf8 50%, #7dd3fc 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
@@ -504,7 +611,7 @@ export default function Home() {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Button
               size="lg"
-              className="h-12 gap-2 bg-violet-600 px-10 text-base text-white shadow-xl shadow-violet-950/60 hover:bg-violet-500 transition-all duration-200"
+              className="h-12 gap-2 bg-blue-600 px-10 text-base text-white shadow-xl shadow-blue-950/60 hover:bg-blue-500 transition-all duration-200"
             >
               <Github className="size-4" />
               Começar gratuitamente
@@ -531,14 +638,15 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-6">
           <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
             <div className="flex items-center gap-2">
-              <div className="flex size-7 items-center justify-center rounded-md bg-violet-600">
+              <div className="flex size-7 items-center justify-center rounded-md bg-blue-600">
                 <GitBranch className="size-3.5 text-white" />
               </div>
               <span className="font-semibold text-white">DevTrack</span>
             </div>
 
             <p className="text-sm text-zinc-600">
-              © 2025 DevTrack · Transforme seu GitHub em carreira.
+              © 2026 DevTrack · GWBR Technologies · Transforme seu GitHub em
+              carreira.
             </p>
 
             <div className="flex items-center gap-6 text-sm text-zinc-600">
