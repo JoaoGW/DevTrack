@@ -7,174 +7,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Github,
-  Briefcase,
-  FileText,
-  ArrowRight,
-  Code2,
-  CheckCircle,
-  Sparkles,
-  Brain,
-  Globe,
-  ChevronRight,
-  GitBranch,
-  Zap,
-  Users,
-  Trophy,
-  LayoutTemplate,
-  Search,
-  BarChart2,
-  Star,
-} from "lucide-react";
 import AnimatedStat from "@/components/AnimatedStat";
 
-const features = [
-  {
-    icon: Search,
-    title: "GitHub Project Analyzer",
-    description:
-      "A IA analisa seus projetos e gera descrição profissional, stack detectada, complexidade estimada e destaques para recrutadores.",
-    tag: "IA",
-    color: "blue",
-  },
-  {
-    icon: LayoutTemplate,
-    title: "Portfolio Generator",
-    description:
-      "DevTrack gera automaticamente uma página de portfólio completa com todos os seus projetos organizados profissionalmente.",
-    tag: "Automático",
-    color: "sky",
-  },
-  {
-    icon: Globe,
-    title: "DevTrack Public Profile",
-    description:
-      "Cada usuário recebe automaticamente uma página pública com URL exclusiva para compartilhar com qualquer recrutador.",
-    tag: "Online",
-    color: "blue",
-  },
-  {
-    icon: FileText,
-    title: "Resume Generator",
-    description:
-      "DevTrack gera automaticamente um currículo profissional otimizado para ATS com base nos seus projetos do GitHub.",
-    tag: "ATS-Ready",
-    color: "sky",
-  },
-  {
-    icon: Briefcase,
-    title: "Resume Adapter",
-    description:
-      "Cole a descrição da vaga e o DevTrack adapta o currículo automaticamente com as palavras-chave certas para cada posição.",
-    tag: "Smart",
-    color: "blue",
-  },
-  {
-    icon: BarChart2,
-    title: "DevTrack Score",
-    description:
-      "Sistema que avalia o perfil do usuário e fornece insights acionáveis para melhorar sua presença profissional.",
-    tag: "Score",
-    color: "sky",
-  },
-  {
-    icon: Brain,
-    title: "Interview Simulator",
-    description:
-      "Simulador de entrevista técnica com perguntas personalizadas com base no seu stack e nos projetos do seu GitHub.",
-    tag: "Simulador",
-    color: "blue",
-  },
-  {
-    icon: Sparkles,
-    title: "E muito mais!",
-    description:
-      "DevTrack está em constante evolução, com novas funcionalidades chegando para tornar sua jornada profissional ainda mais poderosa.",
-    tag: "Em breve",
-    color: "sky",
-  },
-];
+import { features } from "./contentData/Home/features";
+import { problems } from "./contentData/Home/problems";
+import { stats } from "./contentData/Home/stats";
+import { steps } from "./contentData/Home/steps";
+import { testimonials } from "./contentData/Home/testimonials";
 
-const steps = [
-  {
-    number: "01",
-    icon: Github,
-    title: "Conecte seu GitHub",
-    description:
-      "Autorize o DevTrack a acessar seus repositórios públicos com um único clique.",
-  },
-  {
-    number: "02",
-    icon: Zap,
-    title: "IA Analisa seus Projetos",
-    description:
-      "Nossa inteligência artificial lê seus repos e gera descrições profissionais para cada um.",
-  },
-  {
-    number: "03",
-    icon: LayoutTemplate,
-    title: "Gere seu Portfólio",
-    description:
-      "Em segundos, um portfólio moderno e profissional está disponível com sua URL exclusiva.",
-  },
-  {
-    number: "04",
-    icon: Trophy,
-    title: "Conquiste sua Vaga",
-    description:
-      "Use o currículo adaptado e a preparação para entrevistas para se destacar da concorrência.",
-  },
-];
-
-const stats = [
-  { numericValue: 2, suffix: "k+", label: "Desenvolvedores", icon: Users },
-  {
-    numericValue: 11,
-    suffix: "k+",
-    label: "Repositórios Analisados",
-    icon: Code2,
-  },
-  { numericValue: 3, suffix: "×", label: "Mais entrevistas", icon: Zap },
-  { numericValue: 98, suffix: "%", label: "Satisfação", icon: Trophy },
-];
-
-const testimonials = [
-  {
-    initials: "RC",
-    name: "Rafael Costa",
-    role: "Dev Full Stack",
-    company: "Startup SP",
-    text: "Eu tinha medo de mostrar meu GitHub para recrutadores. Depois do DevTrack, meu portfólio ficou tão profissional que consegui 3 entrevistas na primeira semana.",
-  },
-  {
-    initials: "JM",
-    name: "Juliana Mendes",
-    role: "Engenheira Backend",
-    company: "Remote First",
-    text: "O Resume Adapter é incrível. Colei a descrição de uma vaga e em segundos meu currículo estava adaptado com todas as palavras-chave certas. Passei no ATS de primeira.",
-  },
-  {
-    initials: "LF",
-    name: "Lucas Ferreira",
-    role: "Dev Junior",
-    company: "Bootcamp Aluno",
-    text: "Pensei que não tinha nada para colocar no portfólio. O DevTrack analisou meus projetos pessoais e transformou tudo em algo que parece profissional de verdade.",
-  },
-  {
-    initials: "AS",
-    name: "Ana Silva",
-    role: "Engenheira de Software",
-    company: "Big Tech BR",
-    text: "O Interview Simulator me preparou com perguntas específicas para minha stack. Fui muito mais confiante para a entrevista e fui aprovada na primeira tentativa.",
-  },
-];
-
-const problems = [
-  "Portfólio profissional a partir do seu GitHub",
-  "Currículo que passa em qualquer ATS",
-  "Preparação real para entrevistas técnicas",
-];
+import {
+  Github,
+  ArrowRight,
+  CheckCircle,
+  Sparkles,
+  ChevronRight,
+  GitBranch,
+  Star,
+} from "lucide-react";
 
 export default function Home() {
   return (
