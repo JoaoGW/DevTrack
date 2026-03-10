@@ -58,13 +58,13 @@ export default function Home() {
             <Button
               variant="ghost"
               size="sm"
-              className="hidden text-zinc-400 hover:bg-white/5 hover:text-white sm:flex"
+              className="hidden text-zinc-400 hover:bg-white/5 hover:text-white sm:flex cursor-pointer"
             >
               Entrar
             </Button>
             <Button
               size="sm"
-              className="bg-blue-600 text-white hover:bg-blue-500 shadow-lg shadow-blue-950/50"
+              className="bg-blue-600 text-white cursor-pointer hover:bg-blue-500 shadow-lg shadow-blue-950/50"
             >
               Começar grátis
             </Button>
@@ -148,7 +148,7 @@ export default function Home() {
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <Button
               size="lg"
-              className="h-12 gap-2 bg-blue-600 px-8 text-base text-white shadow-xl shadow-blue-950/60 hover:bg-blue-500 transition-all duration-200"
+              className="h-12 gap-2 bg-blue-600 px-8 text-base text-white shadow-xl shadow-blue-950/60 cursor-pointer hover:bg-blue-500 transition-all duration-200"
             >
               <Github className="size-4" />
               Conectar com GitHub
@@ -165,7 +165,7 @@ export default function Home() {
                   key={stat.label}
                   className="flex flex-col items-center gap-1 rounded-2xl border border-white/6 bg-white/2 px-4 py-5"
                 >
-                  <Icon className="mb-1 size-4 text-blue-400 opacity-70" />
+                  <Icon className="mb-1 size-6 text-blue-400 opacity-70" />
                   <AnimatedStat
                     value={stat.numericValue}
                     suffix={stat.suffix}
@@ -321,10 +321,10 @@ export default function Home() {
             >
               Depoimentos
             </Badge>
-            <h2 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
-              Quem usou, <span className="text-zinc-500">aprovou</span>
+            <h2 className="text-4xl font-bold tracking-tight text-zinc-500 sm:text-5xl">
+              Quem usou, <span className="text-white">aprovou</span>
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-zinc-400">
+            <p className="mx-auto mt-4 text-zinc-400">
               Desenvolvedores reais que transformaram sua presença profissional
               com o DevTrack.
             </p>
@@ -453,25 +453,19 @@ export default function Home() {
           </h2>
 
           <p className="mb-10 text-lg text-zinc-400">
-            Crie seu portfólio profissional gratuitamente em menos de 2 minutos.
+            Crie seu portfólio profissional gratuitamente em menos de 2 minutos.{" "}
+            <br />
             Sem cartão de crédito, sem configuração.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Button
               size="lg"
-              className="h-12 gap-2 bg-blue-600 px-10 text-base text-white shadow-xl shadow-blue-950/60 hover:bg-blue-500 transition-all duration-200"
+              className="h-12 gap-2 bg-blue-600 px-10 text-base text-white shadow-xl shadow-blue-950/60 cursor-pointer hover:bg-blue-500 transition-all duration-200"
             >
               <Github className="size-4" />
               Começar gratuitamente
               <ChevronRight className="size-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="h-12 border-white/10 bg-white/3 px-8 text-base text-zinc-300 hover:border-white/20 hover:bg-white/7 hover:text-white"
-            >
-              Ver como funciona
             </Button>
           </div>
 
@@ -494,8 +488,8 @@ export default function Home() {
             </div>
 
             <p className="text-sm text-zinc-600">
-              © 2026 DevTrack · GWBR Technologies · Transforme seu GitHub em
-              carreira.
+              © 2026 DevTrack · Transforme seu GitHub em carreira. · GWBR
+              Technologies
             </p>
 
             <div className="flex items-center gap-6 text-sm text-zinc-600">

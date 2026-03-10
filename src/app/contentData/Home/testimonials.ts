@@ -4,13 +4,13 @@ export const testimonials = [
     name: "Rafael Costa",
     role: "Dev Full Stack",
     company: "Startup SP",
-    text: "Eu tinha medo de mostrar meu GitHub para recrutadores. Depois do DevTrack, meu portfólio ficou tão profissional que consegui 3 entrevistas na primeira semana.",
+    text: "Eu não gostava do meu GitHub nem um pouco. Depois de usar o DevTrack, meu portfólio ficou tão profissional que consegui 3 entrevistas logo na primeira semana.",
   },
   {
     initials: "JM",
     name: "Juliana Mendes",
     role: "Engenheira Backend",
-    company: "Remote First",
+    company: "Startup RJ",
     text: "O Resume Adapter é incrível. Colei a descrição de uma vaga e em segundos meu currículo estava adaptado com todas as palavras-chave certas. Passei no ATS de primeira.",
   },
   {
