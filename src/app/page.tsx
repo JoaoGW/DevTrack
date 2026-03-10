@@ -106,6 +106,9 @@ export default function Home() {
               variant="ghost"
               size="sm"
               className="hidden text-zinc-400 hover:bg-white/5 hover:text-white sm:flex cursor-pointer"
+              onClick={() => {
+                handleGithubLogin();
+              }}
             >
               Entrar
             </Button>
@@ -196,6 +199,9 @@ export default function Home() {
             <Button
               size="lg"
               className="h-12 gap-2 bg-blue-600 px-8 text-base text-white shadow-xl shadow-blue-950/60 cursor-pointer hover:bg-blue-500 transition-all duration-200"
+              onClick={() => {
+                handleGithubLogin();
+              }}
             >
               <Github className="size-4" />
               Conectar com GitHub
@@ -509,6 +515,9 @@ export default function Home() {
             <Button
               size="lg"
               className="h-12 gap-2 bg-blue-600 px-10 text-base text-white shadow-xl shadow-blue-950/60 cursor-pointer hover:bg-blue-500 transition-all duration-200"
+              onClick={() => {
+                handleGithubLogin();
+              }}
             >
               <Github className="size-4" />
               Começar gratuitamente
