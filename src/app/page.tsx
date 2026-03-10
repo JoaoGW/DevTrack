@@ -1,8 +1,7 @@
 "use client";
-import { auth } from "../services/firebase";
-import { signInWithPopup, GithubAuthProvider } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
-import { useAuthUserFirebase } from "@/store/authUser.store";
+import { signInWithPopup, GithubAuthProvider } from "firebase/auth";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +13,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import AnimatedStat from "@/components/AnimatedStat";
+
+import { useAuthUserFirebase } from "@/store/authUser.store";
+
+import { auth } from "../services/firebase";
 
 import { features } from "./contentData/Home/features";
 import { problems } from "./contentData/Home/problems";
@@ -32,6 +35,9 @@ import {
 } from "lucide-react";
 
 export default function Home() {
+  // Sistema de transporte nativo de rotas verificando em realtime com base em condição se há um usuário autenticado
+  const router = useRouter();
+
   // Store para o contexto de autenticação do usuário atual para toda a aplicação
   const {
     setUser,
@@ -57,6 +63,9 @@ export default function Home() {
         const user = result.user;
         setUser(user);
         // IdP data available using getAdditionalUserInfo(result)
+
+        // Redireciona o usuário para a tela de Dashboard com autenticação caso o fluxo ocorra corretamente
+        router.push("/dashboard");
       })
       .catch((error) => {
         // Handle Errors here.
@@ -65,7 +74,7 @@ export default function Home() {
         const errorMessage = error.message;
         setErrorMessage(errorMessage);
         // The email of the user's account used.
-        const email = error.customData.email;
+        const email = error.customData?.email;
         setUserMail(email);
         // The AuthCredential type that was used.
         const credential = GithubAuthProvider.credentialFromError(error);
