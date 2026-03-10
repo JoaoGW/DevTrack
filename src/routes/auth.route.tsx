@@ -5,16 +5,16 @@ import { useRouter } from "next/navigation";
 import { useAuthUserFirebase } from "@/store/authUser.store";
 
 export function AuthRoute({ children }: { children: React.ReactNode }) {
-  const { user } = useAuthUserFirebase();
+  const { user, isLoading } = useAuthUserFirebase();
   const router = useRouter();
 
   useEffect(() => {
-    if (user === null) {
+    if (!isLoading && user === null) {
       router.replace("/");
     }
-  }, [user, router]);
+  }, [user, isLoading, router]);
 
-  if (!user) return null;
+  if (isLoading || !user) return null;
 
   return <>{children}</>;
 }

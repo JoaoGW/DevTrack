@@ -8,12 +8,14 @@ interface authUserFirebase {
   errorCode: number | undefined,
   errorMessage: string | undefined,
   credential: OAuthCredential | null,
-  setUser: (user: User | null) => void;
-  setToken: (token: string | undefined) => void;
-  setCredential: (credential: OAuthCredential | null) => void;
-  setErrorCode: (code: number | undefined) => void;
-  setErrorMessage: (message: string | undefined) => void;
-  setUserMail: (mail: string) => void;
+  isLoading: boolean,
+  setUser: (user: User | null) => void,
+  setToken: (token: string | undefined) => void,
+  setCredential: (credential: OAuthCredential | null) => void,
+  setErrorCode: (code: number | undefined) => void,
+  setErrorMessage: (message: string | undefined) => void,
+  setUserMail: (mail: string) => void,
+  setLoading: (loading: boolean) => void
 };
 
 export const useAuthUserFirebase = create<authUserFirebase>((set) => ({
@@ -23,6 +25,7 @@ export const useAuthUserFirebase = create<authUserFirebase>((set) => ({
   errorCode: undefined,
   errorMessage: undefined,
   credential: null,
+  isLoading: true,
   setUser: (user: authUserFirebase["user"]) =>
     set({ user, userMail: user?.email ?? '' }),
   setToken: (token: authUserFirebase["token"]) =>
@@ -34,5 +37,7 @@ export const useAuthUserFirebase = create<authUserFirebase>((set) => ({
   setCredential: (credential: authUserFirebase["credential"]) =>
     set({ credential }),
   setUserMail: (mail: authUserFirebase["userMail"]) =>
-    set({ userMail: mail })
+    set({ userMail: mail }),
+  setLoading: (isLoading: boolean) =>
+    set({ isLoading }),
 }));
