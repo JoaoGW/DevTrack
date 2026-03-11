@@ -61,18 +61,6 @@ interface IGitHubStats {
 
 const recentResumes = [
   { name: "Currículo Padrão", updatedAt: "há 2 dias", ats: 92, tag: "Geral" },
-  {
-    name: "Vaga Sênior Dev — Nubank",
-    updatedAt: "há 5 dias",
-    ats: 97,
-    tag: "Adaptado",
-  },
-  {
-    name: "Vaga Backend — Itaú",
-    updatedAt: "há 1 semana",
-    ats: 88,
-    tag: "Adaptado",
-  },
 ];
 
 const recentTools = [
@@ -140,11 +128,38 @@ export default function Dashboard() {
         0,
       );
 
+      // Busca contribuições do ano atual via GraphQL
+      const { user: ghUser } = await octokit.graphql<{
+        user: {
+          contributionsCollection: {
+            totalCommitContributions: number;
+            totalPullRequestContributions: number;
+            totalIssueContributions: number;
+          };
+        };
+      }>(
+        `query ($login: String!) {
+          user(login: $login) {
+            contributionsCollection {
+              totalCommitContributions
+              totalPullRequestContributions
+              totalIssueContributions
+            }
+          }
+        }`,
+        { login: userData.login },
+      );
+
+      const totalContributions =
+        ghUser.contributionsCollection.totalCommitContributions +
+        ghUser.contributionsCollection.totalPullRequestContributions +
+        ghUser.contributionsCollection.totalIssueContributions;
+
       // Substitui os valores default da seção Estatísticas do GitHub
       setGithubStats([
         {
           label: "Repositórios",
-          value: userData.public_repos,
+          value: userData.public_repos + (userData.total_private_repos ?? 0),
           icon: Code2,
           accent: "blue",
         },
@@ -159,6 +174,12 @@ export default function Dashboard() {
           value: userData.followers,
           icon: Users,
           accent: "sky",
+        },
+        {
+          label: "Contribuições",
+          value: totalContributions,
+          icon: Activity,
+          accent: "emerald",
         },
       ]);
     }

@@ -1,5 +1,7 @@
 import { OAuthCredential, User } from '@firebase/auth';
+
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 interface authUserFirebase {
   user: User | null,
@@ -18,26 +20,34 @@ interface authUserFirebase {
   setLoading: (loading: boolean) => void
 };
 
-export const useAuthUserFirebase = create<authUserFirebase>((set) => ({
-  user: null,
-  userMail: '',
-  token: undefined,
-  errorCode: undefined,
-  errorMessage: undefined,
-  credential: null,
-  isLoading: true,
-  setUser: (user: authUserFirebase["user"]) =>
-    set({ user, userMail: user?.email ?? '' }),
-  setToken: (token: authUserFirebase["token"]) =>
-    set({ token }),
-  setErrorCode: (errorCode: authUserFirebase["errorCode"]) =>
-    set({ errorCode }),
-  setErrorMessage: (errorMessage: authUserFirebase["errorMessage"]) =>
-    set({ errorMessage }),
-  setCredential: (credential: authUserFirebase["credential"]) =>
-    set({ credential }),
-  setUserMail: (mail: authUserFirebase["userMail"]) =>
-    set({ userMail: mail }),
-  setLoading: (isLoading: authUserFirebase["isLoading"]) =>
-    set({ isLoading }),
-}));
+export const useAuthUserFirebase = create<authUserFirebase>()(
+  persist(
+    (set) => ({
+      user: null,
+      userMail: '',
+      token: undefined,
+      errorCode: undefined,
+      errorMessage: undefined,
+      credential: null,
+      isLoading: true,
+      setUser: (user: authUserFirebase['user']) =>
+        set({ user, userMail: user?.email ?? '' }),
+      setToken: (token: authUserFirebase['token']) => set({ token }),
+      setErrorCode: (errorCode: authUserFirebase['errorCode']) =>
+        set({ errorCode }),
+      setErrorMessage: (errorMessage: authUserFirebase['errorMessage']) =>
+        set({ errorMessage }),
+      setCredential: (credential: authUserFirebase['credential']) =>
+        set({ credential }),
+      setUserMail: (mail: authUserFirebase['userMail']) =>
+        set({ userMail: mail }),
+      setLoading: (isLoading: authUserFirebase['isLoading']) =>
+        set({ isLoading })
+    }),
+    {
+      name: 'devtrack-auth',
+      storage: createJSONStorage(() => sessionStorage),
+      partialize: (state) => ({ token: state.token }),
+    },
+  ),
+);
