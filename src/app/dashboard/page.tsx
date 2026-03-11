@@ -1,6 +1,9 @@
 "use client";
+import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+
 import { signOut } from "firebase/auth";
+import { Octokit } from "octokit";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +19,8 @@ import { LoadingGeneralContent } from "@/components/Loading/loading";
 
 import { useAuthUserFirebase } from "@/store/authUser.store";
 import { auth } from "@/services/firebase";
+
+import { tools } from "../contentData/dashboard/tools";
 
 import {
   Github,
@@ -44,15 +49,15 @@ import {
   RefreshCw,
   Trophy,
   Crown,
+  LucideIcon,
 } from "lucide-react";
 
-// ─── Mock Data ────────────────────────────────────────────
-const githubStats = [
-  { label: "Repositórios", value: 42, icon: Code2, accent: "blue" },
-  { label: "Stars Recebidas", value: 187, icon: Star, accent: "yellow" },
-  { label: "Seguidores", value: 93, icon: Users, accent: "sky" },
-  { label: "Contribuições", value: 1240, icon: Activity, accent: "emerald" },
-];
+interface IGitHubStats {
+  label: string;
+  value: number;
+  icon: LucideIcon;
+  accent: string;
+}
 
 const recentResumes = [
   { name: "Currículo Padrão", updatedAt: "há 2 dias", ats: 92, tag: "Geral" },
@@ -77,80 +82,9 @@ const recentTools = [
     lastUsed: "Hoje, 14:32",
     color: "blue",
   },
-  {
-    icon: FileText,
-    name: "Resume Generator",
-    lastUsed: "Ontem, 09:15",
-    color: "sky",
-  },
-  {
-    icon: Brain,
-    name: "Interview Simulator",
-    lastUsed: "há 3 dias",
-    color: "blue",
-  },
-  {
-    icon: BarChart2,
-    name: "DevTrack Score",
-    lastUsed: "há 4 dias",
-    color: "sky",
-  },
 ];
 
-const tools = [
-  {
-    icon: Search,
-    title: "GitHub Analyzer",
-    description:
-      "Analise repositórios com IA e gere descrições profissionais com stack detectada.",
-    tag: "IA",
-    color: "blue",
-  },
-  {
-    icon: LayoutTemplate,
-    title: "Portfolio Generator",
-    description: "Gere seu portfólio completo e profissional automaticamente.",
-    tag: "Automático",
-    color: "sky",
-  },
-  {
-    icon: Globe,
-    title: "Public Profile",
-    description: "Sua URL exclusiva para compartilhar com recrutadores.",
-    tag: "Online",
-    color: "blue",
-  },
-  {
-    icon: FileText,
-    title: "Resume Generator",
-    description: "Currículo ATS-ready gerado a partir dos seus projetos.",
-    tag: "ATS-Ready",
-    color: "sky",
-  },
-  {
-    icon: Briefcase,
-    title: "Resume Adapter",
-    description: "Adapte seu currículo para qualquer vaga em segundos.",
-    tag: "Smart",
-    color: "blue",
-  },
-  {
-    icon: BarChart2,
-    title: "DevTrack Score",
-    description: "Avalie e evolua seu perfil profissional continuamente.",
-    tag: "Score",
-    color: "sky",
-  },
-  {
-    icon: Brain,
-    title: "Interview Simulator",
-    description: "Simule entrevistas técnicas com base na sua stack real.",
-    tag: "Simulador",
-    color: "blue",
-  },
-];
-
-// ─── Helpers ─────────────────────────────────────────────
+// Helpers
 const getGreeting = () => {
   const hour = new Date().getHours();
   if (hour < 12) return "Bom dia";
@@ -161,17 +95,78 @@ const getGreeting = () => {
 const SCORE_VALUE = 78;
 const SCORE_DEG = (SCORE_VALUE / 100) * 360;
 
-// ─── Component ───────────────────────────────────────────
 export default function Dashboard() {
+  // Lógica de rotas com verificação em first render se há um usuário autenticado
   const router = useRouter();
-  const { user, setUser, setToken, setCredential, isLoading } =
+  // Informações do usuário atualmente autenticado e status
+  const { user, token, setUser, setToken, setCredential, isLoading } =
     useAuthUserFirebase();
 
+  // Informações para a Navbar e Banner
   const displayName = user?.displayName ?? "Desenvolvedor";
   const firstName = displayName.split(" ")[0];
   const photoURL = user?.photoURL;
   const handle = user?.email?.split("@")[0] ?? "dev";
 
+  // Informações para o UserData de repositórios e outros dados do GitHub
+  const [githubStats, setGithubStats] = useState<Array<IGitHubStats>>([
+    { label: "Repositórios", value: 0, icon: Code2, accent: "blue" },
+    { label: "Stars Recebidas", value: 0, icon: Star, accent: "yellow" },
+    { label: "Seguidores", value: 0, icon: Users, accent: "sky" },
+    { label: "Contribuições", value: 0, icon: Activity, accent: "emerald" },
+  ]);
+
+  // Captura das informações de dados de estatística do usuário atualmente autenticado, repositórios e outros pela API REST do GitHub
+  useEffect(() => {
+    if (!token) return;
+
+    const octokit = new Octokit({ auth: token });
+
+    // Busca dados do usuário autenticado
+    async function fetchGithubData() {
+      // Perfil + número de repos públicos
+      const { data: userData } = await octokit.request("GET /user", {
+        headers: { "X-GitHub-Api-Version": "2022-11-28" },
+      });
+
+      // Repositórios do usuário (para calcular stars totais)
+      const { data: repos } = await octokit.request("GET /user/repos", {
+        per_page: 100,
+        headers: { "X-GitHub-Api-Version": "2022-11-28" },
+      });
+
+      const totalStars = repos.reduce(
+        (acc, repo) => acc + repo.stargazers_count,
+        0,
+      );
+
+      // Substitui os valores default da seção Estatísticas do GitHub
+      setGithubStats([
+        {
+          label: "Repositórios",
+          value: userData.public_repos,
+          icon: Code2,
+          accent: "blue",
+        },
+        {
+          label: "Stars Recebidas",
+          value: totalStars,
+          icon: Star,
+          accent: "yellow",
+        },
+        {
+          label: "Seguidores",
+          value: userData.followers,
+          icon: Users,
+          accent: "sky",
+        },
+      ]);
+    }
+
+    fetchGithubData();
+  }, [token]);
+
+  // Logoff da aplicação
   const handleSignOut = async () => {
     await signOut(auth);
     setUser(null);
@@ -180,6 +175,7 @@ export default function Dashboard() {
     router.push("/");
   };
 
+  // Verifica status da página com user autenticado
   if (isLoading) {
     return <LoadingGeneralContent />;
   }

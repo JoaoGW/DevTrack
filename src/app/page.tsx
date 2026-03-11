@@ -1,5 +1,4 @@
 "use client";
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import { signInWithPopup, GithubAuthProvider } from "firebase/auth";
@@ -51,6 +50,8 @@ export default function Home() {
   } = useAuthUserFirebase();
   // Provider do Firebase para o método de login com GitHub
   const provider = new GithubAuthProvider();
+  provider.addScope("read:user");
+  provider.addScope("repo");
 
   // Método de login por popup no provider do método GitHub
   const handleGithubLogin = () => {

@@ -38,6 +38,6 @@ export const useAuthUserFirebase = create<authUserFirebase>((set) => ({
     set({ credential }),
   setUserMail: (mail: authUserFirebase["userMail"]) =>
     set({ userMail: mail }),
-  setLoading: (isLoading: boolean) =>
+  setLoading: (isLoading: authUserFirebase["isLoading"]) =>
     set({ isLoading }),
 }));
