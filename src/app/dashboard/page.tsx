@@ -226,7 +226,7 @@ export default function Dashboard() {
           </a>
 
           {/* Nav links */}
-          <nav className="hidden items-center gap-1 md:flex">
+          <nav className="absolute left-1/2 -translate-x-1/2 hidden items-center gap-1 md:flex">
             {[
               { label: "Dashboard", href: "/dashboard", active: true },
               { label: "Portfólio", href: "#", active: false },
@@ -555,147 +555,147 @@ export default function Dashboard() {
         </section>
 
         {/* ── BOTTOM ROW ── */}
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* Recent Resumes */}
-          <section>
-            <div className="mb-5 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <FileText className="size-5 text-sky-400" />
-                <h2 className="text-base font-semibold text-zinc-300">
-                  Currículos Recentes
-                </h2>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 cursor-pointer gap-1.5 px-2.5 text-sm text-zinc-500 hover:bg-white/5 hover:text-zinc-300"
-              >
-                <Plus className="size-3.5" />
-                Novo
-              </Button>
+        <div className="grid gap-x-6 gap-y-5 md:grid-cols-2">
+          {/* Header: Currículos Recentes */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <FileText className="size-5 text-sky-400" />
+              <h2 className="text-base font-semibold text-zinc-300">
+                Currículos Recentes
+              </h2>
             </div>
-            <Card className="border-white/6 bg-white/2">
-              <CardContent className="p-0">
-                {recentResumes.map((resume, idx) => (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 cursor-pointer gap-1.5 px-2.5 text-sm text-zinc-500 hover:bg-white/5 hover:text-zinc-300"
+            >
+              <Plus className="size-3.5" />
+              Novo
+            </Button>
+          </div>
+
+          {/* Header: Últimas Ferramentas Acessadas */}
+          <div className="flex items-center gap-2.5">
+            <Clock className="size-5 text-blue-400" />
+            <h2 className="text-base font-semibold text-zinc-300">
+              Últimas Ferramentas Acessadas
+            </h2>
+          </div>
+
+          {/* Card: Currículos Recentes */}
+          <Card className="border-white/6 bg-white/2">
+            <CardContent className="p-0">
+              {recentResumes.map((resume, idx) => (
+                <div
+                  key={resume.name}
+                  className={`flex cursor-pointer items-center justify-between px-5 py-4 transition-colors hover:bg-white/3 ${
+                    idx !== recentResumes.length - 1
+                      ? "border-b border-white/5"
+                      : ""
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-sky-500/10">
+                      <FileText className="size-4 text-sky-400" />
+                    </div>
+                    <div>
+                      <p className="text-base font-medium leading-none text-white">
+                        {resume.name}
+                      </p>
+                      <p className="mt-1.5 text-sm text-zinc-500">
+                        {resume.updatedAt}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <p className="text-base font-bold text-emerald-400">
+                        {resume.ats}%
+                      </p>
+                      <p className="text-xs text-zinc-600">ATS Score</p>
+                    </div>
+                    <Badge
+                      variant="outline"
+                      className={`text-xs ${
+                        resume.tag === "Adaptado"
+                          ? "border-blue-500/20 bg-blue-500/8 text-blue-300"
+                          : "border-white/10 bg-white/5 text-zinc-400"
+                      }`}
+                    >
+                      {resume.tag}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+
+              {/* Footer action */}
+              <div className="border-t border-white/5 px-5 py-4">
+                <a
+                  href="#"
+                  className="flex cursor-pointer items-center gap-2 text-sm text-zinc-500 transition-colors hover:text-zinc-300"
+                >
+                  <Trophy className="size-3.5 text-zinc-600" />
+                  Ver todos os currículos
+                  <ChevronRight className="ml-auto size-3.5" />
+                </a>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Card: Últimas Ferramentas Acessadas */}
+          <Card className="border-white/6 bg-white/2">
+            <CardContent className="p-0">
+              {recentTools.map((tool, idx) => {
+                const Icon = tool.icon;
+                const isBlue = tool.color === "blue";
+                return (
                   <div
-                    key={resume.name}
+                    key={tool.name}
                     className={`flex cursor-pointer items-center justify-between px-5 py-4 transition-colors hover:bg-white/3 ${
-                      idx !== recentResumes.length - 1
+                      idx !== recentTools.length - 1
                         ? "border-b border-white/5"
                         : ""
                     }`}
                   >
                     <div className="flex items-center gap-4">
-                      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-sky-500/10">
-                        <FileText className="size-4 text-sky-400" />
-                      </div>
-                      <div>
-                        <p className="text-base font-medium leading-none text-white">
-                          {resume.name}
-                        </p>
-                        <p className="mt-1.5 text-sm text-zinc-500">
-                          {resume.updatedAt}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="text-right">
-                        <p className="text-base font-bold text-emerald-400">
-                          {resume.ats}%
-                        </p>
-                        <p className="text-xs text-zinc-600">ATS Score</p>
-                      </div>
-                      <Badge
-                        variant="outline"
-                        className={`text-xs ${
-                          resume.tag === "Adaptado"
-                            ? "border-blue-500/20 bg-blue-500/8 text-blue-300"
-                            : "border-white/10 bg-white/5 text-zinc-400"
+                      <div
+                        className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${
+                          isBlue ? "bg-blue-500/10" : "bg-sky-500/10"
                         }`}
                       >
-                        {resume.tag}
-                      </Badge>
+                        <Icon
+                          className={`size-4 ${
+                            isBlue ? "text-blue-400" : "text-sky-400"
+                          }`}
+                        />
+                      </div>
+                      <p className="text-base font-medium text-white">
+                        {tool.name}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-sm text-zinc-500">
+                        {tool.lastUsed}
+                      </span>
+                      <ExternalLink className="size-4 text-zinc-600" />
                     </div>
                   </div>
-                ))}
+                );
+              })}
 
-                {/* Footer action */}
-                <div className="border-t border-white/5 px-5 py-4">
-                  <a
-                    href="#"
-                    className="flex cursor-pointer items-center gap-2 text-sm text-zinc-500 transition-colors hover:text-zinc-300"
-                  >
-                    <Trophy className="size-3.5 text-zinc-600" />
-                    Ver todos os currículos
-                    <ChevronRight className="ml-auto size-3.5" />
-                  </a>
-                </div>
-              </CardContent>
-            </Card>
-          </section>
-
-          {/* Recent Tools */}
-          <section>
-            <div className="mb-5 flex items-center gap-2.5">
-              <Clock className="size-5 text-blue-400" />
-              <h2 className="text-base font-semibold text-zinc-300">
-                Últimas Ferramentas Acessadas
-              </h2>
-            </div>
-            <Card className="border-white/6 bg-white/2">
-              <CardContent className="p-0">
-                {recentTools.map((tool, idx) => {
-                  const Icon = tool.icon;
-                  const isBlue = tool.color === "blue";
-                  return (
-                    <div
-                      key={tool.name}
-                      className={`flex cursor-pointer items-center justify-between px-5 py-4 transition-colors hover:bg-white/3 ${
-                        idx !== recentTools.length - 1
-                          ? "border-b border-white/5"
-                          : ""
-                      }`}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div
-                          className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${
-                            isBlue ? "bg-blue-500/10" : "bg-sky-500/10"
-                          }`}
-                        >
-                          <Icon
-                            className={`size-4 ${
-                              isBlue ? "text-blue-400" : "text-sky-400"
-                            }`}
-                          />
-                        </div>
-                        <p className="text-base font-medium text-white">
-                          {tool.name}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2.5">
-                        <span className="text-sm text-zinc-500">
-                          {tool.lastUsed}
-                        </span>
-                        <ExternalLink className="size-4 text-zinc-600" />
-                      </div>
-                    </div>
-                  );
-                })}
-
-                {/* Footer action */}
-                <div className="border-t border-white/5 px-5 py-4">
-                  <a
-                    href="#"
-                    className="flex cursor-pointer items-center gap-2 text-sm text-zinc-500 transition-colors hover:text-zinc-300"
-                  >
-                    <Zap className="size-3.5 text-zinc-600" />
-                    Ver todas as ferramentas
-                    <ChevronRight className="ml-auto size-3.5" />
-                  </a>
-                </div>
-              </CardContent>
-            </Card>
-          </section>
+              {/* Footer action */}
+              <div className="border-t border-white/5 px-5 py-4">
+                <a
+                  href="#"
+                  className="flex cursor-pointer items-center gap-2 text-sm text-zinc-500 transition-colors hover:text-zinc-300"
+                >
+                  <Zap className="size-3.5 text-zinc-600" />
+                  Ver todas as ferramentas
+                  <ChevronRight className="ml-auto size-3.5" />
+                </a>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </main>
     </div>
