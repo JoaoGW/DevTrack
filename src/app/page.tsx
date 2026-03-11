@@ -40,6 +40,7 @@ export default function Home() {
 
   // Store para o contexto de autenticação do usuário atual para toda a aplicação
   const {
+    user,
     setUser,
     setToken,
     setCredential,
@@ -49,6 +50,8 @@ export default function Home() {
   } = useAuthUserFirebase();
   // Provider do Firebase para o método de login com GitHub
   const provider = new GithubAuthProvider();
+  provider.addScope("read:user");
+  provider.addScope("repo");
 
   // Método de login por popup no provider do método GitHub
   const handleGithubLogin = () => {
