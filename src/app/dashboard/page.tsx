@@ -12,6 +12,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import AnimatedStat from "@/components/AnimatedStat";
+import { LoadingGeneralContent } from "@/components/Loading/loading";
 
 import { useAuthUserFirebase } from "@/store/authUser.store";
 import { auth } from "@/services/firebase";
@@ -163,7 +164,13 @@ const SCORE_DEG = (SCORE_VALUE / 100) * 360;
 // ─── Component ───────────────────────────────────────────
 export default function Dashboard() {
   const router = useRouter();
-  const { user, setUser, setToken, setCredential } = useAuthUserFirebase();
+  const { user, setUser, setToken, setCredential, isLoading } =
+    useAuthUserFirebase();
+
+  const displayName = user?.displayName ?? "Desenvolvedor";
+  const firstName = displayName.split(" ")[0];
+  const photoURL = user?.photoURL;
+  const handle = user?.email?.split("@")[0] ?? "dev";
 
   const handleSignOut = async () => {
     await signOut(auth);
@@ -173,10 +180,9 @@ export default function Dashboard() {
     router.push("/");
   };
 
-  const displayName = user?.displayName ?? "Desenvolvedor";
-  const firstName = displayName.split(" ")[0];
-  const photoURL = user?.photoURL;
-  const handle = user?.email?.split("@")[0] ?? "dev";
+  if (isLoading) {
+    return <LoadingGeneralContent />;
+  }
 
   return (
     <div
