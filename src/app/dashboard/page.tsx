@@ -51,6 +51,7 @@ import {
   Crown,
   LucideIcon,
 } from "lucide-react";
+import { Navbar } from "@/components/Navbar";
 
 interface IGitHubStats {
   label: string;
@@ -192,15 +193,6 @@ export default function Dashboard() {
     fetchGithubData();
   }, [token]);
 
-  // Logoff da aplicação
-  const handleSignOut = async () => {
-    await signOut(auth);
-    setUser(null);
-    setToken(undefined);
-    setCredential(null);
-    router.push("/");
-  };
-
   // Verifica status da página com user autenticado
   if (isLoading) {
     return <LoadingGeneralContent />;
@@ -212,98 +204,12 @@ export default function Dashboard() {
       style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
     >
       {/* ── NAVBAR ── */}
-      <header className="sticky top-0 z-50 border-b border-white/6 bg-[#080810]/80 backdrop-blur-xl">
-        <div className="flex w-full items-center justify-between px-10 py-5">
-          {/* Logo clicável */}
-          <a
-            href="/dashboard"
-            className="flex cursor-pointer items-center gap-2.5"
-          >
-            <div className="flex size-10 items-center justify-center rounded-lg bg-blue-600">
-              <GitBranch className="size-5 text-white" />
-            </div>
-            <span className="text-xl font-bold tracking-tight">DevTrack</span>
-          </a>
-
-          {/* Nav links */}
-          <nav className="absolute left-1/2 -translate-x-1/2 hidden items-center gap-1 md:flex">
-            {[
-              { label: "Dashboard", href: "/dashboard", active: true },
-              { label: "Portfólio", href: "#", active: false },
-              { label: "Currículos", href: "#", active: false },
-              { label: "Score", href: "#", active: false },
-              { label: "Simulador", href: "#", active: false },
-            ].map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                className={`cursor-pointer rounded-md px-5 py-2.5 text-base font-medium transition-colors ${
-                  item.active
-                    ? "bg-white/8 text-white"
-                    : "text-zinc-400 hover:bg-white/5 hover:text-white"
-                }`}
-              >
-                {item.label}
-              </a>
-            ))}
-          </nav>
-
-          {/* Right side */}
-          <div className="flex items-center gap-3">
-            {/* Notification bell */}
-            <button className="relative flex size-10 cursor-pointer items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-white/5 hover:text-white">
-              <Bell className="size-5" />
-              <span className="absolute right-2 top-2 size-2 rounded-full bg-blue-500" />
-            </button>
-
-            {/* Divider */}
-            <div className="h-7 w-px bg-white/10" />
-
-            {/* User info */}
-            <div className="flex items-center gap-3">
-              {photoURL ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={photoURL}
-                  alt={displayName}
-                  className="size-9 rounded-full object-cover ring-1 ring-white/10"
-                />
-              ) : (
-                <div className="flex size-9 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
-                  {displayName[0]?.toUpperCase() ?? "U"}
-                </div>
-              )}
-              <div className="hidden sm:block">
-                <p className="text-base font-medium leading-none text-white">
-                  {displayName}
-                </p>
-                <p className="mt-0.5 text-sm text-zinc-500">@{handle}</p>
-              </div>
-            </div>
-
-            {/* GitHub link */}
-            <a
-              href={`https://github.com/${username}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden size-10 cursor-pointer items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-white/5 hover:text-white sm:flex"
-            >
-              <Github className="size-5" />
-            </a>
-
-            {/* Sign out */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="hidden cursor-pointer gap-1.5 text-sm text-zinc-400 transition-colors hover:bg-red-500/10 hover:text-red-400 sm:flex"
-              onClick={handleSignOut}
-            >
-              <LogOut className="size-4" />
-              <span>Sair</span>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <Navbar
+        displayName={displayName}
+        handle={handle}
+        photoURL={photoURL}
+        username={username}
+      />
 
       {/* ── MAIN CONTENT ── */}
       <main className="mx-auto max-w-screen-xl space-y-10 px-10 py-12">
@@ -505,6 +411,9 @@ export default function Dashboard() {
                 <Card
                   key={tool.title}
                   className="cursor-pointer border-white/6 bg-white/2 transition-all duration-200 hover:border-blue-500/20 hover:bg-white/5"
+                  onClick={() => {
+                    router.push(tool.route);
+                  }}
                 >
                   <CardHeader className="pb-2">
                     <div className="mb-4 flex items-center justify-between">
