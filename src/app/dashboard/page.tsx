@@ -92,7 +92,6 @@ export default function Dashboard() {
 
   // Informações para a Navbar e Banner
   const displayName = user?.displayName ?? "Desenvolvedor";
-  const firstName = displayName.split(" ")[0];
   const photoURL = user?.photoURL;
   const handle = user?.email?.split("@")[0] ?? "dev";
 
@@ -103,6 +102,8 @@ export default function Dashboard() {
     { label: "Seguidores", value: 0, icon: Users, accent: "sky" },
     { label: "Contribuições", value: 0, icon: Activity, accent: "emerald" },
   ]);
+  // Todas as informações de GitHub Data (GraphQL + Rest API)
+  const [username, setUsername] = useState<string>();
 
   // Captura das informações de dados de estatística do usuário atualmente autenticado, repositórios e outros pela API REST do GitHub
   useEffect(() => {
@@ -150,10 +151,14 @@ export default function Dashboard() {
         { login: userData.login },
       );
 
+      // Soma/cálculo de todas as contribuições do usuário por onde ele teve atividade nos últimos 365 dias
       const totalContributions =
         ghUser.contributionsCollection.totalCommitContributions +
         ghUser.contributionsCollection.totalPullRequestContributions +
         ghUser.contributionsCollection.totalIssueContributions;
+
+      // Capturando o username do usuário para fazer sistema de links e rotas
+      setUsername(userData.login);
 
       // Substitui os valores default da seção Estatísticas do GitHub
       setGithubStats([
@@ -265,12 +270,12 @@ export default function Dashboard() {
                 />
               ) : (
                 <div className="flex size-9 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
-                  {firstName[0]?.toUpperCase() ?? "U"}
+                  {displayName[0]?.toUpperCase() ?? "U"}
                 </div>
               )}
               <div className="hidden sm:block">
                 <p className="text-base font-medium leading-none text-white">
-                  {firstName}
+                  {displayName}
                 </p>
                 <p className="mt-0.5 text-sm text-zinc-500">@{handle}</p>
               </div>
@@ -278,7 +283,7 @@ export default function Dashboard() {
 
             {/* GitHub link */}
             <a
-              href={`https://github.com/${handle}`}
+              href={`https://github.com/${username}`}
               target="_blank"
               rel="noopener noreferrer"
               className="hidden size-10 cursor-pointer items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-white/5 hover:text-white sm:flex"
@@ -322,7 +327,7 @@ export default function Dashboard() {
             <div className="relative">
               <p className="text-base text-zinc-500">{getGreeting()},</p>
               <h1 className="mt-1 text-4xl font-extrabold text-white">
-                {firstName}! 👋
+                {displayName}! 👋
               </h1>
               <p className="mt-3 max-w-sm text-base text-zinc-400">
                 Seu perfil está ficando cada vez mais forte. Continue evoluindo!
