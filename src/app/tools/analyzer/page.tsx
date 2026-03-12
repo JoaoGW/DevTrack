@@ -52,8 +52,7 @@ interface IAnalysisResult {
   suggestedTitle: string;
 }
 
-// Helpers
-
+// Cores das badges de Linguagens de Programação por repositório
 const LANGUAGE_COLORS: Record<string, string> = {
   TypeScript: "border-blue-500/20 bg-blue-500/10 text-blue-300",
   JavaScript: "border-yellow-500/20 bg-yellow-500/10 text-yellow-300",
@@ -71,11 +70,7 @@ const LANGUAGE_COLORS: Record<string, string> = {
   default: "border-zinc-500/20 bg-zinc-500/10 text-zinc-300",
 };
 
-function getLangColor(lang: string | null) {
-  if (!lang) return LANGUAGE_COLORS.default;
-  return LANGUAGE_COLORS[lang] ?? LANGUAGE_COLORS.default;
-}
-
+// Mapeamento das Linguagens de Programação por repositório
 const STACK_MAP: Record<string, string[]> = {
   TypeScript: ["TypeScript", "Node.js", "ESLint", "Prettier"],
   JavaScript: ["JavaScript (ES6+)", "Node.js", "npm"],
@@ -90,28 +85,29 @@ const STACK_MAP: Record<string, string[]> = {
   Kotlin: ["Kotlin", "Gradle", "JVM"],
 };
 
-const DESCRIPTION_TEMPLATES = [
-  (name: string, lang: string) =>
-    `Projeto ${name} desenvolvido com foco em boas práticas de engenharia de software. Implementa arquitetura modular e escalável, com código limpo e bem documentado. Demonstra domínio sobre ${lang} e capacidade de estruturar soluções técnicas robustas.`,
-  (name: string, lang: string) =>
-    `Solução full-featured ${name} construída para resolver problemas reais com código eficiente e manutenível. O projeto evidencia habilidade com ${lang}, aplicando padrões modernos de desenvolvimento e estrutura de projeto profissional.`,
-  (name: string, lang: string) =>
-    `Repositório ${name} que demonstra proficiência técnica em ${lang}. Código organizado com separação clara de responsabilidades, ideal para showcase em portfólio profissional e demonstração de competências técnicas avançadas.`,
-];
+// Captura das cores das badges de Linguagens de Programação por repositório
+function getLangColor(lang: string | null) {
+  if (!lang) return LANGUAGE_COLORS.default;
+  return LANGUAGE_COLORS[lang] ?? LANGUAGE_COLORS.default;
+}
 
-function generateAnalysis(repo: IGitHubRepo): IAnalysisResult {
-  const lang = repo.language ?? "múltiplas linguagens";
-  const template =
-    DESCRIPTION_TEMPLATES[repo.id % DESCRIPTION_TEMPLATES.length];
-  const baseStack = STACK_MAP[repo.language ?? ""] ?? ["JavaScript", "Node.js"];
+// Solicita a análise do repositório à IA, combinando com informações dinâmicas sobre stats do repositório
+async function generateAnalysis(repo: IGitHubRepo): Promise<IAnalysisResult> {
+  // Quadrante de Stack Detectada
+  const baseStack = STACK_MAP[repo.language ?? ""] ?? [
+    "Não foi possível detectar a stack deste projeto",
+    "Certifique-se de que há código na branch default",
+  ];
   const stack = [...baseStack];
   repo.topics?.slice(0, 3).forEach((t) => {
     if (!stack.includes(t)) stack.push(t);
   });
 
+  // Quadrante de Destaques do Projeto
+  const lang = repo.language ?? "múltiplas linguagens";
   const highlights: string[] = [
     "Estrutura de código modular e bem organizada",
-    `Desenvolvido em ${lang} com boas práticas`,
+    `Desenvolvido em ${lang} com algumas boas práticas de software`,
     repo.stargazers_count > 0
       ? `${repo.stargazers_count} estrelas na comunidade GitHub`
       : "Projeto open-source disponível no GitHub",
@@ -120,18 +116,49 @@ function generateAnalysis(repo: IGitHubRepo): IAnalysisResult {
       : "Código aberto para colaboração e contribuição",
   ];
 
-  return {
-    repoId: repo.id,
-    repoName: repo.name,
-    professionalDescription: template(repo.name, lang),
-    stack,
-    highlights,
-    suggestedTitle: `${repo.name
-      .replace(/-/g, " ")
-      .replace(/\b\w/g, (c) =>
-        c.toUpperCase(),
-      )} — ${repo.language ?? "Full-Stack"} Developer`,
-  };
+  const checkIfPreviousAnalyze = localStorage.getItem(repo.name);
+  if (checkIfPreviousAnalyze === null) {
+    // Requisição ao modelo Mini da OpenAI
+    const apiResponse = await fetch("/api/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        devInput:
+          "[ROLE]:Analista TechLead; [CONTEXT]:Você está ajudando Devs a arrumar emprego; [TASK]:Escreva uma descrição detalhada e chamativa para a seção de projetos do currículo seguindo o projeto do link GitHub enviado; [OUTPUT]:Resposta em texto human-friendly;",
+        userInput: `Link para gerar descrição: ${repo.html_url}`,
+      }),
+    });
+    const { content } = await apiResponse.json();
+    localStorage.setItem(repo.name, content);
+
+    return {
+      repoId: repo.id,
+      repoName: repo.name,
+      professionalDescription: content,
+      stack,
+      highlights,
+      suggestedTitle: `${repo.name
+        .replace(/-/g, " ")
+        .replace("_", " ")
+        .replace(/\b\w/g, (c) =>
+          c.toUpperCase(),
+        )} - Projeto ${repo.language ?? "Full-Stack"}`,
+    };
+  } else {
+    return {
+      repoId: repo.id,
+      repoName: repo.name,
+      professionalDescription: checkIfPreviousAnalyze,
+      stack,
+      highlights,
+      suggestedTitle: `${repo.name
+        .replace(/-/g, " ")
+        .replace("_", " ")
+        .replace(/\b\w/g, (c) =>
+          c.toUpperCase(),
+        )} - Projeto ${repo.language ?? "Full-Stack"}`,
+    };
+  }
 }
 
 function formatDate(d: string | null) {
@@ -161,14 +188,13 @@ export default function Analyzer() {
   const [repos, setRepos] = useState<IGitHubRepo[]>([]);
   const [isLoadingRepos, setIsLoadingRepos] = useState(true);
   const [repoError, setRepoError] = useState<string | null>(null);
-
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRepo, setSelectedRepo] = useState<IGitHubRepo | null>(null);
   const [analysis, setAnalysis] = useState<IAnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzeStep, setAnalyzeStep] = useState(0);
 
-  // Fetch Repos
+  // Fetch Repos (públicos e privados) do GitHub daquele usuário
   useEffect(() => {
     if (!token) return;
     const octokit = new Octokit({ auth: token });
@@ -199,8 +225,7 @@ export default function Analyzer() {
     })();
   }, [token]);
 
-  // ── Analyze ───────────────────────────────────────────────────────────────
-
+  // Simulação de análise com await para resposta da IA
   const handleAnalyze = (repo: IGitHubRepo) => {
     setSelectedRepo(repo);
     setAnalysis(null);
@@ -209,8 +234,9 @@ export default function Analyzer() {
 
     const t1 = setTimeout(() => setAnalyzeStep(1), 600);
     const t2 = setTimeout(() => setAnalyzeStep(2), 1200);
-    const t3 = setTimeout(() => {
-      setAnalysis(generateAnalysis(repo));
+    const t3 = setTimeout(async () => {
+      const result = await generateAnalysis(repo);
+      setAnalysis(result);
       setIsAnalyzing(false);
     }, 1900);
 
@@ -221,15 +247,12 @@ export default function Analyzer() {
     };
   };
 
-  // ── Filtered list ─────────────────────────────────────────────────────────
-
+  // Filtro de repositórios com a Search Bar
   const filteredRepos = repos.filter(
     (r) =>
       r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (r.description ?? "").toLowerCase().includes(searchQuery.toLowerCase()),
   );
-
-  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
     <div
