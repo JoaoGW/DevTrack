@@ -67,6 +67,12 @@ const LANGUAGE_COLORS: Record<string, string> = {
   Kotlin: "border-purple-400/20 bg-purple-400/10 text-purple-300",
   CSS: "border-pink-500/20 bg-pink-500/10 text-pink-300",
   HTML: "border-red-400/20 bg-red-400/10 text-red-300",
+  SQL: "border-emerald-500/20 bg-emerald-500/10 text-emerald-300",
+  Dart: "border-cyan-600/20 bg-cyan-600/10 text-cyan-300",
+  Scala: "border-indigo-500/20 bg-indigo-500/10 text-indigo-300",
+  Shell: "border-zinc-600/20 bg-zinc-600/10 text-zinc-300",
+  R: "border-green-700/20 bg-green-700/10 text-green-400",
+  Vue: "border-green-500/20 bg-green-500/10 text-green-300",
   default: "border-zinc-500/20 bg-zinc-500/10 text-zinc-300",
 };
 
@@ -83,6 +89,17 @@ const STACK_MAP: Record<string, string[]> = {
   PHP: ["PHP", "Composer"],
   Swift: ["Swift", "SPM", "Xcode"],
   Kotlin: ["Kotlin", "Gradle", "JVM"],
+  SQL: ["SQL", "PostgreSQL", "MySQL"],
+  Dart: ["Dart", "Flutter", "pub"],
+  Scala: ["Scala", "sbt", "Akka"],
+  Shell: ["Shell", "Bash", "POSIX"],
+  R: ["R", "CRAN", "tidyverse"],
+  Vue: ["Vue", "JavaScript/TypeScript", "Vite / Vue CLI", "Nuxt.js"],
+  React: ["React", "JavaScript/TypeScript", "Vite / Create React App"],
+  "Next.js": ["Next.js", "React", "Vercel"],
+  Express: ["Node.js", "Express", "npm"],
+  Django: ["Python", "Django", "pip"],
+  "Spring Boot": ["Java", "Spring Boot", "Maven / Gradle"],
 };
 
 // Captura das cores das badges de Linguagens de Programação por repositório
@@ -124,8 +141,9 @@ async function generateAnalysis(repo: IGitHubRepo): Promise<IAnalysisResult> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         devInput:
-          "[ROLE]:Analista TechLead; [CONTEXT]:Você está ajudando Devs a arrumar emprego; [TASK]:Escreva uma descrição detalhada e chamativa para a seção de projetos do currículo seguindo o projeto do link GitHub enviado; [OUTPUT]:Resposta em texto human-friendly;",
-        userInput: `Link para gerar descrição: ${repo.html_url}`,
+          "[ROLE]:Analista TechLead; [CONTEXT]:Você está ajudando Devs a arrumar emprego; [TASK]:Escreva uma descrição detalhada e chamativa para a seção de projetos do currículo seguindo o projeto do link GitHub enviado; [OUTPUT]:Descrição de até 325 caracteres, mínimo 275 caracteres. No final da descrição, liste as tecnologias neste modelo: Tecnologias Utilizadas: Tech1, Tech2, etc; [RULES]:Nunca invente informações.",
+        miniInput: `Gere a descrição de: ${repo.html_url}`,
+        maxTokens: 100,
       }),
     });
     const { content } = await apiResponse.json();
@@ -308,7 +326,8 @@ export default function Analyzer() {
 
               <p className="max-w-lg text-base text-zinc-400">
                 Analise seus repositórios com IA e gere descrições profissionais
-                com a stack detectada automaticamente.
+                com a stack detectada automaticamente. Adicione seus projetos ao
+                seu currículo e portfólio online.
               </p>
             </div>
 
@@ -432,7 +451,10 @@ export default function Analyzer() {
                   return (
                     <div
                       key={repo.id}
-                      className={`rounded-2xl border p-5 transition-all duration-200 ${
+                      onClick={() => {
+                        setSelectedRepo(repo);
+                      }}
+                      className={`rounded-2xl border p-5 transition-all duration-200 cursor-pointer ${
                         isSelected
                           ? "border-blue-500/30 bg-blue-500/5"
                           : "border-white/6 bg-white/2 hover:border-white/10 hover:bg-white/4"
@@ -503,7 +525,9 @@ export default function Analyzer() {
                           ) : (
                             <>
                               <Sparkles className="size-3.5" />
-                              Analisar
+                              {analysis?.repoId === repo.id
+                                ? "Ver análise"
+                                : "Analisar"}
                             </>
                           )}
                         </Button>
@@ -554,6 +578,85 @@ export default function Analyzer() {
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Selected repo preview (before analysis) */}
+            {selectedRepo && !isAnalyzing && !analysis && (
+              <div className="flex flex-col gap-4">
+                <div
+                  className="rounded-2xl border border-white/10 p-6"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(8,8,16,0) 60%)",
+                  }}
+                >
+                  <div className="mb-5 flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-10 items-center justify-center rounded-xl bg-white/5">
+                        <Github className="size-5 text-zinc-400" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-white">
+                          {selectedRepo.name}
+                        </p>
+                        <a
+                          href={selectedRepo.html_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-xs text-zinc-500 transition-colors hover:text-blue-400"
+                        >
+                          Ver no GitHub
+                          <ExternalLink className="size-3" />
+                        </a>
+                      </div>
+                    </div>
+                    {selectedRepo.language && (
+                      <Badge
+                        variant="outline"
+                        className={`text-xs ${getLangColor(selectedRepo.language)}`}
+                      >
+                        <Code2 className="mr-1 size-3" />
+                        {selectedRepo.language}
+                      </Badge>
+                    )}
+                  </div>
+
+                  <div className="mb-5">
+                    <p className="mb-1.5 text-xs uppercase tracking-wider text-zinc-600">
+                      Descrição
+                    </p>
+                    <p className="text-sm leading-relaxed text-zinc-300">
+                      {selectedRepo.description ?? "Sem descrição disponível."}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-4 border-t border-white/6 pt-4">
+                    <div className="flex items-center gap-1.5 text-xs text-zinc-500">
+                      <Star className="size-3.5" />
+                      <span>{selectedRepo.stargazers_count} estrelas</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-zinc-500">
+                      <GitFork className="size-3.5" />
+                      <span>{selectedRepo.forks_count} forks</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-zinc-500">
+                      <Clock className="size-3.5" />
+                      <span>
+                        Atualizado em {formatDate(selectedRepo.updated_at)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <Button
+                  className="w-full h-12 cursor-pointer gap-2 bg-blue-600 text-white shadow-lg shadow-blue-950/40 hover:bg-blue-500"
+                  size="default"
+                  onClick={() => handleAnalyze(selectedRepo)}
+                >
+                  <Sparkles className="size-5" />
+                  Analisar com IA
+                </Button>
               </div>
             )}
 
@@ -659,7 +762,7 @@ export default function Analyzer() {
                       variant="outline"
                       className="border-emerald-500/20 bg-emerald-500/8 text-xs text-emerald-300"
                     >
-                      IA Gerado
+                      Gerada com IA
                     </Badge>
                   </div>
 
