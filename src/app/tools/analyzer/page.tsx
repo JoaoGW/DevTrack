@@ -10,6 +10,11 @@ import { Card, CardContent } from "@/components/ui/card";
 
 import { useAuthUserFirebase } from "@/store/authUser.store";
 
+import { IAnalysisResult } from "@/app/contentData/analyze/interfaces/IAnalysisResult";
+import { IGitHubRepo } from "@/app/contentData/analyze/interfaces/IGitHubRepo";
+import { getLangColor } from "@/app/contentData/analyze/utils/helpers";
+import { STACK_MAP } from "@/app/contentData/analyze/stackMap";
+
 import {
   Github,
   Search,
@@ -29,88 +34,11 @@ import {
   Layers,
 } from "lucide-react";
 
-// Tipagens dos itens vindos do Repositório
-interface IGitHubRepo {
-  id: number;
-  name: string;
-  description: string | null;
-  html_url: string;
-  language: string | null;
-  stargazers_count: number;
-  forks_count: number;
-  updated_at: string | null;
-  topics: string[];
-}
-
-// Tipagem dos resultados vindos da IA
-interface IAnalysisResult {
-  repoId: number;
-  repoName: string;
-  professionalDescription: string;
-  stack: string[];
-  highlights: string[];
-  suggestedTitle: string;
-}
-
-// Cores das badges de Linguagens de Programação por repositório
-const LANGUAGE_COLORS: Record<string, string> = {
-  TypeScript: "border-blue-500/20 bg-blue-500/10 text-blue-300",
-  JavaScript: "border-yellow-500/20 bg-yellow-500/10 text-yellow-300",
-  Python: "border-sky-500/20 bg-sky-500/10 text-sky-300",
-  Java: "border-orange-500/20 bg-orange-500/10 text-orange-300",
-  "C#": "border-purple-500/20 bg-purple-500/10 text-purple-300",
-  Go: "border-cyan-500/20 bg-cyan-500/10 text-cyan-300",
-  Rust: "border-orange-600/20 bg-orange-600/10 text-orange-400",
-  Ruby: "border-red-500/20 bg-red-500/10 text-red-300",
-  PHP: "border-violet-500/20 bg-violet-500/10 text-violet-300",
-  Swift: "border-orange-400/20 bg-orange-400/10 text-orange-300",
-  Kotlin: "border-purple-400/20 bg-purple-400/10 text-purple-300",
-  CSS: "border-pink-500/20 bg-pink-500/10 text-pink-300",
-  HTML: "border-red-400/20 bg-red-400/10 text-red-300",
-  SQL: "border-emerald-500/20 bg-emerald-500/10 text-emerald-300",
-  Dart: "border-cyan-600/20 bg-cyan-600/10 text-cyan-300",
-  Scala: "border-indigo-500/20 bg-indigo-500/10 text-indigo-300",
-  Shell: "border-zinc-600/20 bg-zinc-600/10 text-zinc-300",
-  R: "border-green-700/20 bg-green-700/10 text-green-400",
-  Vue: "border-green-500/20 bg-green-500/10 text-green-300",
-  default: "border-zinc-500/20 bg-zinc-500/10 text-zinc-300",
-};
-
-// Mapeamento das Linguagens de Programação por repositório
-const STACK_MAP: Record<string, string[]> = {
-  TypeScript: ["TypeScript", "Node.js", "ESLint", "Prettier"],
-  JavaScript: ["JavaScript (ES6+)", "Node.js", "npm"],
-  Python: ["Python 3", "pip", "venv"],
-  Java: ["Java", "Maven / Gradle", "JVM"],
-  "C#": ["C#", ".NET", "NuGet"],
-  Go: ["Go", "Go Modules"],
-  Rust: ["Rust", "Cargo"],
-  Ruby: ["Ruby", "Bundler"],
-  PHP: ["PHP", "Composer"],
-  Swift: ["Swift", "SPM", "Xcode"],
-  Kotlin: ["Kotlin", "Gradle", "JVM"],
-  SQL: ["SQL", "PostgreSQL", "MySQL"],
-  Dart: ["Dart", "Flutter", "pub"],
-  Scala: ["Scala", "sbt", "Akka"],
-  Shell: ["Shell", "Bash", "POSIX"],
-  R: ["R", "CRAN", "tidyverse"],
-  Vue: ["Vue", "JavaScript/TypeScript", "Vite / Vue CLI", "Nuxt.js"],
-  React: ["React", "JavaScript/TypeScript", "Vite / Create React App"],
-  "Next.js": ["Next.js", "React", "Vercel"],
-  Express: ["Node.js", "Express", "npm"],
-  Django: ["Python", "Django", "pip"],
-  "Spring Boot": ["Java", "Spring Boot", "Maven / Gradle"],
-};
-
-// Captura das cores das badges de Linguagens de Programação por repositório
-function getLangColor(lang: string | null) {
-  if (!lang) return LANGUAGE_COLORS.default;
-  return LANGUAGE_COLORS[lang] ?? LANGUAGE_COLORS.default;
-}
-
-// Solicita a análise do repositório à IA, combinando com informações dinâmicas sobre stats do repositório
-async function generateAnalysis(repo: IGitHubRepo): Promise<IAnalysisResult> {
-  // Quadrante de Stack Detectada
+// Constrói o resultado da análise a partir de uma descrição já disponível (cache ou IA)
+function buildAnalysisResult(
+  repo: IGitHubRepo,
+  description: string,
+): IAnalysisResult {
   const baseStack = STACK_MAP[repo.language ?? ""] ?? [
     "Não foi possível detectar a stack deste projeto",
     "Certifique-se de que há código na branch default",
@@ -120,63 +48,119 @@ async function generateAnalysis(repo: IGitHubRepo): Promise<IAnalysisResult> {
     if (!stack.includes(t)) stack.push(t);
   });
 
-  // Quadrante de Destaques do Projeto
   const lang = repo.language ?? "múltiplas linguagens";
-  const highlights: string[] = [
-    "Estrutura de código modular e bem organizada",
-    `Desenvolvido em ${lang} com algumas boas práticas de software`,
-    repo.stargazers_count > 0
-      ? `${repo.stargazers_count} estrelas na comunidade GitHub`
-      : "Projeto open-source disponível no GitHub",
-    repo.forks_count > 0
-      ? `${repo.forks_count} forks demonstrando impacto na comunidade`
-      : "Código aberto para colaboração e contribuição",
-  ];
-
-  const checkIfPreviousAnalyze = localStorage.getItem(repo.name);
-  if (checkIfPreviousAnalyze === null) {
-    // Requisição ao modelo Mini da OpenAI
-    const apiResponse = await fetch("/api/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        devInput:
-          "[ROLE]:Analista TechLead; [CONTEXT]:Você está ajudando Devs a arrumar emprego; [TASK]:Escreva uma descrição detalhada e chamativa para a seção de projetos do currículo seguindo o projeto do link GitHub enviado; [OUTPUT]:Descrição de até 325 caracteres, mínimo 275 caracteres. No final da descrição, liste as tecnologias neste modelo: Tecnologias Utilizadas: Tech1, Tech2, etc; [RULES]:Nunca invente informações.",
-        miniInput: `Gere a descrição de: ${repo.html_url}`,
-        maxTokens: 100,
-      }),
-    });
-    const { content } = await apiResponse.json();
-    localStorage.setItem(repo.name, content);
-
-    return {
-      repoId: repo.id,
-      repoName: repo.name,
-      professionalDescription: content,
-      stack,
-      highlights,
-      suggestedTitle: `${repo.name
-        .replace(/-/g, " ")
-        .replace("_", " ")
-        .replace(/\b\w/g, (c) =>
-          c.toUpperCase(),
-        )} - Projeto ${repo.language ?? "Full-Stack"}`,
-    };
-  } else {
-    return {
-      repoId: repo.id,
-      repoName: repo.name,
-      professionalDescription: checkIfPreviousAnalyze,
-      stack,
-      highlights,
-      suggestedTitle: `${repo.name
-        .replace(/-/g, " ")
-        .replace("_", " ")
-        .replace(/\b\w/g, (c) =>
-          c.toUpperCase(),
-        )} - Projeto ${repo.language ?? "Full-Stack"}`,
-    };
+  const highlights: string[] = [];
+  if (repo.language) {
+    highlights.push(
+      `Desenvolvido em ${lang} com algumas boas práticas de software`,
+    );
   }
+  if (repo.stargazers_count > 0) {
+    highlights.push(`${repo.stargazers_count} estrelas na comunidade GitHub`);
+  }
+  if (repo.forks_count > 0) {
+    highlights.push(
+      `${repo.forks_count} forks demonstrando impacto na comunidade`,
+    );
+  }
+  const topics = repo.topics ?? [];
+  if (topics.length > 0) {
+    highlights.push(`Principais tópicos: ${topics.slice(0, 3).join(", ")}`);
+
+    const lowerTopics = topics.map((t) => t.toLowerCase());
+    if (
+      lowerTopics.includes("documentation") ||
+      lowerTopics.includes("docs") ||
+      lowerTopics.includes("readme")
+    ) {
+      highlights.push("Boa documentação e README com instruções de uso");
+    }
+    if (
+      lowerTopics.includes("tests") ||
+      lowerTopics.includes("unit-tests") ||
+      lowerTopics.includes("testing") ||
+      lowerTopics.includes("jest")
+    ) {
+      highlights.push("Cobertura de testes automatizados e exemplos de testes");
+    }
+    if (
+      lowerTopics.includes("ci") ||
+      lowerTopics.includes("github-actions") ||
+      lowerTopics.includes("ci/cd") ||
+      lowerTopics.includes("actions")
+    ) {
+      highlights.push(
+        "Pipeline de CI/CD configurado (workflows e integrações)",
+      );
+    }
+    if (
+      lowerTopics.includes("security") ||
+      lowerTopics.includes("auth") ||
+      lowerTopics.includes("oauth") ||
+      lowerTopics.includes("jwt")
+    ) {
+      highlights.push("Boas práticas de segurança e controle de acesso");
+    }
+    if (
+      lowerTopics.includes("architecture") ||
+      lowerTopics.includes("modular") ||
+      lowerTopics.includes("monorepo")
+    ) {
+      highlights.push("Arquitetura pensada para manutenção e escalabilidade");
+    }
+  }
+  if (repo.updated_at) {
+    try {
+      const updated = new Date(repo.updated_at);
+      const daysAgo = (Date.now() - updated.getTime()) / (1000 * 60 * 60 * 24);
+      if (daysAgo < 90) {
+        highlights.push("Ativo e mantido recentemente");
+      }
+    } catch (e) {
+      // ignorar se data inválida
+    }
+  }
+  if (highlights.length === 0) {
+    highlights.push("Projeto open-source disponível no GitHub");
+    highlights.push("Uso consistente de padrões e convenções de código");
+  }
+
+  return {
+    repoId: repo.id,
+    repoName: repo.name,
+    professionalDescription: description,
+    stack,
+    highlights,
+    suggestedTitle: `${repo.name
+      .replace(/-/g, " ")
+      .replace("_", " ")
+      .replace(/\b\w/g, (c) =>
+        c.toUpperCase(),
+      )} - Projeto ${repo.language ?? "Full-Stack"}`,
+  };
+}
+
+// Solicita a análise do repositório à IA, combinando com informações dinâmicas sobre stats do repositório
+async function generateAnalysis(repo: IGitHubRepo): Promise<IAnalysisResult> {
+  const cachedDescription = localStorage.getItem(repo.name);
+  if (cachedDescription !== null) {
+    return buildAnalysisResult(repo, cachedDescription);
+  }
+
+  // Requisição ao modelo Mini da OpenAI
+  const apiResponse = await fetch("/api/analyze", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      devInput:
+        "[ROLE]:Analista TechLead; [CONTEXT]:Você está ajudando Devs a arrumar emprego montando um currículo; [TASK]:Escreva uma descrição detalhada e chamativa para a seção de projetos do currículo seguindo o projeto do link GitHub enviado; [OUTPUT]:Descrição de até 350 caracteres, mínimo 300 caracteres. No final da descrição, liste as tecnologias neste modelo: Tecnologias Utilizadas: Tech1, Tech2, etc; [RULES]:Nunca invente informações.",
+      miniInput: `Gere a descrição de: ${repo.html_url}`,
+      maxTokens: 100,
+    }),
+  });
+  const { content } = await apiResponse.json();
+  localStorage.setItem(repo.name, content);
+  return buildAnalysisResult(repo, content);
 }
 
 function formatDate(d: string | null) {
@@ -211,6 +195,9 @@ export default function Analyzer() {
   const [analysis, setAnalysis] = useState<IAnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzeStep, setAnalyzeStep] = useState(0);
+  const [cachedRepoNames, setCachedRepoNames] = useState<Set<string>>(
+    new Set(),
+  );
 
   // Fetch Repos (públicos e privados) do GitHub daquele usuário
   useEffect(() => {
@@ -233,6 +220,12 @@ export default function Analyzer() {
           headers: { "X-GitHub-Api-Version": "2022-11-28" },
         });
         setRepos(reposData as IGitHubRepo[]);
+        const cachedSet = new Set<string>(
+          (reposData as IGitHubRepo[])
+            .filter((r) => localStorage.getItem(r.name) !== null)
+            .map((r) => r.name),
+        );
+        setCachedRepoNames(cachedSet);
       } catch {
         setRepoError(
           "Não foi possível carregar seus repositórios. Verifique sua conexão e tente novamente.",
@@ -255,6 +248,11 @@ export default function Analyzer() {
     const t3 = setTimeout(async () => {
       const result = await generateAnalysis(repo);
       setAnalysis(result);
+      setCachedRepoNames((prev) => {
+        const s = new Set(prev);
+        s.add(repo.name);
+        return s;
+      });
       setIsAnalyzing(false);
     }, 1900);
 
@@ -366,7 +364,7 @@ export default function Analyzer() {
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 transition-colors hover:text-zinc-300"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 transition-colors hover:text-zinc-300 hover:cursor-pointer"
                 >
                   <X className="size-4" />
                 </button>
@@ -431,7 +429,7 @@ export default function Analyzer() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="gap-2 text-zinc-400 hover:text-zinc-200"
+                    className="gap-2 text-zinc-400 hover:bg-red-400 hover:text-white cursor-pointer"
                     onClick={() => setSearchQuery("")}
                   >
                     <X className="size-3.5" />
@@ -447,12 +445,19 @@ export default function Analyzer() {
                 {filteredRepos.map((repo) => {
                   const isSelected = selectedRepo?.id === repo.id;
                   const isThisAnalyzing = isAnalyzing && isSelected;
+                  const hasCached = cachedRepoNames.has(repo.name);
 
                   return (
                     <div
                       key={repo.id}
                       onClick={() => {
                         setSelectedRepo(repo);
+                        const cached = localStorage.getItem(repo.name);
+                        if (cached) {
+                          setAnalysis(buildAnalysisResult(repo, cached));
+                        } else {
+                          setAnalysis(null);
+                        }
                       }}
                       className={`rounded-2xl border p-5 transition-all duration-200 cursor-pointer ${
                         isSelected
@@ -507,30 +512,48 @@ export default function Analyzer() {
                         </div>
 
                         {/* Analyze button */}
-                        <Button
-                          size="sm"
-                          className={`shrink-0 cursor-pointer gap-1.5 text-xs ${
-                            isSelected
-                              ? "bg-blue-600 text-white shadow-lg shadow-blue-950/40 hover:bg-blue-500"
-                              : "border border-white/8 bg-white/5 text-zinc-300 hover:bg-blue-600 hover:text-white"
-                          }`}
-                          onClick={() => handleAnalyze(repo)}
-                          disabled={isThisAnalyzing}
-                        >
-                          {isThisAnalyzing ? (
-                            <>
-                              <RefreshCw className="size-3.5 animate-spin" />
-                              Analisando...
-                            </>
-                          ) : (
-                            <>
-                              <Sparkles className="size-3.5" />
-                              {analysis?.repoId === repo.id
-                                ? "Ver análise"
-                                : "Analisar"}
-                            </>
-                          )}
-                        </Button>
+                        {hasCached ? (
+                          <Button
+                            size="sm"
+                            className={`shrink-0 cursor-pointer gap-1.5 text-xs ${
+                              isSelected
+                                ? "bg-emerald-600 text-white shadow-lg shadow-emerald-950/40 hover:bg-emerald-500"
+                                : "border border-emerald-500/20 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-600 hover:text-white"
+                            }`}
+                            onClick={() => {
+                              setSelectedRepo(repo);
+                              const cached = localStorage.getItem(repo.name);
+                              if (cached)
+                                setAnalysis(buildAnalysisResult(repo, cached));
+                            }}
+                          >
+                            <CheckCircle2 className="size-3.5" />
+                            Ver análise
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            className={`shrink-0 cursor-pointer gap-1.5 text-xs ${
+                              isSelected
+                                ? "bg-blue-600 text-white shadow-lg shadow-blue-950/40 hover:bg-blue-500"
+                                : "border border-white/8 bg-white/5 text-zinc-300 hover:bg-blue-600 hover:text-white"
+                            }`}
+                            onClick={() => handleAnalyze(repo)}
+                            disabled={isThisAnalyzing}
+                          >
+                            {isThisAnalyzing ? (
+                              <>
+                                <RefreshCw className="size-3.5 animate-spin" />
+                                Analisando...
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles className="size-3.5" />
+                                Analisar
+                              </>
+                            )}
+                          </Button>
+                        )}
                       </div>
                     </div>
                   );

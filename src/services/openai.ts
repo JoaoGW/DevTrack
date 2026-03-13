@@ -24,8 +24,6 @@ export async function generateResponseMini(devInput: string, miniInput: string, 
     max_output_tokens: maxTokens,  // estourando 500 =~ 375 palavras
   });
 
-  console.log("RESPOSTA =>", response.output_text)
-
   return response.output_text;
 }
 
