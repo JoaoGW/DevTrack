@@ -1,8 +1,7 @@
 "use client";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { signOut } from "firebase/auth";
 import { Octokit } from "octokit";
 
 import { Button } from "@/components/ui/button";
@@ -18,7 +17,6 @@ import AnimatedStat from "@/components/AnimatedStat";
 import { LoadingGeneralContent } from "@/components/Loading/loading";
 
 import { useAuthUserFirebase } from "@/store/authUser.store";
-import { auth } from "@/services/firebase";
 
 import { tools } from "../contentData/dashboard/tools";
 
@@ -338,6 +336,9 @@ export default function Dashboard() {
             <Button
               className="cursor-pointer shrink-0 gap-2 bg-amber-500 font-semibold text-black shadow-lg shadow-amber-950/40 hover:bg-amber-400"
               size="default"
+              onClick={() => {
+                router.push("premium/gopremium");
+              }}
             >
               <Sparkles className="size-4" />
               Fazer Upgrade
