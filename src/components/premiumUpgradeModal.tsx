@@ -75,10 +75,11 @@ export function PremiumUpgradeModal({
           {/* Benefícios rápidos */}
           <ul className="mb-7 space-y-2.5 rounded-xl border border-white/5 bg-white/2 px-5 py-4">
             {[
-              "Portfólios ilimitados gerados por IA",
-              "Análises completas de projeto",
-              "Resume adapter ilimitado",
-              "Suporte prioritário",
+              "+ Análises completas de projeto no GitHub",
+              "+ Adaptações de currículo para vagas",
+              "Cover Letters profissionais e customizadas",
+              "Simulação de Entrevistas (Soft e Hard Skills)",
+              "E muitos outros benefícios exclusivos!",
             ].map((item) => (
               <li key={item} className="flex items-center gap-2.5 text-sm">
                 <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-blue-500/15">
