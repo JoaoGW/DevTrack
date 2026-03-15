@@ -337,7 +337,7 @@ export default function Dashboard() {
               className="cursor-pointer shrink-0 gap-2 bg-amber-500 font-semibold text-black shadow-lg shadow-amber-950/40 hover:bg-amber-400"
               size="default"
               onClick={() => {
-                router.push("premium/gopremium");
+                router.push("/premium/gopremium");
               }}
             >
               <Sparkles className="size-4" />
