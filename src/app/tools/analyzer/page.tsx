@@ -33,6 +33,7 @@ import {
   FileText,
   Layers,
 } from "lucide-react";
+import { PremiumUpgradeModal } from "@/components/premiumUpgradeModal";
 
 // Constrói o resultado da análise a partir de uma descrição já disponível (cache ou IA)
 function buildAnalysisResult(
@@ -195,6 +196,7 @@ export default function Analyzer() {
   const [analysis, setAnalysis] = useState<IAnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzeStep, setAnalyzeStep] = useState(0);
+  const [isPremiumModalOpen, setIsPremiumModalOpen] = useState<boolean>(false);
   const [cachedRepoNames, setCachedRepoNames] = useState<Set<string>>(
     new Set(),
   );
@@ -864,7 +866,7 @@ export default function Analyzer() {
                     variant="outline"
                     className="flex-1 cursor-pointer gap-2 border-white/10 bg-white/3 text-zinc-300 hover:border-white/20 hover:bg-white/7 hover:text-white"
                     size="default"
-                    onClick={() => selectedRepo && handleAnalyze(selectedRepo)}
+                    onClick={() => selectedRepo && setIsPremiumModalOpen(true)}
                   >
                     <RefreshCw className="size-4" />
                     Reanalisar
@@ -875,6 +877,13 @@ export default function Analyzer() {
           </div>
         </div>
       </main>
+
+      {isPremiumModalOpen ? (
+        <PremiumUpgradeModal
+          featureName="Reanalisar"
+          onClose={() => setIsPremiumModalOpen(false)}
+        />
+      ) : null}
     </div>
   );
 }

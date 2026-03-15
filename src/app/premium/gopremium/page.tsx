@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +15,7 @@ import { Check, Sparkles, ArrowRight, X } from "lucide-react";
 
 export default function GoPremium() {
   const { user } = useAuthUserFirebase();
+  const [isAnnual, setIsAnnual] = useState(false);
 
   const displayName = user?.displayName ?? "Desenvolvedor";
   const photoURL = user?.photoURL;
@@ -83,6 +86,44 @@ export default function GoPremium() {
             Sem contratos, sem multas. Você pode cancelar sua assinatura a
             qualquer momento diretamente pelo painel.
           </p>
+
+          {/* ── BILLING TOGGLE ── */}
+          <div className="mt-10 inline-flex items-center gap-4">
+            <span
+              className={`text-sm font-medium transition-colors duration-200 ${
+                !isAnnual ? "text-white" : "text-zinc-500"
+              }`}
+            >
+              Mensal
+            </span>
+
+            <button
+              role="switch"
+              aria-checked={isAnnual}
+              onClick={() => setIsAnnual((v) => !v)}
+              className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer items-center rounded-full border transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 ${
+                isAnnual
+                  ? "border-blue-500/40 bg-blue-600"
+                  : "border-white/10 bg-white/8"
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block size-5 rounded-full bg-white shadow-md transition-transform duration-300 ${
+                  isAnnual ? "translate-x-7" : "translate-x-1"
+                }`}
+              />
+            </button>
+
+            <div className="flex items-center gap-2">
+              <span
+                className={`text-sm font-medium transition-colors duration-200 ${
+                  isAnnual ? "text-white" : "text-zinc-500"
+                }`}
+              >
+                Anual
+              </span>
+            </div>
+          </div>
         </section>
 
         {/* ── PRICING CARDS ── */}
@@ -144,11 +185,15 @@ export default function GoPremium() {
                     <div className="mt-2 flex items-baseline gap-1">
                       {plan.price ? (
                         <>
-                          <span className="text-4xl font-extrabold text-white">
-                            {plan.price}
+                          <span className="text-4xl font-extrabold text-white transition-all duration-300">
+                            {isAnnual && plan.priceAnnual
+                              ? plan.priceAnnual
+                              : plan.price}
                           </span>
                           <span className="text-sm text-zinc-500">
-                            {plan.priceLabel}
+                            {isAnnual && plan.priceAnnual
+                              ? plan.priceLabelAnual
+                              : plan.priceLabel}
                           </span>
                         </>
                       ) : (
@@ -157,6 +202,11 @@ export default function GoPremium() {
                         </span>
                       )}
                     </div>
+                    {isAnnual && plan.priceAnnual && (
+                      <p className="mt-1 text-xs text-zinc-500">
+                        Cobrado anualmente
+                      </p>
+                    )}
 
                     <p className="mt-3 text-sm leading-relaxed text-zinc-500">
                       {plan.description}

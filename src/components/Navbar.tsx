@@ -58,7 +58,8 @@ export function Navbar({
             { label: "Portfólio", href: "#", active: false },
             { label: "Currículos", href: "#", active: false },
             { label: "Score", href: "#", active: false },
-            { label: "Simulador", href: "#", active: false },
+            { label: "Entrevistas", href: "#", active: false },
+            { label: "Premium", href: "/premium/gopremium", active: false },
           ].map((item) => (
             <a
               key={item.label}
