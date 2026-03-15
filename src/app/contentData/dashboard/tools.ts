@@ -16,6 +16,7 @@ export const tools = [
       "Analise repositórios com IA e gere descrições profissionais com stack detectada.",
     tag: "IA",
     color: "blue",
+    route: "tools/analyzer"
   },
   {
     icon: LayoutTemplate,
@@ -23,6 +24,7 @@ export const tools = [
     description: "Gere seu portfólio completo e profissional automaticamente.",
     tag: "Automático",
     color: "sky",
+    route: "tools/#"
   },
   {
     icon: Globe,
@@ -30,6 +32,7 @@ export const tools = [
     description: "Sua URL exclusiva para compartilhar com recrutadores.",
     tag: "Online",
     color: "blue",
+    route: "tools/#"
   },
   {
     icon: FileText,
@@ -37,6 +40,7 @@ export const tools = [
     description: "Currículo ATS-ready gerado a partir dos seus projetos.",
     tag: "ATS-Ready",
     color: "sky",
+    route: "tools/#"
   },
   {
     icon: Briefcase,
@@ -44,6 +48,7 @@ export const tools = [
     description: "Adapte seu currículo para qualquer vaga em segundos.",
     tag: "Smart",
     color: "blue",
+    route: "tools/#"
   },
   {
     icon: BarChart2,
@@ -51,6 +56,7 @@ export const tools = [
     description: "Avalie e evolua seu perfil profissional continuamente.",
     tag: "Score",
     color: "sky",
+    route: "tools/#"
   },
   {
     icon: Brain,
@@ -58,5 +64,6 @@ export const tools = [
     description: "Simule entrevistas técnicas com base na sua stack real.",
     tag: "Simulador",
     color: "blue",
+    route: "tools/#"
   },
 ];

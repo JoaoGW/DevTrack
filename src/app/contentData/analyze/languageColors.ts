@@ -1,0 +1,23 @@
+// Cores das badges de Linguagens de Programação por repositório
+export const LANGUAGE_COLORS: Record<string, string> = {
+  TypeScript: "border-blue-500/20 bg-blue-500/10 text-blue-300",
+  JavaScript: "border-yellow-500/20 bg-yellow-500/10 text-yellow-300",
+  Python: "border-sky-500/20 bg-sky-500/10 text-sky-300",
+  Java: "border-orange-500/20 bg-orange-500/10 text-orange-300",
+  "C#": "border-purple-500/20 bg-purple-500/10 text-purple-300",
+  Go: "border-cyan-500/20 bg-cyan-500/10 text-cyan-300",
+  Rust: "border-orange-600/20 bg-orange-600/10 text-orange-400",
+  Ruby: "border-red-500/20 bg-red-500/10 text-red-300",
+  PHP: "border-violet-500/20 bg-violet-500/10 text-violet-300",
+  Swift: "border-orange-400/20 bg-orange-400/10 text-orange-300",
+  Kotlin: "border-purple-400/20 bg-purple-400/10 text-purple-300",
+  CSS: "border-pink-500/20 bg-pink-500/10 text-pink-300",
+  HTML: "border-red-400/20 bg-red-400/10 text-red-300",
+  SQL: "border-emerald-500/20 bg-emerald-500/10 text-emerald-300",
+  Dart: "border-cyan-600/20 bg-cyan-600/10 text-cyan-300",
+  Scala: "border-indigo-500/20 bg-indigo-500/10 text-indigo-300",
+  Shell: "border-zinc-600/20 bg-zinc-600/10 text-zinc-300",
+  R: "border-green-700/20 bg-green-700/10 text-green-400",
+  Vue: "border-green-500/20 bg-green-500/10 text-green-300",
+  default: "border-zinc-500/20 bg-zinc-500/10 text-zinc-300",
+};
