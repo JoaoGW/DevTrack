@@ -1,4 +1,4 @@
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { auth } from "@/services/firebase";
 import { signOut } from "firebase/auth";
@@ -24,6 +24,7 @@ export function Navbar({
 }: NavbarPropsType) {
   // Sistema de rotas geral da aplicação com e sem autenticação ativa
   const router = useRouter();
+  const pathname = usePathname();
 
   // Variáveis do módulo de auth do Firebase
   const { setUser, setToken, setCredential } = useAuthUserFirebase();
@@ -54,25 +55,29 @@ export function Navbar({
         {/* Nav links */}
         <nav className="absolute left-1/2 -translate-x-1/2 hidden items-center gap-1 md:flex">
           {[
-            { label: "Dashboard", href: "/dashboard", active: true },
-            { label: "Portfólio", href: "#", active: false },
-            { label: "Currículos", href: "#", active: false },
-            { label: "Score", href: "#", active: false },
-            { label: "Entrevistas", href: "#", active: false },
-            { label: "Premium", href: "/premium/gopremium", active: false },
-          ].map((item) => (
-            <a
-              key={item.label}
-              href={item.href}
-              className={`cursor-pointer rounded-md px-5 py-2.5 text-base font-medium transition-colors ${
-                item.active
-                  ? "bg-white/8 text-white"
-                  : "text-zinc-400 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              {item.label}
-            </a>
-          ))}
+            { label: "Dashboard", href: "/dashboard" },
+            { label: "Portfólio", href: "#" },
+            { label: "Currículos", href: "#" },
+            { label: "Score", href: "#" },
+            { label: "Entrevistas", href: "#" },
+            { label: "Premium", href: "/premium/gopremium" },
+          ].map((item) => {
+            const isActive = pathname === item.href;
+
+            return (
+              <a
+                key={item.label}
+                href={item.href}
+                className={`cursor-pointer rounded-md px-5 py-2.5 text-base font-medium transition-colors ${
+                  isActive
+                    ? "bg-white/8 text-white"
+                    : "text-zinc-400 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                {item.label}
+              </a>
+            );
+          })}
         </nav>
 
         {/* Right side */}
