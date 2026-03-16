@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -113,6 +114,8 @@ export default function PortfolioGen() {
   const displayName = user?.displayName ?? "Desenvolvedor";
   const photoURL = user?.photoURL;
   const handle = user?.email?.split("@")[0] ?? "dev";
+
+  const router = useRouter();
 
   const [showImportProject, setShowImportProject] = useState<boolean>(false);
   const [availableProject, setAvailableProject] = useState<
@@ -346,6 +349,75 @@ export default function PortfolioGen() {
     (sections.filter((s) => s.done).length / sections.length) * 100,
   );
 
+  const handleGeneratePortfolio = async () => {
+    const payload = {
+      userId: user?.uid,
+      nome,
+      email,
+      telefone,
+      localizacao,
+      github: githubUrl,
+      linkedin: linkedinUrl,
+      website,
+      perfil,
+      tituloProfissional,
+      skills,
+      experiences,
+      educations,
+      certifications,
+      languages,
+      projects,
+    };
+
+    const response = await fetch("/api/portfolio", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      router.push("/tools/profile");
+    } else {
+      alert("Ocorreu uma falha ao enviar suas informações para o servidor");
+    }
+  };
+
+  // Verifica se este usuário já possui informações salvas no database
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    async function loadPortfolio() {
+      try {
+        const response = await fetch(`/api/portfolio?userId=${user!.uid}`);
+        if (response.status === 404) return; // sem portfólio ainda, formulário ficará em branco
+
+        const data = await response.json();
+        if (!data.success || !data.data) return;
+
+        const p = data.data;
+        if (p.nome) setNome(p.nome);
+        if (p.email) setEmail(p.email);
+        if (p.telefone) setTelefone(p.telefone);
+        if (p.localizacao) setLocalizacao(p.localizacao);
+        if (p.github) setGithubUrl(p.github);
+        if (p.linkedin) setLinkedinUrl(p.linkedin);
+        if (p.website) setWebsite(p.website);
+        if (p.perfil) setPerfil(p.perfil);
+        if (p.titulo_profissional) setTituloProfissional(p.titulo_profissional);
+        if (p.skills) setSkills(JSON.parse(p.skills));
+        if (p.experiencias) setExperiences(JSON.parse(p.experiencias));
+        if (p.educacoes) setEducations(JSON.parse(p.educacoes));
+        if (p.certificacoes) setCertifications(JSON.parse(p.certificacoes));
+        if (p.idiomas) setLanguages(JSON.parse(p.idiomas));
+        if (p.projetos) setProjects(JSON.parse(p.projetos));
+      } catch {
+        // falha silenciosa (o formulário ficará em branco)
+      }
+    }
+    loadPortfolio();
+  }, [user?.uid]);
+
   return (
     <div
       className="min-h-screen bg-[#080810] text-white"
@@ -578,6 +650,7 @@ export default function PortfolioGen() {
                   value={perfil}
                   onChange={(e) => setPerfil(e.target.value)}
                   className={`${inputCls} resize-none leading-relaxed`}
+                  maxLength={800}
                 />
                 <p className="mt-2 text-xs text-zinc-600">
                   {perfil.length} caracteres · recomendado: 500–750
@@ -591,7 +664,7 @@ export default function PortfolioGen() {
                   <input
                     type="text"
                     placeholder="Desenvolvedor Back-End Júnior"
-                    value={tituloProfissional}
+                    value={tituloProfissional.toUpperCase()}
                     onChange={(e) => setTituloProfissional(e.target.value)}
                     className={`${inputCls} pl-10`}
                   />
@@ -1279,6 +1352,7 @@ export default function PortfolioGen() {
                 type="button"
                 size="lg"
                 className="mt-1 cursor-pointer gap-2 bg-blue-600 px-10 text-white shadow-lg shadow-blue-950/40 hover:bg-blue-500"
+                onClick={handleGeneratePortfolio}
               >
                 <Sparkles className="size-4" />
                 Gerar Portfólio

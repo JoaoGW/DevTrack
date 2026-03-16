@@ -40,7 +40,6 @@ export default function Home() {
 
   // Store para o contexto de autenticação do usuário atual para toda a aplicação
   const {
-    user,
     setUser,
     setToken,
     setCredential,
