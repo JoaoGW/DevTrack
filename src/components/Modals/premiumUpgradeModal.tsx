@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 
-import { Crown, X, ArrowRight, Lock } from "lucide-react";
+import { Crown, ArrowRight, Lock } from "lucide-react";
 
 type PremiumUpgradeModalProps = {
   featureName: string;

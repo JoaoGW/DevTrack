@@ -86,8 +86,7 @@ export default function Dashboard() {
   // Lógica de rotas com verificação em first render se há um usuário autenticado
   const router = useRouter();
   // Informações do usuário atualmente autenticado e status
-  const { user, token, setUser, setToken, setCredential, isLoading } =
-    useAuthUserFirebase();
+  const { user, token, isLoading } = useAuthUserFirebase();
 
   // Informações para a Navbar e Banner
   const displayName = user?.displayName ?? "Desenvolvedor";
@@ -97,7 +96,7 @@ export default function Dashboard() {
   // Informações para o UserData de repositórios e outros dados do GitHub
   const [githubStats, setGithubStats] = useState<Array<IGitHubStats>>([
     { label: "Repositórios", value: 0, icon: Code2, accent: "blue" },
-    { label: "Stars Recebidas", value: 0, icon: Star, accent: "yellow" },
+    { label: "Estrelas Recebidas", value: 0, icon: Star, accent: "yellow" },
     { label: "Seguidores", value: 0, icon: Users, accent: "sky" },
     { label: "Contribuições", value: 0, icon: Activity, accent: "emerald" },
   ]);

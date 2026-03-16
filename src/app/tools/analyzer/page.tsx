@@ -33,7 +33,7 @@ import {
   FileText,
   Layers,
 } from "lucide-react";
-import { PremiumUpgradeModal } from "@/components/premiumUpgradeModal";
+import { PremiumUpgradeModal } from "@/components/Modals/premiumUpgradeModal";
 
 // Constrói o resultado da análise a partir de uma descrição já disponível (cache ou IA)
 function buildAnalysisResult(
@@ -143,7 +143,7 @@ function buildAnalysisResult(
 
 // Solicita a análise do repositório à IA, combinando com informações dinâmicas sobre stats do repositório
 async function generateAnalysis(repo: IGitHubRepo): Promise<IAnalysisResult> {
-  const cachedDescription = localStorage.getItem(repo.name);
+  const cachedDescription = localStorage.getItem("PROJECT_" + repo.name);
   if (cachedDescription !== null) {
     return buildAnalysisResult(repo, cachedDescription);
   }
@@ -154,13 +154,13 @@ async function generateAnalysis(repo: IGitHubRepo): Promise<IAnalysisResult> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       devInput:
-        "[ROLE]:Analista TechLead; [CONTEXT]:Você está ajudando Devs a arrumar emprego montando um currículo; [TASK]:Escreva uma descrição detalhada e chamativa para a seção de projetos do currículo seguindo o projeto do link GitHub enviado; [OUTPUT]:Descrição de até 350 caracteres, mínimo 300 caracteres. No final da descrição, liste as tecnologias neste modelo: Tecnologias Utilizadas: Tech1, Tech2, etc; [RULES]:Nunca invente informações.",
+        "[ROLE]:Analista TechLead; [CONTEXT]:Você está ajudando Devs a arrumar emprego montando um currículo; [TASK]:Escreva uma descrição detalhada e chamativa para a seção de projetos do currículo seguindo o projeto do link GitHub enviado; [OUTPUT]:Descrição de até 450 caracteres, mínimo 300 caracteres. No final da descrição, liste as tecnologias neste modelo: Tecnologias Utilizadas: Tech1, Tech2, etc; [RULES]:Nunca invente informações.",
       miniInput: `Gere a descrição de: ${repo.html_url}`,
-      maxTokens: 100,
+      maxTokens: 110,
     }),
   });
   const { content } = await apiResponse.json();
-  localStorage.setItem(repo.name, content);
+  localStorage.setItem("PROJECT_" + repo.name, content);
   return buildAnalysisResult(repo, content);
 }
 
@@ -201,6 +201,11 @@ export default function Analyzer() {
     new Set(),
   );
 
+  // CUIDADO: Somente descomente o bloco a seguir caso queira resetar todos os localStorage de projetos!!!
+  //useEffect(() => {
+  //  localStorage.clear();
+  //}, []);
+
   // Fetch Repos (públicos e privados) do GitHub daquele usuário
   useEffect(() => {
     if (!token) return;
@@ -224,7 +229,7 @@ export default function Analyzer() {
         setRepos(reposData as IGitHubRepo[]);
         const cachedSet = new Set<string>(
           (reposData as IGitHubRepo[])
-            .filter((r) => localStorage.getItem(r.name) !== null)
+            .filter((r) => localStorage.getItem("PROJECT_" + r.name) !== null)
             .map((r) => r.name),
         );
         setCachedRepoNames(cachedSet);
@@ -454,7 +459,9 @@ export default function Analyzer() {
                       key={repo.id}
                       onClick={() => {
                         setSelectedRepo(repo);
-                        const cached = localStorage.getItem(repo.name);
+                        const cached = localStorage.getItem(
+                          "PROJECT_" + repo.name,
+                        );
                         if (cached) {
                           setAnalysis(buildAnalysisResult(repo, cached));
                         } else {
@@ -524,7 +531,9 @@ export default function Analyzer() {
                             }`}
                             onClick={() => {
                               setSelectedRepo(repo);
-                              const cached = localStorage.getItem(repo.name);
+                              const cached = localStorage.getItem(
+                                "PROJECT_" + repo.name,
+                              );
                               if (cached)
                                 setAnalysis(buildAnalysisResult(repo, cached));
                             }}

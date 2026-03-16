@@ -4,8 +4,15 @@ import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ImportProjectModal } from "@/components/Modals/importProjectModal";
 
 import { useAuthUserFirebase } from "@/store/authUser.store";
+
+import { Certification } from "@/app/contentData/portfolioGen/interfaces/ICertification";
+import { Education } from "@/app/contentData/portfolioGen/interfaces/IEducation";
+import { Experience } from "@/app/contentData/portfolioGen/interfaces/IExperience";
+import { Language } from "@/app/contentData/portfolioGen/interfaces/ILanguage";
+import { Project } from "@/app/contentData/portfolioGen/interfaces/IProject";
 
 import {
   User,
@@ -29,58 +36,11 @@ import {
   LayoutTemplate,
   CheckCircle2,
   FolderGit2,
+  FileBadge,
 } from "lucide-react";
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-interface Experience {
-  id: string;
-  cargo: string;
-  empresa: string;
-  local: string;
-  inicio: string;
-  fim: string;
-  atual: boolean;
-  descricao: string;
-}
-
-interface Education {
-  id: string;
-  curso: string;
-  instituicao: string;
-  grau: string;
-  inicio: string;
-  fim: string;
-  atual: boolean;
-}
-
-interface Certification {
-  id: string;
-  nome: string;
-  emissor: string;
-  data: string;
-  url: string;
-}
-
-interface Language {
-  id: string;
-  idioma: string;
-  nivel: string;
-}
-
-interface Project {
-  id: string;
-  nome: string;
-  descricao: string;
-  tecnologias: string;
-  url: string;
-  github: string;
-}
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
+// Helpers
 const uid = () => Math.random().toString(36).slice(2, 9);
-
 const inputCls =
   "w-full rounded-xl border border-white/6 bg-white/2 py-3 px-4 text-sm text-white placeholder-zinc-600 outline-none transition-all focus:border-blue-500/40 focus:bg-white/4";
 const labelCls = "block text-sm font-medium text-zinc-300 mb-1.5";
@@ -89,27 +49,30 @@ const innerCardCls = "rounded-xl border border-white/6 bg-white/2 p-5";
 const dottedBtnCls =
   "flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/10 py-3.5 text-sm text-zinc-500 transition-all duration-200 hover:border-blue-500/30 hover:bg-blue-500/4 hover:text-blue-300 cursor-pointer";
 
-// ─── Sub-component: Section Title ────────────────────────────────────────────
-
+// Sub-component: Section Title
 function SectionTitle({
   icon,
   title,
+  badge,
 }: {
   icon: React.ReactNode;
   title: string;
+  badge?: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-3 border-b border-white/6 pb-4">
-      <div className="flex size-9 items-center justify-center rounded-xl bg-white/4">
-        {icon}
+    <div className="flex items-center justify-between gap-3 border-b border-white/6 pb-4">
+      <div className="flex items-center gap-3">
+        <div className="flex size-9 items-center justify-center rounded-xl bg-white/4">
+          {icon}
+        </div>
+        <h2 className="text-lg font-bold text-white">{title}</h2>
       </div>
-      <h2 className="text-lg font-bold text-white">{title}</h2>
+      {badge && <div>{badge}</div>}
     </div>
   );
 }
 
-// ─── Sub-component: Toggle Switch ────────────────────────────────────────────
-
+// Sub-component: Toggle Switch
 function Toggle({
   checked,
   onToggle,
@@ -143,8 +106,7 @@ function Toggle({
   );
 }
 
-// ─── Main Component ──────────────────────────────────────────────────────────
-
+// Main Component
 export default function PortfolioGen() {
   const { user } = useAuthUserFirebase();
 
@@ -152,20 +114,26 @@ export default function PortfolioGen() {
   const photoURL = user?.photoURL;
   const handle = user?.email?.split("@")[0] ?? "dev";
 
-  // ── 1. Contato
+  const [showImportProject, setShowImportProject] = useState<boolean>(false);
+  const [availableProject, setAvailableProject] = useState<
+    Record<string, string | null>
+  >({});
+
+  // 1. Contato
   const [nome, setNome] = useState(user?.displayName ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
-  const [telefone, setTelefone] = useState("");
-  const [localizacao, setLocalizacao] = useState("");
-  const [githubUrl, setGithubUrl] = useState("");
-  const [linkedinUrl, setLinkedinUrl] = useState("");
-  const [website, setWebsite] = useState("");
+  const [telefone, setTelefone] = useState<string>("");
+  const [localizacao, setLocalizacao] = useState<string>("");
+  const [githubUrl, setGithubUrl] = useState<string>("");
+  const [linkedinUrl, setLinkedinUrl] = useState<string>("");
+  const [website, setWebsite] = useState<string>("");
 
-  // ── 2. Perfil Profissional
-  const [perfil, setPerfil] = useState("");
+  // 2. Perfil Profissional
+  const [perfil, setPerfil] = useState<string>("");
+  const [tituloProfissional, setTituloProfissional] = useState<string>("");
 
-  // ── 3. Habilidades
-  const [skillInput, setSkillInput] = useState("");
+  // 3. Habilidades
+  const [skillInput, setSkillInput] = useState<string>("");
   const [skills, setSkills] = useState<string[]>([]);
 
   const addSkill = () => {
@@ -179,7 +147,7 @@ export default function PortfolioGen() {
   const removeSkill = (skill: string) =>
     setSkills((prev) => prev.filter((s) => s !== skill));
 
-  // ── 4. Experiências
+  // 4. Experiências
   const [experiences, setExperiences] = useState<Experience[]>([
     {
       id: uid(),
@@ -220,7 +188,7 @@ export default function PortfolioGen() {
       prev.map((e) => (e.id === id ? { ...e, [field]: value } : e)),
     );
 
-  // ── 5. Educação
+  // 5. Educação
   const [educations, setEducations] = useState<Education[]>([
     {
       id: uid(),
@@ -259,7 +227,7 @@ export default function PortfolioGen() {
       prev.map((e) => (e.id === id ? { ...e, [field]: value } : e)),
     );
 
-  // ── 6. Certificações
+  // 6. Certificações
   const [certifications, setCertifications] = useState<Certification[]>([]);
 
   const addCertification = () =>
@@ -280,7 +248,7 @@ export default function PortfolioGen() {
       prev.map((c) => (c.id === id ? { ...c, [field]: value } : c)),
     );
 
-  // ── 7. Idiomas
+  // 7. Idiomas
   const [languages, setLanguages] = useState<Language[]>([
     { id: uid(), idioma: "", nivel: "Intermediário" },
   ]);
@@ -303,7 +271,7 @@ export default function PortfolioGen() {
       prev.map((l) => (l.id === id ? { ...l, [field]: value } : l)),
     );
 
-  // ── 8. Projetos
+  // 8. Projetos
   const [projects, setProjects] = useState<Project[]>([]);
 
   const addProject = () =>
@@ -319,6 +287,34 @@ export default function PortfolioGen() {
       },
     ]);
 
+  const importProject = () => {
+    // Resgata os repositórios que já possuem descrição gerada com IA
+    const items: Record<string, string | null> = {};
+
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+
+      if (key && key.startsWith("PROJECT_")) {
+        items[key] = localStorage.getItem(key);
+      }
+    }
+
+    setAvailableProject(items);
+
+    setShowImportProject(true);
+    setProjects((prev) => [
+      ...prev,
+      {
+        id: uid(),
+        nome: "",
+        descricao: "",
+        tecnologias: "",
+        url: "",
+        github: "",
+      },
+    ]);
+  };
+
   const removeProject = (id: string) =>
     setProjects((prev) => prev.filter((p) => p.id !== id));
 
@@ -331,7 +327,7 @@ export default function PortfolioGen() {
       prev.map((p) => (p.id === id ? { ...p, [field]: value } : p)),
     );
 
-  // ── Progresso
+  // Progresso
   const sections = [
     { label: "Contato", done: !!(nome && email) },
     { label: "Perfil", done: perfil.length > 20 },
@@ -346,12 +342,9 @@ export default function PortfolioGen() {
     },
     { label: "Projetos", done: projects.some((p) => p.nome) },
   ];
-
   const completeness = Math.round(
     (sections.filter((s) => s.done).length / sections.length) * 100,
   );
-
-  // ─────────────────────────────────────────────────────────────────────────
 
   return (
     <div
@@ -403,7 +396,7 @@ export default function PortfolioGen() {
                   <LayoutTemplate className="size-6 text-blue-400" />
                 </div>
                 <h1 className="text-3xl font-extrabold text-white">
-                  Gerador de Portfólio
+                  Gerador de Portfólio Online
                 </h1>
               </div>
 
@@ -420,7 +413,7 @@ export default function PortfolioGen() {
                 className="border-blue-500/20 bg-blue-500/8 text-sm text-blue-300"
               >
                 <Sparkles className="mr-1.5 size-3.5" />
-                IA Integrada
+                Destaque-se em relação aos demais candidatos
               </Badge>
 
               <div className="w-full sm:w-56">
@@ -474,6 +467,7 @@ export default function PortfolioGen() {
                     value={nome}
                     onChange={(e) => setNome(e.target.value)}
                     className={inputCls}
+                    required
                   />
                 </div>
 
@@ -487,12 +481,13 @@ export default function PortfolioGen() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className={`${inputCls} pl-10`}
+                      required
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className={labelCls}>Telefone</label>
+                  <label className={labelCls}>Telefone *</label>
                   <div className="relative">
                     <Phone className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-zinc-500" />
                     <input
@@ -501,6 +496,7 @@ export default function PortfolioGen() {
                       value={telefone}
                       onChange={(e) => setTelefone(e.target.value)}
                       className={`${inputCls} pl-10`}
+                      required
                     />
                   </div>
                 </div>
@@ -511,7 +507,7 @@ export default function PortfolioGen() {
                     <MapPin className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-zinc-500" />
                     <input
                       type="text"
-                      placeholder="São Paulo, SP — Brasil"
+                      placeholder="São Paulo, SP - Brasil"
                       value={localizacao}
                       onChange={(e) => setLocalizacao(e.target.value)}
                       className={`${inputCls} pl-10`}
@@ -520,7 +516,7 @@ export default function PortfolioGen() {
                 </div>
 
                 <div>
-                  <label className={labelCls}>GitHub</label>
+                  <label className={labelCls}>GitHub *</label>
                   <div className="relative">
                     <Github className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-zinc-500" />
                     <input
@@ -529,12 +525,13 @@ export default function PortfolioGen() {
                       value={githubUrl}
                       onChange={(e) => setGithubUrl(e.target.value)}
                       className={`${inputCls} pl-10`}
+                      required
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className={labelCls}>LinkedIn</label>
+                  <label className={labelCls}>LinkedIn *</label>
                   <div className="relative">
                     <Linkedin className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-zinc-500" />
                     <input
@@ -543,6 +540,7 @@ export default function PortfolioGen() {
                       value={linkedinUrl}
                       onChange={(e) => setLinkedinUrl(e.target.value)}
                       className={`${inputCls} pl-10`}
+                      required
                     />
                   </div>
                 </div>
@@ -584,6 +582,20 @@ export default function PortfolioGen() {
                 <p className="mt-2 text-xs text-zinc-600">
                   {perfil.length} caracteres · recomendado: 500–750
                 </p>
+              </div>
+
+              <div className="sm:col-span-2 mt-4">
+                <label className={labelCls}>Título Profissional</label>
+                <div className="relative">
+                  <Award className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-zinc-500" />
+                  <input
+                    type="text"
+                    placeholder="Desenvolvedor Back-End Júnior"
+                    value={tituloProfissional}
+                    onChange={(e) => setTituloProfissional(e.target.value)}
+                    className={`${inputCls} pl-10`}
+                  />
+                </div>
               </div>
             </section>
 
@@ -651,7 +663,7 @@ export default function PortfolioGen() {
             <section className={cardCls}>
               <SectionTitle
                 icon={<Briefcase className="size-5 text-amber-400" />}
-                title="Experiências Profissionais"
+                title="Experiência Profissional"
               />
 
               <div className="mt-6 flex flex-col gap-5">
@@ -922,8 +934,13 @@ export default function PortfolioGen() {
             {/* ── 6. CERTIFICAÇÕES ── */}
             <section className={cardCls}>
               <SectionTitle
-                icon={<Award className="size-5 text-rose-400" />}
+                icon={<FileBadge className="size-5 text-rose-400" />}
                 title="Certificações"
+                badge={
+                  <span className="text-sm font-medium text-zinc-500">
+                    {certifications.length} / 6
+                  </span>
+                }
               />
 
               <div className="mt-6 flex flex-col gap-5">
@@ -1001,7 +1018,7 @@ export default function PortfolioGen() {
                           <LinkIcon className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-zinc-500" />
                           <input
                             type="url"
-                            placeholder="https://…"
+                            placeholder="https://drive.google.com/certificado.png"
                             value={cert.url}
                             onChange={(e) =>
                               updateCertification(
@@ -1018,14 +1035,16 @@ export default function PortfolioGen() {
                   </div>
                 ))}
 
-                <button
-                  type="button"
-                  onClick={addCertification}
-                  className={dottedBtnCls}
-                >
-                  <Plus className="size-4" />
-                  Adicionar Certificação
-                </button>
+                {certifications.length < 6 ? (
+                  <button
+                    type="button"
+                    onClick={addCertification}
+                    className={dottedBtnCls}
+                  >
+                    <Plus className="size-4" />
+                    Adicionar Certificação
+                  </button>
+                ) : null}
               </div>
             </section>
 
@@ -1103,6 +1122,11 @@ export default function PortfolioGen() {
               <SectionTitle
                 icon={<FolderGit2 className="size-5 text-purple-400" />}
                 title="Projetos"
+                badge={
+                  <span className="text-sm font-medium text-zinc-500">
+                    {projects.length} / 3
+                  </span>
+                }
               />
 
               <div className="mt-6 flex flex-col gap-5">
@@ -1144,7 +1168,7 @@ export default function PortfolioGen() {
 
                       <div>
                         <label className={labelCls}>
-                          Tecnologias utilizadas
+                          Tecnologias utilizadas *
                         </label>
                         <input
                           type="text"
@@ -1158,6 +1182,7 @@ export default function PortfolioGen() {
                             )
                           }
                           className={inputCls}
+                          required
                         />
                       </div>
 
@@ -1178,7 +1203,7 @@ export default function PortfolioGen() {
                       </div>
 
                       <div>
-                        <label className={labelCls}>Repositório GitHub</label>
+                        <label className={labelCls}>Repositório GitHub *</label>
                         <div className="relative">
                           <Github className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-zinc-500" />
                           <input
@@ -1189,12 +1214,15 @@ export default function PortfolioGen() {
                               updateProject(proj.id, "github", e.target.value)
                             }
                             className={`${inputCls} pl-10`}
+                            required
                           />
                         </div>
                       </div>
 
                       <div className="sm:col-span-2">
-                        <label className={labelCls}>Descrição do Projeto</label>
+                        <label className={labelCls}>
+                          Descrição do Projeto *
+                        </label>
                         <textarea
                           rows={3}
                           placeholder="Descreva o objetivo, funcionalidades e impacto do projeto…"
@@ -1203,20 +1231,33 @@ export default function PortfolioGen() {
                             updateProject(proj.id, "descricao", e.target.value)
                           }
                           className={`${inputCls} resize-none`}
+                          required
                         />
                       </div>
                     </div>
                   </div>
                 ))}
 
-                <button
-                  type="button"
-                  onClick={addProject}
-                  className={dottedBtnCls}
-                >
-                  <Plus className="size-4" />
-                  Adicionar Projeto
-                </button>
+                {projects.length < 3 ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={addProject}
+                      className={dottedBtnCls}
+                    >
+                      <Plus className="size-4" />
+                      Adicionar Projeto
+                    </button>
+                    <button
+                      type="button"
+                      onClick={importProject}
+                      className={dottedBtnCls}
+                    >
+                      <Plus className="size-4" />
+                      Importar Projeto
+                    </button>
+                  </>
+                ) : null}
               </div>
             </section>
 
@@ -1309,6 +1350,23 @@ export default function PortfolioGen() {
             </div>
           </aside>
         </div>
+        {showImportProject === true ? (
+          <ImportProjectModal
+            onClose={() => setShowImportProject(false)}
+            content={availableProject}
+            onImport={(projectName, description) => {
+              setProjects((prev) => {
+                const last = prev[prev.length - 1];
+                if (!last) return prev;
+                return prev.map((p) =>
+                  p.id === last.id
+                    ? { ...p, nome: projectName, descricao: description }
+                    : p,
+                );
+              });
+            }}
+          />
+        ) : null}
       </main>
     </div>
   );
