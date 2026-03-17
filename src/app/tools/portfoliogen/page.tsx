@@ -395,22 +395,24 @@ export default function PortfolioGen() {
         const data = await response.json();
         if (!data.success || !data.data) return;
 
-        const p = data.data;
-        if (p.nome) setNome(p.nome);
-        if (p.email) setEmail(p.email);
-        if (p.telefone) setTelefone(p.telefone);
-        if (p.localizacao) setLocalizacao(p.localizacao);
-        if (p.github) setGithubUrl(p.github);
-        if (p.linkedin) setLinkedinUrl(p.linkedin);
-        if (p.website) setWebsite(p.website);
-        if (p.perfil) setPerfil(p.perfil);
-        if (p.titulo_profissional) setTituloProfissional(p.titulo_profissional);
-        if (p.skills) setSkills(JSON.parse(p.skills));
-        if (p.experiencias) setExperiences(JSON.parse(p.experiencias));
-        if (p.educacoes) setEducations(JSON.parse(p.educacoes));
-        if (p.certificacoes) setCertifications(JSON.parse(p.certificacoes));
-        if (p.idiomas) setLanguages(JSON.parse(p.idiomas));
-        if (p.projetos) setProjects(JSON.parse(p.projetos));
+        const dados = data.data;
+        if (dados.nome) setNome(dados.nome);
+        if (dados.email) setEmail(dados.email);
+        if (dados.telefone) setTelefone(dados.telefone);
+        if (dados.localizacao) setLocalizacao(dados.localizacao);
+        if (dados.github) setGithubUrl(dados.github);
+        if (dados.linkedin) setLinkedinUrl(dados.linkedin);
+        if (dados.website) setWebsite(dados.website);
+        if (dados.perfil) setPerfil(dados.perfil);
+        if (dados.titulo_profissional)
+          setTituloProfissional(dados.titulo_profissional);
+        if (dados.skills) setSkills(JSON.parse(dados.skills));
+        if (dados.experiencias) setExperiences(JSON.parse(dados.experiencias));
+        if (dados.educacoes) setEducations(JSON.parse(dados.educacoes));
+        if (dados.certificacoes)
+          setCertifications(JSON.parse(dados.certificacoes));
+        if (dados.idiomas) setLanguages(JSON.parse(dados.idiomas));
+        if (dados.projetos) setProjects(JSON.parse(dados.projetos));
       } catch {
         // falha silenciosa (o formulário ficará em branco)
       }
@@ -1151,7 +1153,7 @@ export default function PortfolioGen() {
                         onChange={(e) =>
                           updateLanguage(lang.id, "nivel", e.target.value)
                         }
-                        className={`${inputCls} appearance-none`}
+                        className={`${inputCls} appearance-none cursor-pointer`}
                       >
                         {[
                           "Básico",

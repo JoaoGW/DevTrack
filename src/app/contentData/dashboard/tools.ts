@@ -32,7 +32,7 @@ export const tools = [
     description: "Sua URL exclusiva para compartilhar com recrutadores.",
     tag: "Online",
     color: "blue",
-    route: "tools/#"
+    route: "/tools/profile"
   },
   {
     icon: FileText,
