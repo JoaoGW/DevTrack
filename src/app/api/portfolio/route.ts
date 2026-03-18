@@ -24,31 +24,52 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const data = await req.json();
 
+  const fieldValues = [
+    data.nome,
+    data.email,
+    data.telefone,
+    data.localizacao,
+    data.github,
+    data.linkedin,
+    data.website,
+    data.perfil,
+    data.tituloProfissional,
+    JSON.stringify(data.skills),
+    JSON.stringify(data.experiences),
+    JSON.stringify(data.educations),
+    JSON.stringify(data.certifications),
+    JSON.stringify(data.languages),
+    JSON.stringify(data.projects),
+    data.template,
+  ];
+
   try {
-    const [result] = await pool.query<ResultSetHeader>(
-      `INSERT INTO portfolio 
-        (user_id, nome, email, telefone, localizacao, github, linkedin, website, perfil, titulo_profissional, skills, experiencias, educacoes, certificacoes, idiomas, projetos)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        data.userId,
-        data.nome,
-        data.email,
-        data.telefone,
-        data.localizacao,
-        data.github,
-        data.linkedin,
-        data.website,
-        data.perfil,
-        data.tituloProfissional,
-        JSON.stringify(data.skills),
-        JSON.stringify(data.experiences),
-        JSON.stringify(data.educations),
-        JSON.stringify(data.certifications),
-        JSON.stringify(data.languages),
-        JSON.stringify(data.projects),
-      ]
+    const [existing] = await pool.query(
+      'SELECT id FROM portfolio WHERE user_id = ? LIMIT 1',
+      [data.userId]
     );
-    return NextResponse.json({ success: true, id: result.insertId });
+    const rows = existing as { id: number }[];
+
+    if (rows.length > 0) {
+      await pool.query(
+        `UPDATE portfolio SET
+          nome=?, email=?, telefone=?, localizacao=?, github=?, linkedin=?, website=?,
+          perfil=?, titulo_profissional=?, skills=?, experiencias=?, educacoes=?,
+          certificacoes=?, idiomas=?, projetos=?, template=?
+         WHERE user_id=?`,
+        [...fieldValues, data.userId]
+      );
+      return NextResponse.json({ success: true });
+    } else {
+      const [result] = await pool.query<ResultSetHeader>(
+        `INSERT INTO portfolio
+          (user_id, nome, email, telefone, localizacao, github, linkedin, website, perfil,
+           titulo_profissional, skills, experiencias, educacoes, certificacoes, idiomas, projetos, template)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [data.userId, ...fieldValues]
+      );
+      return NextResponse.json({ success: true, id: result.insertId });
+    }
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Erro desconhecido";
     return NextResponse.json({ success: false, error: message }, { status: 500 });

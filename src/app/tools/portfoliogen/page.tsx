@@ -6,6 +6,8 @@ import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ImportProjectModal } from "@/components/Modals/importProjectModal";
+import { SelectProfileTemplateModal } from "@/components/Modals/selectProfileTemplateModal";
+import { TemplateType } from "@/components/ProfileTemplates/types";
 
 import { useAuthUserFirebase } from "@/store/authUser.store";
 
@@ -121,6 +123,8 @@ export default function PortfolioGen() {
   const [availableProject, setAvailableProject] = useState<
     Record<string, string | null>
   >({});
+  const [template, setTemplate] = useState<TemplateType | null>(null);
+  const [defineTemplate, setDefineTemplate] = useState<boolean>(false);
 
   // 1. Contato
   const [nome, setNome] = useState(user?.displayName ?? "");
@@ -349,7 +353,7 @@ export default function PortfolioGen() {
     (sections.filter((s) => s.done).length / sections.length) * 100,
   );
 
-  const handleGeneratePortfolio = async () => {
+  const handleGeneratePortfolio = async (selectedTemplate: TemplateType) => {
     const payload = {
       userId: user?.uid,
       nome,
@@ -367,6 +371,7 @@ export default function PortfolioGen() {
       certifications,
       languages,
       projects,
+      template: selectedTemplate,
     };
 
     const response = await fetch("/api/portfolio", {
@@ -1354,7 +1359,9 @@ export default function PortfolioGen() {
                 type="button"
                 size="lg"
                 className="mt-1 cursor-pointer gap-2 bg-blue-600 px-10 text-white shadow-lg shadow-blue-950/40 hover:bg-blue-500"
-                onClick={handleGeneratePortfolio}
+                onClick={() => {
+                  setDefineTemplate(true);
+                }}
               >
                 <Sparkles className="size-4" />
                 Gerar Portfólio
@@ -1442,6 +1449,17 @@ export default function PortfolioGen() {
               });
             }}
           />
+        ) : null}
+        {defineTemplate === true ? (
+          <div className="min-h-screen bg-[#080810]">
+            <SelectProfileTemplateModal
+              onClose={() => router.back()}
+              onSelect={(t) => {
+                setTemplate(t);
+                handleGeneratePortfolio(t);
+              }}
+            />
+          </div>
         ) : null}
       </main>
     </div>

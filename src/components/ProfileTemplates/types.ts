@@ -20,6 +20,7 @@ export interface PortfolioData {
   certifications: Certification[];
   languages: Language[];
   projects: Project[];
+  template: string
 }
 
 export type TemplateType = "minimalist" | "modern" | "tech" | "tech2";

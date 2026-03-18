@@ -1,8 +1,8 @@
 "use client";
-
 import { useEffect, useState } from "react";
-import { useAuthUserFirebase } from "@/store/authUser.store";
-import { SelectProfileTemplateModal } from "@/components/Modals/selectProfileTemplateModal";
+import { useRouter } from "next/navigation";
+
+import { LoadingGeneralContent } from "@/components/Loading/loading";
 import { MinimalistTemplate } from "@/components/ProfileTemplates/MinimalistTemplate";
 import { ModernTemplate } from "@/components/ProfileTemplates/ModernTemplate";
 import { TechTemplate } from "@/components/ProfileTemplates/TechTemplate";
@@ -11,6 +11,8 @@ import type {
   PortfolioData,
   TemplateType,
 } from "@/components/ProfileTemplates/types";
+
+import { useAuthUserFirebase } from "@/store/authUser.store";
 
 import type { Experience } from "@/app/contentData/portfolioGen/interfaces/IExperience";
 import type { Education } from "@/app/contentData/portfolioGen/interfaces/IEducation";
@@ -29,37 +31,48 @@ function parseJSON<T>(raw: string | undefined | null, fallback: T): T {
 
 export default function Profile() {
   const { user } = useAuthUserFirebase();
+  const router = useRouter();
 
   const [template, setTemplate] = useState<TemplateType | null>(null);
   const [portfolio, setPortfolio] = useState<PortfolioData | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Escolha do template
+  useEffect(() => {
+    if (!loading && portfolio && !template) {
+      router.push("/tools/portfoliogen");
+    }
+  }, [loading, portfolio, template, router]);
+
   useEffect(() => {
     if (!user?.uid) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     fetch(`/api/portfolio?userId=${user.uid}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data?.success && data.data) {
-          const d = data.data;
+          const dados = data.data;
           setPortfolio({
-            nome: d.nome ?? "",
-            email: d.email ?? "",
-            telefone: d.telefone ?? "",
-            localizacao: d.localizacao ?? "",
-            github: d.github ?? "",
-            linkedin: d.linkedin ?? "",
-            website: d.website ?? "",
-            perfil: d.perfil ?? "",
-            tituloProfissional: d.titulo_profissional ?? "",
-            skills: parseJSON<string[]>(d.skills, []),
-            experiences: parseJSON<Experience[]>(d.experiencias, []),
-            educations: parseJSON<Education[]>(d.educacoes, []),
-            certifications: parseJSON<Certification[]>(d.certificacoes, []),
-            languages: parseJSON<Language[]>(d.idiomas, []),
-            projects: parseJSON<Project[]>(d.projetos, []),
+            nome: dados.nome ?? "",
+            email: dados.email ?? "",
+            telefone: dados.telefone ?? "",
+            localizacao: dados.localizacao ?? "",
+            github: dados.github ?? "",
+            linkedin: dados.linkedin ?? "",
+            website: dados.website ?? "",
+            perfil: dados.perfil ?? "",
+            tituloProfissional: dados.titulo_profissional ?? "",
+            skills: parseJSON<string[]>(dados.skills, []),
+            experiences: parseJSON<Experience[]>(dados.experiencias, []),
+            educations: parseJSON<Education[]>(dados.educacoes, []),
+            certifications: parseJSON<Certification[]>(dados.certificacoes, []),
+            languages: parseJSON<Language[]>(dados.idiomas, []),
+            projects: parseJSON<Project[]>(dados.projetos, []),
+            template: dados.template,
           });
+          if (dados.template) setTemplate(dados.template as TemplateType);
         }
       })
       .catch(() => {})
@@ -68,17 +81,7 @@ export default function Profile() {
 
   // Loading
   if (loading) {
-    return (
-      <div
-        className="flex min-h-screen items-center justify-center bg-[#080810]"
-        style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
-      >
-        <div className="flex flex-col items-center gap-4">
-          <div className="size-8 animate-spin rounded-full border-2 border-white/10 border-t-blue-500" />
-          <p className="text-sm text-zinc-500">Carregando portfólio…</p>
-        </div>
-      </div>
-    );
+    return <LoadingGeneralContent />;
   }
 
   // Sem informações de currículo ainda disponíveis
@@ -102,18 +105,6 @@ export default function Profile() {
             Ir para o Gerador
           </a>
         </div>
-      </div>
-    );
-  }
-
-  // Escolha do template
-  if (!template) {
-    return (
-      <div className="min-h-screen bg-[#080810]">
-        <SelectProfileTemplateModal
-          onClose={() => {}}
-          onSelect={(t) => setTemplate(t)}
-        />
       </div>
     );
   }

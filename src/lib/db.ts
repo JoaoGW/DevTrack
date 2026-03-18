@@ -28,7 +28,7 @@ export async function createItem(userId: string, description: string) {
 export async function updateItem(userId: string, itemId: number, newDescription: string) {
   try {
     const [result] = await pool.query(
-      'UPDATE portfolio SET description = ? WHERE id = ? AND user_id = ?',
+      'UPDATE portfolio SET description = ? WHERE user_id = ?',
       [newDescription, itemId, userId]
     );
     return result;
@@ -65,7 +65,7 @@ export async function deleteAllUserItems(userId: string) {
 export async function getUserById(userId: string) {
   try {
     const [rows] = await pool.query(
-      'SELECT * FROM portfolio WHERE user_id = ?',
+      'SELECT * FROM portfolio WHERE user_id = ? ORDER BY id DESC LIMIT 1',
       [userId]
     );
     return (rows as Record<string, unknown>[])[0] ?? null;

@@ -3,60 +3,10 @@
 import Image from "next/image";
 import { useState } from "react";
 
-import Minimalist from "../../assets/templates/Minimalist.png";
-import Modern from "../../assets/templates/Modern.png";
-import TechOne from "../../assets/templates/TechOne.png";
-import TechTwo from "../../assets/templates/TechTwo.png";
-
-import { LayoutTemplate, CheckCircle2, Sparkles, X } from "lucide-react";
+import { LayoutTemplate, CheckCircle2, X, CircleStar } from "lucide-react";
 import type { TemplateType } from "@/components/ProfileTemplates/types";
 
-const TEMPLATES = [
-  {
-    id: "minimalist" as TemplateType,
-    label: "Minimalista",
-    description: "Elegante e limpo, foco no essencial",
-    image: Minimalist,
-    accent: "from-blue-500/10",
-    ring: "ring-blue-500/30",
-    dot: "bg-blue-400",
-    textAccent: "text-blue-300",
-    borderAccent: "border-blue-500/40",
-  },
-  {
-    id: "modern" as TemplateType,
-    label: "Moderno",
-    description: "Visual impactante com gradientes e cards",
-    image: Modern,
-    accent: "from-violet-500/10",
-    ring: "ring-violet-500/30",
-    dot: "bg-violet-400",
-    textAccent: "text-violet-300",
-    borderAccent: "border-violet-500/40",
-  },
-  {
-    id: "tech" as TemplateType,
-    label: "Tech I",
-    description: "Estética de terminal para desenvolvedores",
-    image: TechOne,
-    accent: "from-emerald-500/10",
-    ring: "ring-emerald-500/30",
-    dot: "bg-emerald-400",
-    textAccent: "text-emerald-300",
-    borderAccent: "border-emerald-500/40",
-  },
-  {
-    id: "tech2" as TemplateType,
-    label: "Tech II",
-    description: "Visual IDE com paleta roxa e ciano",
-    image: TechTwo,
-    accent: "from-purple-500/10",
-    ring: "ring-purple-500/30",
-    dot: "bg-purple-400",
-    textAccent: "text-purple-300",
-    borderAccent: "border-purple-500/40",
-  },
-];
+import { TEMPLATES } from "@/app/contentData/modals/selectProfileTemplate";
 
 type SelectProfileTemplateModalProps = {
   onClose: () => void;
@@ -193,7 +143,7 @@ export function SelectProfileTemplateModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-xl border border-white/8 bg-white/4 px-5 py-2.5 text-sm text-zinc-300 transition-all hover:bg-white/8 hover:text-white"
+                className="rounded-xl border cursor-pointer border-white/8 bg-white/4 px-5 py-2.5 text-sm text-zinc-300 transition-all hover:bg-white/8 hover:text-white"
               >
                 Cancelar
               </button>
@@ -201,9 +151,9 @@ export function SelectProfileTemplateModal({
                 type="button"
                 onClick={() => selected && onSelect(selected)}
                 disabled={!selected}
-                className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex items-center gap-2 cursor-pointer rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                <Sparkles className="size-4" />
+                <CircleStar className="size-4" />
                 Visualizar Portfólio
               </button>
             </div>
