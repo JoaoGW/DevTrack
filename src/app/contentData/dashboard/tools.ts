@@ -24,7 +24,7 @@ export const tools = [
     description: "Gere seu portfólio completo e profissional automaticamente.",
     tag: "Automático",
     color: "sky",
-    route: "tools/#"
+    route: "tools/portfoliogen"
   },
   {
     icon: Globe,
@@ -32,12 +32,12 @@ export const tools = [
     description: "Sua URL exclusiva para compartilhar com recrutadores.",
     tag: "Online",
     color: "blue",
-    route: "tools/#"
+    route: "/tools/profile"
   },
   {
     icon: FileText,
     title: "Resume Generator",
-    description: "Currículo ATS-ready gerado a partir dos seus projetos.",
+    description: "Currículo ATS-ready gerado a partir dos seus projetos e informações.",
     tag: "ATS-Ready",
     color: "sky",
     route: "tools/#"

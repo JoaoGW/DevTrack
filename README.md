@@ -96,7 +96,7 @@ Recomendado: Vercel (integração com Next.js). Configure as mesmas variáveis d
 
 ## Licença
 
-Este repositório utiliza a licença padrão do projeto — adicione ou atualize conforme necessário.
+Este repositório utiliza a licença padrão do projeto.
 
 ---
 

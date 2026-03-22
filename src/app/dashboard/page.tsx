@@ -86,8 +86,7 @@ export default function Dashboard() {
   // Lógica de rotas com verificação em first render se há um usuário autenticado
   const router = useRouter();
   // Informações do usuário atualmente autenticado e status
-  const { user, token, setUser, setToken, setCredential, isLoading } =
-    useAuthUserFirebase();
+  const { user, token, isLoading } = useAuthUserFirebase();
 
   // Informações para a Navbar e Banner
   const displayName = user?.displayName ?? "Desenvolvedor";
@@ -97,7 +96,7 @@ export default function Dashboard() {
   // Informações para o UserData de repositórios e outros dados do GitHub
   const [githubStats, setGithubStats] = useState<Array<IGitHubStats>>([
     { label: "Repositórios", value: 0, icon: Code2, accent: "blue" },
-    { label: "Stars Recebidas", value: 0, icon: Star, accent: "yellow" },
+    { label: "Estrelas Recebidas", value: 0, icon: Star, accent: "yellow" },
     { label: "Seguidores", value: 0, icon: Users, accent: "sky" },
     { label: "Contribuições", value: 0, icon: Activity, accent: "emerald" },
   ]);
@@ -250,7 +249,7 @@ export default function Dashboard() {
                   className="cursor-pointer gap-2 border-white/10 bg-white/3 text-zinc-300 hover:border-white/20 hover:bg-white/7 hover:text-white"
                 >
                   <RefreshCw className="size-4" />
-                  Atualizar Análise
+                  Atualizar DevTrack Score
                 </Button>
               </div>
             </div>
@@ -459,7 +458,7 @@ export default function Dashboard() {
               <div className="flex size-11 items-center justify-center rounded-xl bg-white/5">
                 <Sparkles className="size-5 text-zinc-500" />
               </div>
-              <p className="text-sm text-zinc-600">Em breve</p>
+              <p className="text-sm text-zinc-600">+ em breve</p>
             </Card>
           </div>
         </section>

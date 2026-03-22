@@ -1,9 +1,9 @@
 import { usePathname, useRouter } from "next/navigation";
 
+import { Button } from "@/components/ui/button";
+
 import { auth } from "@/services/firebase";
 import { signOut } from "firebase/auth";
-
-import { Button } from "@/components/ui/button";
 
 import { useAuthUserFirebase } from "@/store/authUser.store";
 
@@ -56,7 +56,7 @@ export function Navbar({
         <nav className="absolute left-1/2 -translate-x-1/2 hidden items-center gap-1 md:flex">
           {[
             { label: "Dashboard", href: "/dashboard" },
-            { label: "Portfólio", href: "#" },
+            { label: "Portfólio", href: "/tools/portfoliogen" },
             { label: "Currículos", href: "#" },
             { label: "Score", href: "#" },
             { label: "Entrevistas", href: "#" },

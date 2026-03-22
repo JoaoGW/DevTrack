@@ -15,7 +15,6 @@ export async function POST(req: NextRequest) {
     const content = await generateResponseRegular(devInput, miniInput, maxTokens);
     return NextResponse.json({ content });
   } catch (error) {
-    console.error("Erro ao analisar repositório:", error);
     return NextResponse.json(
       { error: "Falha ao gerar análise - 500" },
       { status: 500 },
