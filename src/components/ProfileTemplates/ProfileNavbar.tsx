@@ -89,7 +89,7 @@ export function ProfileNavbar({ portfolio }: { portfolio: PortfolioData }) {
           </div>
           <button
             className="flex flex-col items-start cursor-pointer"
-            onClick={() => router.push("/")}
+            onClick={() => router.push("/dashboard")}
           >
             <p className="text-lg font-bold leading-none tracking-tight text-white">
               DevTrack

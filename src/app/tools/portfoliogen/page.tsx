@@ -40,6 +40,8 @@ import {
   CheckCircle2,
   FolderGit2,
   FileBadge,
+  HardDriveUpload,
+  RefreshCw,
 } from "lucide-react";
 
 // Helpers
@@ -125,6 +127,7 @@ export default function PortfolioGen() {
   >({});
   const [template, setTemplate] = useState<TemplateType | null>(null);
   const [defineTemplate, setDefineTemplate] = useState<boolean>(false);
+  const [portfolioFound, setPortfolioFound] = useState<boolean>(false);
 
   // 1. Contato
   const [nome, setNome] = useState(user?.displayName ?? "");
@@ -401,6 +404,19 @@ export default function PortfolioGen() {
         if (!data.success || !data.data) return;
 
         const dados = data.data;
+        const parseArrayField = <T,>(value: unknown): T[] => {
+          if (Array.isArray(value)) return value as T[];
+          if (typeof value === "string") {
+            try {
+              const parsed = JSON.parse(value);
+              return Array.isArray(parsed) ? (parsed as T[]) : [];
+            } catch {
+              return [];
+            }
+          }
+          return [];
+        };
+
         if (dados.nome) setNome(dados.nome);
         if (dados.email) setEmail(dados.email);
         if (dados.telefone) setTelefone(dados.telefone);
@@ -409,15 +425,29 @@ export default function PortfolioGen() {
         if (dados.linkedin) setLinkedinUrl(dados.linkedin);
         if (dados.website) setWebsite(dados.website);
         if (dados.perfil) setPerfil(dados.perfil);
-        if (dados.titulo_profissional)
-          setTituloProfissional(dados.titulo_profissional);
-        if (dados.skills) setSkills(JSON.parse(dados.skills));
-        if (dados.experiencias) setExperiences(JSON.parse(dados.experiencias));
-        if (dados.educacoes) setEducations(JSON.parse(dados.educacoes));
-        if (dados.certificacoes)
-          setCertifications(JSON.parse(dados.certificacoes));
-        if (dados.idiomas) setLanguages(JSON.parse(dados.idiomas));
-        if (dados.projetos) setProjects(JSON.parse(dados.projetos));
+        if (dados.tituloProfissional || dados.titulo_profissional)
+          setTituloProfissional(
+            dados.tituloProfissional ?? dados.titulo_profissional,
+          );
+
+        setSkills(parseArrayField<string>(dados.skills));
+        setExperiences(
+          parseArrayField<Experience>(dados.experiences ?? dados.experiencias),
+        );
+        setEducations(
+          parseArrayField<Education>(dados.educations ?? dados.educacoes),
+        );
+        setCertifications(
+          parseArrayField<Certification>(
+            dados.certifications ?? dados.certificacoes,
+          ),
+        );
+        setLanguages(
+          parseArrayField<Language>(dados.languages ?? dados.idiomas),
+        );
+        setProjects(parseArrayField<Project>(dados.projects ?? dados.projetos));
+
+        setPortfolioFound(true);
       } catch {
         // falha silenciosa (o formulário ficará em branco)
       }
@@ -1341,32 +1371,68 @@ export default function PortfolioGen() {
               </div>
             </section>
 
-            {/* ── CTA GERAR ── */}
-            <div className="flex flex-col items-center gap-4 rounded-2xl border border-white/6 bg-white/2 p-10 text-center">
-              <div className="flex size-12 items-center justify-center rounded-2xl bg-blue-500/10">
-                <Sparkles className="size-6 text-blue-400" />
+            {portfolioFound ? (
+              <div className="flex flex-col items-center gap-4 rounded-2xl border border-white/6 bg-white/2 p-10 text-center">
+                <div className="flex size-12 items-center justify-center rounded-2xl bg-blue-500/10">
+                  <Sparkles className="size-6 text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">
+                    Seu portfólio já foi gerado. O que deseja fazer?
+                  </h3>
+                </div>
+                <div className="flex flex-row gap-3">
+                  <Button
+                    type="button"
+                    size="lg"
+                    className="mt-1 cursor-pointer gap-2 bg-blue-600 px-10 text-white shadow-lg shadow-blue-950/40 hover:bg-blue-500"
+                    onClick={() => {
+                      setDefineTemplate(true);
+                    }}
+                  >
+                    <HardDriveUpload className="size-4" />
+                    Salvar alterações
+                  </Button>
+                  <Button
+                    type="button"
+                    size="lg"
+                    className="mt-1 cursor-pointer gap-2 bg-blue-600 px-10 text-white shadow-lg shadow-blue-950/40 hover:bg-blue-500"
+                    onClick={() => {
+                      setDefineTemplate(true);
+                    }}
+                  >
+                    <RefreshCw className="size-4" />
+                    Alterar template
+                  </Button>
+                </div>
               </div>
-              <div>
-                <h3 className="text-lg font-bold text-white">
-                  Pronto para gerar seu portfólio?
-                </h3>
-                <p className="mt-1 text-sm text-zinc-400">
-                  Revise suas informações e clique em gerar para criar seu
-                  portfólio profissional.
-                </p>
+            ) : (
+              <div className="flex flex-col items-center gap-4 rounded-2xl border border-white/6 bg-white/2 p-10 text-center">
+                <div className="flex size-12 items-center justify-center rounded-2xl bg-blue-500/10">
+                  <Sparkles className="size-6 text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">
+                    Pronto para gerar seu portfólio?
+                  </h3>
+                  <p className="mt-1 text-sm text-zinc-400">
+                    Revise suas informações e clique em gerar para criar seu
+                    portfólio profissional.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  size="lg"
+                  className="mt-1 cursor-pointer gap-2 bg-blue-600 px-10 text-white shadow-lg shadow-blue-950/40 hover:bg-blue-500"
+                  onClick={() => {
+                    setDefineTemplate(true);
+                  }}
+                >
+                  <Sparkles className="size-4" />
+                  Gerar Portfólio
+                </Button>
               </div>
-              <Button
-                type="button"
-                size="lg"
-                className="mt-1 cursor-pointer gap-2 bg-blue-600 px-10 text-white shadow-lg shadow-blue-950/40 hover:bg-blue-500"
-                onClick={() => {
-                  setDefineTemplate(true);
-                }}
-              >
-                <Sparkles className="size-4" />
-                Gerar Portfólio
-              </Button>
-            </div>
+            )}
           </div>
 
           {/* ── RIGHT: SIDEBAR ── */}

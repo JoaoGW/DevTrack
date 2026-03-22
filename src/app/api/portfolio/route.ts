@@ -10,10 +10,38 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const portfolio = await getUserById(userId);
-    if (!portfolio) {
+    const raw = await getUserById(userId);
+    if (!raw) {
       return NextResponse.json({ success: false, error: "Nenhum portfólio encontrado" }, { status: 404 });
     }
+
+    const parseJSON = (value: unknown, fallback: unknown[] = []) => {
+      if (Array.isArray(value)) return value;
+      if (typeof value === "string") {
+        try { return JSON.parse(value); } catch { return fallback; }
+      }
+      return fallback;
+    };
+
+    const portfolio = {
+      nome: raw.nome,
+      email: raw.email,
+      telefone: raw.telefone,
+      localizacao: raw.localizacao,
+      github: raw.github,
+      linkedin: raw.linkedin,
+      website: raw.website,
+      perfil: raw.perfil,
+      tituloProfissional: raw.titulo_profissional,
+      skills: parseJSON(raw.skills),
+      experiences: parseJSON(raw.experiencias),
+      educations: parseJSON(raw.educacoes),
+      certifications: parseJSON(raw.certificacoes),
+      languages: parseJSON(raw.idiomas),
+      projects: parseJSON(raw.projetos),
+      template: raw.template,
+    };
+
     return NextResponse.json({ success: true, data: portfolio });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Erro desconhecido";

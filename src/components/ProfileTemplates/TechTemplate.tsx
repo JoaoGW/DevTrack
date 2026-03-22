@@ -1,11 +1,15 @@
 "use client";
-
-import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+
+import { ProfileNavbar } from "./ProfileNavbar";
+import { PreviewInfo } from "../PreviewInfo";
+import { EditProfile } from "../EditProfile";
+
+import type { PortfolioData } from "./types";
 
 import TechBg from "@/assets/templates/TechOne.png";
-import type { PortfolioData } from "./types";
-import { ProfileNavbar } from "./ProfileNavbar";
 
 import {
   Mail,
@@ -171,6 +175,8 @@ export function TechTemplate({ portfolio }: { portfolio: PortfolioData }) {
   const hasLang = languages.some((l) => l.idioma);
   const hasProj = projects.some((p) => p.nome);
 
+  const pathname = usePathname();
+
   const slugHandle = nome
     .toLowerCase()
     .replace(/\s+/g, "_")
@@ -181,7 +187,10 @@ export function TechTemplate({ portfolio }: { portfolio: PortfolioData }) {
       className="min-h-screen bg-[#080810] text-white"
       style={{ fontFamily: "var(--font-geist-mono), monospace" }}
     >
+      {pathname === "/tools/profile" ? <PreviewInfo /> : null}
       <ProfileNavbar portfolio={portfolio} />
+      {pathname === "/tools/profile" ? <EditProfile /> : null}
+
       {/* ══ HERO ══ */}
       <header className="relative overflow-hidden">
         {/* Background com blur */}

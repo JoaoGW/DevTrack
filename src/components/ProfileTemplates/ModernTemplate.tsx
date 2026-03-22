@@ -1,11 +1,15 @@
 "use client";
-
-import Image from "next/image";
 import { useEffect, useRef, type ReactNode } from "react";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+
+import { ProfileNavbar } from "./ProfileNavbar";
+import { PreviewInfo } from "../PreviewInfo";
+import { EditProfile } from "../EditProfile";
+
+import type { PortfolioData } from "./types";
 
 import ModernBg from "@/assets/templates/Modern.png";
-import type { PortfolioData } from "./types";
-import { ProfileNavbar } from "./ProfileNavbar";
 
 import {
   Mail,
@@ -193,6 +197,8 @@ export function ModernTemplate({ portfolio }: { portfolio: PortfolioData }) {
   const hasLang = languages.some((l) => l.idioma);
   const hasProj = projects.some((p) => p.nome);
 
+  const pathname = usePathname();
+
   /* Iniciais do nome */
   const initials = nome
     .split(" ")
@@ -206,7 +212,10 @@ export function ModernTemplate({ portfolio }: { portfolio: PortfolioData }) {
       className="min-h-screen bg-[#080810] text-white"
       style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
     >
+      {pathname === "/tools/profile" ? <PreviewInfo /> : null}
       <ProfileNavbar portfolio={portfolio} />
+      {pathname === "/tools/profile" ? <EditProfile /> : null}
+
       {/* ══ HERO ══ */}
       <header className="relative overflow-hidden">
         {/* Background com blur */}
