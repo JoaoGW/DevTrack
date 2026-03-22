@@ -42,6 +42,7 @@ import {
   FileBadge,
   HardDriveUpload,
   RefreshCw,
+  Eye,
 } from "lucide-react";
 
 // Helpers
@@ -391,13 +392,65 @@ export default function PortfolioGen() {
     }
   };
 
+  const handleUpdatePortfolio = async (templateSelected?: TemplateType) => {
+    const payload = {
+      userId: user?.uid,
+      nome,
+      email,
+      telefone,
+      localizacao,
+      github: githubUrl,
+      linkedin: linkedinUrl,
+      website,
+      perfil,
+      tituloProfissional,
+      skills,
+      experiences,
+      educations,
+      certifications,
+      languages,
+      projects,
+      template: templateSelected === null ? template : templateSelected,
+    };
+
+    const response = await fetch("/api/portfolio", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      router.push("/tools/profile");
+    } else {
+      alert("Ocorreu uma falha ao atualizar suas informações no servidor");
+    }
+  };
+
+  const handleTemplateOnlyUpdate = async (selectedTemplate: TemplateType) => {
+    const response = await fetch("/api/portfolio", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: user?.uid, template: selectedTemplate }),
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      setTemplate(selectedTemplate);
+      router.push("/tools/profile");
+    } else {
+      alert("Ocorreu uma falha ao alterar o template no servidor");
+    }
+  };
+
   // Verifica se este usuário já possui informações salvas no database
   useEffect(() => {
-    if (!user?.uid) return;
+    const currentUserId = user?.uid;
+    if (!currentUserId) return;
 
     async function loadPortfolio() {
       try {
-        const response = await fetch(`/api/portfolio?userId=${user!.uid}`);
+        const response = await fetch(`/api/portfolio?userId=${currentUserId}`);
         if (response.status === 404) return; // sem portfólio ainda, formulário ficará em branco
 
         const data = await response.json();
@@ -429,7 +482,6 @@ export default function PortfolioGen() {
           setTituloProfissional(
             dados.tituloProfissional ?? dados.titulo_profissional,
           );
-
         setSkills(parseArrayField<string>(dados.skills));
         setExperiences(
           parseArrayField<Experience>(dados.experiences ?? dados.experiencias),
@@ -446,6 +498,7 @@ export default function PortfolioGen() {
           parseArrayField<Language>(dados.languages ?? dados.idiomas),
         );
         setProjects(parseArrayField<Project>(dados.projects ?? dados.projetos));
+        if (dados.template) setTemplate(dados.template);
 
         setPortfolioFound(true);
       } catch {
@@ -467,7 +520,7 @@ export default function PortfolioGen() {
         username={undefined}
       />
 
-      <main className="mx-auto max-w-screen-xl space-y-8 px-10 py-12">
+      <main className="mx-auto max-w-7xl space-y-8 px-10 py-12">
         {/* ── PAGE HEADER ── */}
         <div
           className="relative overflow-hidden rounded-2xl border border-white/6 p-10"
@@ -1387,7 +1440,7 @@ export default function PortfolioGen() {
                     size="lg"
                     className="mt-1 cursor-pointer gap-2 bg-blue-600 px-10 text-white shadow-lg shadow-blue-950/40 hover:bg-blue-500"
                     onClick={() => {
-                      setDefineTemplate(true);
+                      handleUpdatePortfolio();
                     }}
                   >
                     <HardDriveUpload className="size-4" />
@@ -1403,6 +1456,17 @@ export default function PortfolioGen() {
                   >
                     <RefreshCw className="size-4" />
                     Alterar template
+                  </Button>
+                  <Button
+                    type="button"
+                    size="lg"
+                    className="mt-1 cursor-pointer gap-2 bg-blue-600 px-10 text-white shadow-lg shadow-blue-950/40 hover:bg-blue-500"
+                    onClick={() => {
+                      router.push("/tools/profile");
+                    }}
+                  >
+                    <Eye className="size-4" />
+                    Visualizar Portfólio
                   </Button>
                 </div>
               </div>
@@ -1522,7 +1586,11 @@ export default function PortfolioGen() {
               onClose={() => router.back()}
               onSelect={(t) => {
                 setTemplate(t);
-                handleGeneratePortfolio(t);
+                if (portfolioFound) {
+                  handleTemplateOnlyUpdate(t);
+                } else {
+                  handleGeneratePortfolio(t);
+                }
               }}
             />
           </div>

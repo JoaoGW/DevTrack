@@ -20,13 +20,16 @@ import type { Certification } from "@/app/contentData/portfolioGen/interfaces/IC
 import type { Language } from "@/app/contentData/portfolioGen/interfaces/ILanguage";
 import type { Project } from "@/app/contentData/portfolioGen/interfaces/IProject";
 
-function parseJSON<T>(raw: string | undefined | null, fallback: T): T {
-  if (!raw) return fallback;
-  try {
-    return JSON.parse(raw) as T;
-  } catch {
-    return fallback;
+function parseArrayOrJSON<T>(raw: unknown, fallback: T[]): T[] {
+  if (Array.isArray(raw)) return raw as T[];
+  if (typeof raw === "string" && raw.trim() !== "") {
+    try {
+      return JSON.parse(raw) as T[];
+    } catch {
+      /* fall through */
+    }
   }
+  return fallback;
 }
 
 export default function Profile() {
@@ -36,13 +39,6 @@ export default function Profile() {
   const [template, setTemplate] = useState<TemplateType | null>(null);
   const [portfolio, setPortfolio] = useState<PortfolioData | null>(null);
   const [loading, setLoading] = useState(false);
-
-  // Escolha do template
-  useEffect(() => {
-    if (!loading && portfolio && !template) {
-      router.push("/tools/portfoliogen");
-    }
-  }, [loading, portfolio, template, router]);
 
   useEffect(() => {
     if (!user?.uid) return;
@@ -63,16 +59,32 @@ export default function Profile() {
             linkedin: dados.linkedin ?? "",
             website: dados.website ?? "",
             perfil: dados.perfil ?? "",
-            tituloProfissional: dados.titulo_profissional ?? "",
-            skills: parseJSON<string[]>(dados.skills, []),
-            experiences: parseJSON<Experience[]>(dados.experiencias, []),
-            educations: parseJSON<Education[]>(dados.educacoes, []),
-            certifications: parseJSON<Certification[]>(dados.certificacoes, []),
-            languages: parseJSON<Language[]>(dados.idiomas, []),
-            projects: parseJSON<Project[]>(dados.projetos, []),
+            tituloProfissional:
+              dados.tituloProfissional ?? dados.titulo_profissional ?? "",
+            skills: parseArrayOrJSON<string>(dados.skills, []),
+            experiences: parseArrayOrJSON<Experience>(
+              dados.experiences ?? dados.experiencias,
+              [],
+            ),
+            educations: parseArrayOrJSON<Education>(
+              dados.educations ?? dados.educacoes,
+              [],
+            ),
+            certifications: parseArrayOrJSON<Certification>(
+              dados.certifications ?? dados.certificacoes,
+              [],
+            ),
+            languages: parseArrayOrJSON<Language>(
+              dados.languages ?? dados.idiomas,
+              [],
+            ),
+            projects: parseArrayOrJSON<Project>(
+              dados.projects ?? dados.projetos,
+              [],
+            ),
             template: dados.template,
           });
-          if (dados.template) setTemplate(dados.template as TemplateType);
+          setTemplate((dados.template as TemplateType) ?? "minimalist");
         }
       })
       .catch(() => {})

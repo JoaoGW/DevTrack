@@ -12,12 +12,15 @@ type PortfolioPageURLParams = {
 };
 
 async function fetchPortfolio(userId: string): Promise<PortfolioData | null> {
+  const fetchOpts: RequestInit = { cache: "no-store" };
   let response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/portfolio?userId=${userId}`,
+    fetchOpts,
   );
   if (!response.ok) {
     response = await fetch(
       `http://localhost:3000/api/portfolio?userId=${userId}`,
+      fetchOpts,
     );
     if (!response.ok) {
       return null;

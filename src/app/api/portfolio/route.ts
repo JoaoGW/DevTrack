@@ -103,3 +103,88 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
+
+export async function PUT(req: NextRequest) {
+  const data = await req.json();
+
+  const fieldValues = [
+    data.nome,
+    data.email,
+    data.telefone,
+    data.localizacao,
+    data.github,
+    data.linkedin,
+    data.website,
+    data.perfil,
+    data.tituloProfissional,
+    JSON.stringify(data.skills),
+    JSON.stringify(data.experiences),
+    JSON.stringify(data.educations),
+    JSON.stringify(data.certifications),
+    JSON.stringify(data.languages),
+    JSON.stringify(data.projects),
+    data.template,
+  ];
+
+  try {
+    const [existing] = await pool.query(
+      'SELECT id FROM portfolio WHERE user_id = ? LIMIT 1',
+      [data.userId]
+    );
+    const rows = existing as { id: number }[];
+
+    if (rows.length > 0) {
+      await pool.query(
+        `UPDATE portfolio SET
+          nome=?, email=?, telefone=?, localizacao=?, github=?, linkedin=?, website=?,
+          perfil=?, titulo_profissional=?, skills=?, experiencias=?, educacoes=?,
+          certificacoes=?, idiomas=?, projetos=?, template=?
+         WHERE user_id=?`,
+        [...fieldValues, data.userId]
+      );
+      return NextResponse.json({ success: true });
+    } else {
+      const [result] = await pool.query<ResultSetHeader>(
+        `UPDATE INTO portfolio
+          (user_id, nome, email, telefone, localizacao, github, linkedin, website, perfil,
+           titulo_profissional, skills, experiencias, educacoes, certificacoes, idiomas, projetos, template)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [data.userId, ...fieldValues]
+      );
+      return NextResponse.json({ success: true, id: result.insertId });
+    }
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Erro desconhecido";
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  const data = await req.json();
+
+  if (!data?.userId || !data?.template) {
+    return NextResponse.json(
+      { success: false, error: "userId e template são obrigatórios" },
+      { status: 400 },
+    );
+  }
+
+  try {
+    const [result] = await pool.query<ResultSetHeader>(
+      "UPDATE portfolio SET template = ? WHERE user_id = ?",
+      [data.template, data.userId],
+    );
+
+    if (result.affectedRows === 0) {
+      return NextResponse.json(
+        { success: false, error: "Portfólio não encontrado para este usuário" },
+        { status: 404 },
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Erro desconhecido";
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}
