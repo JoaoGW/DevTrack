@@ -40,7 +40,7 @@ export const tools = [
     description: "Currículo ATS-ready gerado a partir dos seus projetos e informações.",
     tag: "ATS-Ready",
     color: "sky",
-    route: "tools/#"
+    route: "tools/resumegen"
   },
   {
     icon: Briefcase,
