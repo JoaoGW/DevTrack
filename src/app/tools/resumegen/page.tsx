@@ -661,7 +661,7 @@ export default function ResumeGen() {
                 className="border-blue-500/20 bg-blue-500/8 text-sm text-blue-300"
               >
                 <Sparkles className="mr-1.5 size-3.5" />
-                Currículo profissional em minutos
+                Currículo profissional em segundos
               </Badge>
 
               <div className="w-full sm:w-56">
@@ -865,7 +865,7 @@ export default function ResumeGen() {
                   <Button
                     type="button"
                     onClick={addSkill}
-                    className="shrink-0 cursor-pointer gap-2 bg-blue-600 text-white hover:bg-blue-500"
+                    className="shrink-0 cursor-pointer h-12 gap-2 bg-blue-600 text-white hover:bg-blue-500"
                   >
                     <Plus className="size-4" />
                     Adicionar
@@ -1305,7 +1305,7 @@ export default function ResumeGen() {
               <Button
                 type="button"
                 onClick={() => {}}
-                className="shrink-0 cursor-pointer gap-2 bg-blue-600 text-white hover:bg-blue-500"
+                className="shrink-0 cursor-pointer gap-2 h-10 bg-blue-600 text-white hover:bg-blue-500"
               >
                 <Download className="size-4" />
                 Download

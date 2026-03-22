@@ -57,7 +57,7 @@ export function Navbar({
           {[
             { label: "Dashboard", href: "/dashboard" },
             { label: "Portfólio", href: "/tools/portfoliogen" },
-            { label: "Currículos", href: "#" },
+            { label: "Currículos", href: "/tools/resumegen" },
             { label: "Score", href: "#" },
             { label: "Entrevistas", href: "#" },
             { label: "Premium", href: "/premium/gopremium" },
