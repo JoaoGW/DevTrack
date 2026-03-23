@@ -1,11 +1,19 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { SectionTitle } from "@/components/ResumeGen UI/SectionTitle";
+import { Toggle } from "@/components/ResumeGen UI/Toggle";
+import { PdfPreview } from "@/components/ResumeGen UI/PDFPreview";
 
 import { useAuthUserFirebase } from "@/store/authUser.store";
+
+import { Certification } from "@/app/contentData/resumegen/interfaces/ICertification";
+import { Education } from "@/app/contentData/resumegen/interfaces/IEducation";
+import { Experience } from "@/app/contentData/resumegen/interfaces/IExperience";
+import { Language } from "@/app/contentData/resumegen/interfaces/ILanguage";
 
 import {
   User,
@@ -30,7 +38,7 @@ import {
   FileBadge,
 } from "lucide-react";
 
-// ─── Design tokens ────────────────────────────────────────────────────────────
+// Design tokens
 const uid = () => Math.random().toString(36).slice(2, 9);
 const inputCls =
   "w-full rounded-xl border border-white/6 bg-white/2 py-3 px-4 text-sm text-white placeholder-zinc-600 outline-none transition-all focus:border-blue-500/40 focus:bg-white/4";
@@ -39,382 +47,6 @@ const cardCls = "rounded-2xl border border-white/6 bg-white/2 p-8";
 const innerCardCls = "rounded-xl border border-white/6 bg-white/2 p-5";
 const dottedBtnCls =
   "flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/10 py-3.5 text-sm text-zinc-500 transition-all duration-200 hover:border-blue-500/30 hover:bg-blue-500/4 hover:text-blue-300 cursor-pointer";
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
-function SectionTitle({
-  icon,
-  title,
-}: {
-  icon: React.ReactNode;
-  title: string;
-}) {
-  return (
-    <div className="flex items-center gap-3 border-b border-white/6 pb-4">
-      <div className="flex size-9 items-center justify-center rounded-xl bg-white/4">
-        {icon}
-      </div>
-      <h2 className="text-lg font-bold text-white">{title}</h2>
-    </div>
-  );
-}
-
-function Toggle({
-  checked,
-  onToggle,
-  label,
-}: {
-  checked: boolean;
-  onToggle: () => void;
-  label: string;
-}) {
-  return (
-    <div className="flex items-center gap-2">
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={onToggle}
-        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border transition-all duration-200 ${
-          checked
-            ? "border-blue-500/40 bg-blue-600"
-            : "border-white/10 bg-white/8"
-        }`}
-      >
-        <span
-          className={`pointer-events-none inline-block size-3.5 rounded-full bg-white shadow transition-transform duration-200 ${
-            checked ? "translate-x-4" : "translate-x-0.5"
-          }`}
-        />
-      </button>
-      <span className="text-sm text-zinc-400">{label}</span>
-    </div>
-  );
-}
-
-// ─── PDF Preview Component ────────────────────────────────────────────────────
-function PdfPreview({
-  nome,
-  tituloProfissional,
-  email,
-  telefone,
-  localizacao,
-  githubUrl,
-  linkedinUrl,
-  perfil,
-  skills,
-  experiences,
-  educations,
-  certifications,
-  languages,
-}: {
-  nome: string;
-  tituloProfissional: string;
-  email: string;
-  telefone: string;
-  localizacao: string;
-  githubUrl: string;
-  linkedinUrl: string;
-  perfil: string;
-  skills: string[];
-  experiences: Experience[];
-  educations: Education[];
-  certifications: Certification[];
-  languages: Language[];
-}) {
-  return (
-    <div
-      className="w-full origin-top rounded-xl bg-white text-[#1a1a1a] shadow-2xl"
-      style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 11 }}
-    >
-      {/* Header */}
-      <div className="border-b-4 border-[#1e3a5f] bg-[#1e3a5f] px-10 py-8 text-white">
-        <h1
-          className="text-2xl font-bold tracking-wide"
-          style={{ fontFamily: "Arial, sans-serif" }}
-        >
-          {nome || "SEU NOME COMPLETO"}
-        </h1>
-        <p
-          className="mt-1 text-sm font-semibold uppercase tracking-widest text-blue-200"
-          style={{ fontFamily: "Arial, sans-serif" }}
-        >
-          {tituloProfissional || "Título Profissional"}
-        </p>
-
-        <div
-          className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-blue-100"
-          style={{ fontFamily: "Arial, sans-serif" }}
-        >
-          {email && (
-            <span className="flex items-center gap-1">
-              <span className="opacity-70">✉</span> {email}
-            </span>
-          )}
-          {telefone && (
-            <span className="flex items-center gap-1">
-              <span className="opacity-70">📞</span> {telefone}
-            </span>
-          )}
-          {localizacao && (
-            <span className="flex items-center gap-1">
-              <span className="opacity-70">📍</span> {localizacao}
-            </span>
-          )}
-          {githubUrl && (
-            <span className="flex items-center gap-1">
-              <span className="opacity-70">⌥</span>{" "}
-              {githubUrl.replace("https://", "")}
-            </span>
-          )}
-          {linkedinUrl && (
-            <span className="flex items-center gap-1">
-              <span className="opacity-70">in</span>{" "}
-              {linkedinUrl.replace("https://", "")}
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Body */}
-      <div className="px-10 py-7 space-y-5">
-        {/* Resumo */}
-        {perfil && (
-          <div>
-            <h2
-              className="mb-2 text-xs font-bold uppercase tracking-widest text-[#1e3a5f] border-b border-[#1e3a5f]/30 pb-1"
-              style={{ fontFamily: "Arial, sans-serif" }}
-            >
-              Perfil Profissional
-            </h2>
-            <p className="text-xs leading-relaxed text-zinc-700">{perfil}</p>
-          </div>
-        )}
-
-        {/* Habilidades */}
-        {skills.length > 0 && (
-          <div>
-            <h2
-              className="mb-2 text-xs font-bold uppercase tracking-widest text-[#1e3a5f] border-b border-[#1e3a5f]/30 pb-1"
-              style={{ fontFamily: "Arial, sans-serif" }}
-            >
-              Habilidades
-            </h2>
-            <div className="flex flex-wrap gap-1.5">
-              {skills.map((s) => (
-                <span
-                  key={s}
-                  className="rounded bg-[#1e3a5f]/8 border border-[#1e3a5f]/15 px-2 py-0.5 text-[10px] text-zinc-700"
-                  style={{ fontFamily: "Arial, sans-serif" }}
-                >
-                  {s}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Experiência */}
-        {experiences.some((e) => e.cargo || e.empresa) && (
-          <div>
-            <h2
-              className="mb-3 text-xs font-bold uppercase tracking-widest text-[#1e3a5f] border-b border-[#1e3a5f]/30 pb-1"
-              style={{ fontFamily: "Arial, sans-serif" }}
-            >
-              Experiência Profissional
-            </h2>
-            <div className="space-y-3">
-              {experiences
-                .filter((e) => e.cargo || e.empresa)
-                .map((exp) => (
-                  <div key={exp.id}>
-                    <div
-                      className="flex items-start justify-between"
-                      style={{ fontFamily: "Arial, sans-serif" }}
-                    >
-                      <div>
-                        <p className="text-xs font-bold text-zinc-800">
-                          {exp.cargo || "—"}
-                        </p>
-                        <p className="text-xs text-zinc-600">
-                          {exp.empresa}
-                          {exp.local ? ` · ${exp.local}` : ""}
-                        </p>
-                      </div>
-                      <p className="text-[10px] text-zinc-500 shrink-0 ml-2">
-                        {exp.inicio}
-                        {exp.inicio ? " – " : ""}
-                        {exp.atual ? "Atual" : exp.fim}
-                      </p>
-                    </div>
-                    {exp.descricao && (
-                      <p className="mt-1 text-[10px] leading-relaxed text-zinc-600">
-                        {exp.descricao}
-                      </p>
-                    )}
-                  </div>
-                ))}
-            </div>
-          </div>
-        )}
-
-        {/* Educação */}
-        {educations.some((e) => e.curso || e.instituicao) && (
-          <div>
-            <h2
-              className="mb-3 text-xs font-bold uppercase tracking-widest text-[#1e3a5f] border-b border-[#1e3a5f]/30 pb-1"
-              style={{ fontFamily: "Arial, sans-serif" }}
-            >
-              Educação
-            </h2>
-            <div className="space-y-2">
-              {educations
-                .filter((e) => e.curso || e.instituicao)
-                .map((edu) => (
-                  <div
-                    key={edu.id}
-                    className="flex items-start justify-between"
-                    style={{ fontFamily: "Arial, sans-serif" }}
-                  >
-                    <div>
-                      <p className="text-xs font-bold text-zinc-800">
-                        {edu.curso || "—"}
-                      </p>
-                      <p className="text-xs text-zinc-600">
-                        {edu.instituicao}
-                        {edu.grau ? ` · ${edu.grau}` : ""}
-                      </p>
-                    </div>
-                    <p className="text-[10px] text-zinc-500 shrink-0 ml-2">
-                      {edu.inicio}
-                      {edu.inicio ? " – " : ""}
-                      {edu.atual ? "Atual" : edu.fim}
-                    </p>
-                  </div>
-                ))}
-            </div>
-          </div>
-        )}
-
-        {/* Certificações */}
-        {certifications.length > 0 && (
-          <div>
-            <h2
-              className="mb-3 text-xs font-bold uppercase tracking-widest text-[#1e3a5f] border-b border-[#1e3a5f]/30 pb-1"
-              style={{ fontFamily: "Arial, sans-serif" }}
-            >
-              Certificações
-            </h2>
-            <div className="space-y-1.5">
-              {certifications.map((cert) => (
-                <div
-                  key={cert.id}
-                  className="flex items-center justify-between"
-                  style={{ fontFamily: "Arial, sans-serif" }}
-                >
-                  <div>
-                    <p className="text-xs font-semibold text-zinc-800">
-                      {cert.nome || "—"}
-                    </p>
-                    {cert.emissor && (
-                      <p className="text-[10px] text-zinc-500">
-                        {cert.emissor}
-                      </p>
-                    )}
-                  </div>
-                  {cert.data && (
-                    <p className="text-[10px] text-zinc-500 ml-2">
-                      {cert.data}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Idiomas */}
-        {languages.some((l) => l.idioma) && (
-          <div>
-            <h2
-              className="mb-2 text-xs font-bold uppercase tracking-widest text-[#1e3a5f] border-b border-[#1e3a5f]/30 pb-1"
-              style={{ fontFamily: "Arial, sans-serif" }}
-            >
-              Idiomas
-            </h2>
-            <div className="flex flex-wrap gap-3">
-              {languages
-                .filter((l) => l.idioma)
-                .map((lang) => (
-                  <span
-                    key={lang.id}
-                    className="text-xs text-zinc-700"
-                    style={{ fontFamily: "Arial, sans-serif" }}
-                  >
-                    <span className="font-semibold">{lang.idioma}</span>{" "}
-                    <span className="text-zinc-500">· {lang.nivel}</span>
-                  </span>
-                ))}
-            </div>
-          </div>
-        )}
-
-        {/* Placeholder vazio */}
-        {!perfil &&
-          skills.length === 0 &&
-          !experiences.some((e) => e.cargo) &&
-          !educations.some((e) => e.curso) && (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <FileText className="mb-3 size-10 text-zinc-300" />
-              <p
-                className="text-sm font-semibold text-zinc-400"
-                style={{ fontFamily: "Arial, sans-serif" }}
-              >
-                Preencha o formulário ao lado
-              </p>
-              <p
-                className="text-xs text-zinc-400/60 mt-1"
-                style={{ fontFamily: "Arial, sans-serif" }}
-              >
-                Seu currículo aparecerá aqui em tempo real
-              </p>
-            </div>
-          )}
-      </div>
-    </div>
-  );
-}
-
-// ─── Interfaces ───────────────────────────────────────────────────────────────
-interface Experience {
-  id: string;
-  cargo: string;
-  empresa: string;
-  local: string;
-  inicio: string;
-  fim: string;
-  atual: boolean;
-  descricao: string;
-}
-interface Education {
-  id: string;
-  curso: string;
-  instituicao: string;
-  grau: string;
-  inicio: string;
-  fim: string;
-  atual: boolean;
-}
-interface Certification {
-  id: string;
-  nome: string;
-  emissor: string;
-  data: string;
-}
-interface Language {
-  id: string;
-  idioma: string;
-  nivel: string;
-}
 
 // Main Page
 export default function ResumeGen() {
@@ -594,6 +226,67 @@ export default function ResumeGen() {
     (sections.filter((s) => s.done).length / sections.length) * 100,
   );
 
+  // Verifica se este usuário já possui informações salvas no database
+  useEffect(() => {
+    const currentUserId = user?.uid;
+    if (!currentUserId) return;
+
+    async function loadPortfolio() {
+      try {
+        const response = await fetch(`/api/portfolio?userId=${currentUserId}`);
+        if (response.status === 404) return; // sem portfólio ainda, formulário ficará em branco
+
+        const data = await response.json();
+        if (!data.success || !data.data) return;
+
+        const dados = data.data;
+        const parseArrayField = <T,>(value: unknown): T[] => {
+          if (Array.isArray(value)) return value as T[];
+          if (typeof value === "string") {
+            try {
+              const parsed = JSON.parse(value);
+              return Array.isArray(parsed) ? (parsed as T[]) : [];
+            } catch {
+              return [];
+            }
+          }
+          return [];
+        };
+
+        if (dados.nome) setNome(dados.nome);
+        if (dados.email) setEmail(dados.email);
+        if (dados.telefone) setTelefone(dados.telefone);
+        if (dados.localizacao) setLocalizacao(dados.localizacao);
+        if (dados.github) setGithubUrl(dados.github);
+        if (dados.linkedin) setLinkedinUrl(dados.linkedin);
+        if (dados.website) setWebsite(dados.website);
+        if (dados.perfil) setPerfil(dados.perfil);
+        if (dados.tituloProfissional || dados.titulo_profissional)
+          setTituloProfissional(
+            dados.tituloProfissional ?? dados.titulo_profissional,
+          );
+        setSkills(parseArrayField<string>(dados.skills));
+        setExperiences(
+          parseArrayField<Experience>(dados.experiences ?? dados.experiencias),
+        );
+        setEducations(
+          parseArrayField<Education>(dados.educations ?? dados.educacoes),
+        );
+        setCertifications(
+          parseArrayField<Certification>(
+            dados.certifications ?? dados.certificacoes,
+          ),
+        );
+        setLanguages(
+          parseArrayField<Language>(dados.languages ?? dados.idiomas),
+        );
+      } catch {
+        // falha silenciosa (o formulário ficará em branco)
+      }
+    }
+    loadPortfolio();
+  }, [user?.uid]);
+
   return (
     <div
       className="min-h-screen bg-[#080810] text-white"
@@ -606,7 +299,7 @@ export default function ResumeGen() {
         username={undefined}
       />
 
-      <main className="mx-auto max-w-[1600px] space-y-8 px-10 py-12">
+      <main className="mx-auto max-w-400 space-y-8 px-10 py-12">
         {/* ── PAGE HEADER ── */}
         <div
           className="relative overflow-hidden rounded-2xl border border-white/6 p-10"
@@ -833,9 +526,19 @@ export default function ResumeGen() {
                     className={`${inputCls} resize-none leading-relaxed`}
                     maxLength={800}
                   />
-                  <p className="mt-1.5 text-xs text-zinc-600">
-                    {perfil.length} / 800 caracteres
-                  </p>
+                  <div className="mt-2 flex items-center justify-between">
+                    <p className="text-xs text-zinc-600">
+                      {perfil.length} / 800 caracteres
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {}}
+                      className="flex items-center gap-1.5 rounded-lg border border-violet-500/20 bg-violet-500/8 px-3 py-1.5 text-xs font-medium text-violet-300 transition-all hover:border-violet-500/40 hover:bg-violet-500/14 cursor-pointer"
+                    >
+                      <Sparkles className="size-3.5" />
+                      Melhorar texto com IA
+                    </button>
+                  </div>
                 </div>
               </div>
             </section>
@@ -1014,6 +717,16 @@ export default function ResumeGen() {
                           }
                           className={`${inputCls} resize-none`}
                         />
+                        <div className="mt-2 flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => {}}
+                            className="flex items-center gap-1.5 rounded-lg border border-violet-500/20 bg-violet-500/8 px-3 py-1.5 text-xs font-medium text-violet-300 transition-all hover:border-violet-500/40 hover:bg-violet-500/14 cursor-pointer"
+                          >
+                            <Sparkles className="size-3.5" />
+                            Melhorar texto com IA
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1285,7 +998,7 @@ export default function ResumeGen() {
             </section>
           </div>
 
-          {/* ──────────────────── RIGHT: PDF PREVIEW ──────────────────── */}
+          {/* RIGHT: PDF PREVIEW */}
           <div className="xl:sticky xl:top-24 xl:self-start">
             {/* Toolbar: filename + download */}
             <div className="mb-4 flex items-center gap-3">
@@ -1327,7 +1040,7 @@ export default function ResumeGen() {
               </div>
 
               {/* Scrollable PDF page */}
-              <div className="max-h-[900px] overflow-y-auto rounded-lg">
+              <div className="max-h-225 overflow-y-auto rounded-lg">
                 <PdfPreview
                   nome={nome}
                   tituloProfissional={tituloProfissional}
