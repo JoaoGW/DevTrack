@@ -4,12 +4,13 @@ export const baseSourceCVLatex = String.raw`
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[portuguese]{babel}
+\usepackage[portuguese,english]{babel}
 \usepackage{geometry}
 \usepackage{parskip}
 \usepackage{hyperref}
 \usepackage{titlesec}
-% \usepackage{xurl}
+\usepackage{lmodern}
+\usepackage{microtype}
 
 \geometry{top=1.0cm, bottom=1.0cm, left=1.0cm, right=1.0cm}
 \pagestyle{empty}
