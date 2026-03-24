@@ -26,9 +26,9 @@ export async function POST(request: NextRequest, response: NextResponse) {
       JSON.stringify(data.languages)
     ];
 
-    if (!devInput || !nanoInput) {
+    if (!devInput || (actionType === "rewrite" && !nanoInput)) {
       return NextResponse.json(
-        { error: "Os campos devInput e nanoInput são obrigatórios." },
+        { error: "Os campos devInput e nanoInput são obrigatórios para rewrite." },
         { status: 400 },
       );
     }
@@ -37,8 +37,24 @@ export async function POST(request: NextRequest, response: NextResponse) {
       const content = await generateResponseNano(devInput, nanoInput, maxTokens);
       return NextResponse.json({ content });
     } else if (actionType === "update") {
-      const texCode = await generateResponseMini(devInput, miniInput + fieldFormValues, maxTokens);
-      const pdfBuffer = await compileTex(texCode);
+      const rawTexCode = await generateResponseMini(devInput, miniInput + fieldFormValues, maxTokens);
+
+      // (SOLUÇÃO DO COPILOT): A IA às vezes envolve o código em blocos markdown (```latex ... ```) — remove antes de compilar
+      const texCode = rawTexCode
+        .replace(/^```(?:latex|tex)?\s*/i, "")
+        .replace(/\s*```\s*$/, "")
+        .trim();
+
+      let pdfBuffer: Buffer;
+      try {
+        pdfBuffer = await compileTex(texCode);
+      } catch (latexError) {
+        return NextResponse.json(
+          { error: `Erro na compilação LaTeX: ${latexError}` },
+          { status: 500 },
+        );
+      }
+
       return new Response(new Uint8Array(pdfBuffer), {
         headers: { "Content-Type": "application/pdf" },
       });

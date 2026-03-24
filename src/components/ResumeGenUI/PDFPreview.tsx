@@ -1,12 +1,19 @@
 "use client";
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 // PDF Preview Component
-export function PdfPreview({ pdfUrl }: { pdfUrl: string | null }) {
+export function PdfPreview({
+  pdfUrl,
+  isGenerating,
+}: {
+  pdfUrl: string | null;
+  isGenerating: boolean;
+}) {
   const hasPdf = useMemo(() => Boolean(pdfUrl), [pdfUrl]);
+  const [numPages, setNumPages] = useState<number>(0);
 
   return (
     <div
@@ -15,11 +22,14 @@ export function PdfPreview({ pdfUrl }: { pdfUrl: string | null }) {
     >
       {!hasPdf ? (
         <div className="flex min-h-105 items-center justify-center px-6 text-center text-sm text-zinc-500">
-          Gere um PDF para visualizar o resultado aqui.
+          {!isGenerating
+            ? "Gere um PDF para visualizar o resultado aqui."
+            : "Finalizando documento e Carregando a prévia online. Aguarde..."}
         </div>
       ) : (
         <Document
           file={pdfUrl}
+          onLoadSuccess={({ numPages }) => setNumPages(numPages)}
           loading={
             <div className="flex min-h-105 items-center justify-center text-sm text-zinc-500">
               Carregando PDF...
@@ -31,12 +41,15 @@ export function PdfPreview({ pdfUrl }: { pdfUrl: string | null }) {
             </div>
           }
         >
-          <Page
-            pageNumber={1}
-            width={760}
-            renderTextLayer={false}
-            renderAnnotationLayer={false}
-          />
+          {Array.from({ length: numPages }, (_, i) => (
+            <Page
+              key={i + 1}
+              pageNumber={i + 1}
+              width={760}
+              renderTextLayer={false}
+              renderAnnotationLayer={false}
+            />
+          ))}
         </Document>
       )}
     </div>

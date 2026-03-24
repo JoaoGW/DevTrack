@@ -57,14 +57,21 @@ export const baseSourceCVLatex = String.raw`
 
 \section{Habilidades}
     \begin{itemize}
-        {{HABILIDADES_BULLETS}}
+        \item \textbf{Linguagens:}{{HABILIDADES_SEPARADAS_EM_VIRGULA_LINGUAGENS_PROGRAMAÇÃO}}
+        \item \textbf{Frameworks:}{{HABILIDADES_SEPARADAS_EM_VIRGULA_FRAMEWORKS}}
+        \item \textbf{Ferramentas:}{{HABILIDADES_SEPARADAS_EM_VIRGULA_FERRAMENTAS}}
     \end{itemize}
 
 \section{Experiência}
     {{EXPERIENCIAS_BLOCK}}
 
 \section{Educação}
-    {{EDUCACAO_BLOCK}}
+    \subsection*{\texorpdfstring{
+            \textbf{{{EDUCACAO_NOME_FACULDADE}}}
+        }{
+            {{EDUCACAO_NOME_FACULDADE}}
+        }}
+    \textit{{{EDUCACAO_GRAU_FORMACAO}} em {{EDUCACAO_NOME_CURSO}} \hfill {{EDUCACAO_FACULDADE_DATA_INICIO}} - {{EDUCACAO_FACULDADE_DATA_FIM}}}
 
 \section{Certificações}
 \begin{itemize}

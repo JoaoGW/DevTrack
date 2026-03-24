@@ -20,7 +20,6 @@ export async function generateResponseMini(devInput: string, miniInput: string, 
       { role: "developer", content: devInput },
       { role: "user", content: miniInput },
     ],
-    tools: [{ type: "web_search_preview" }],
     temperature: 0.2,
     max_output_tokens: maxTokens  // estourando 500 =~ 375 palavras
   });

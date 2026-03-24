@@ -38,6 +38,7 @@ import {
   Download,
   CheckCircle2,
   FileBadge,
+  Loader,
 } from "lucide-react";
 
 // Design tokens
@@ -58,13 +59,10 @@ export default function ResumeGen() {
   const photoURL = user?.photoURL;
   const handle = user?.email?.split("@")[0] ?? "dev";
 
-  // Parâmetros que a IA utilizará naquela rodada solicitada
-  const [textToRewrite, setTextToRewrite] = useState<string>("");
-
   // Parâmetros do PDF que será gerado
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [pdfError, setPdfError] = useState<string | null>(null);
+  const [, setPdfError] = useState<string | null>(null);
 
   // Contact
   const [nome, setNome] = useState(user?.displayName ?? "");
@@ -216,7 +214,18 @@ export default function ResumeGen() {
     );
 
   // Filename
-  const [fileName, setFileName] = useState("meu-curriculo");
+  const [fileName, setFileName] = useState(
+    "CV [Título Profissional] [Seu nome]",
+  );
+
+  // Idioma do currículo
+  const [cvLanguage, setCvLanguage] = useState("pt");
+  const cvLanguageMap: Record<string, string> = {
+    pt: "português",
+    en: "inglês",
+    es: "espanhol",
+    fr: "francês",
+  };
 
   // Progress
   const sections = [
@@ -236,7 +245,10 @@ export default function ResumeGen() {
     (sections.filter((s) => s.done).length / sections.length) * 100,
   );
 
-  const performAIActivity = async (actionType: "update" | "rewrite") => {
+  const performAIActivity = async (
+    actionType: "update" | "rewrite",
+    nanoInputOverride?: string,
+  ) => {
     const payload = {
       nomeArquivo: fileName,
       nome,
@@ -264,18 +276,21 @@ export default function ResumeGen() {
       } else {
         maxOutputTokens = 2900;
         return (
-          "Adapte o código Tex a seguir preenchendo e adaptando os placeholders {{...}} de acordo com as informações do usuário. Retorne somente código TeX puro sem markdown. Código Tex para adaptar: " +
+          `Adapte o código Tex a seguir preenchendo e adaptando os placeholders {{...}} de acordo com as informações do usuário. Escreva todo o conteúdo textual do currículo no idioma: ${cvLanguageMap[cvLanguage] ?? "português"}. Retorne somente código TeX puro sem markdown. Código Tex para adaptar: ` +
           baseSourceCVLatex
         );
       }
     }
+
+    // Bloqueia botões para evitar múltiplas requisições (debounce barato)
+    setIsGenerating(true);
 
     const apiresponse = await fetch("/api/resumegen", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         devInput: devRoundInput(),
-        nanoInput: textToRewrite,
+        nanoInput: nanoInputOverride ?? "",
         miniInput: "As infos para colocar são: ",
         maxTokens: maxOutputTokens,
         actionType: actionType,
@@ -285,12 +300,14 @@ export default function ResumeGen() {
 
     if (actionType === "update") {
       try {
-        setIsGenerating(true);
-        const blob = await apiresponse.blob();
-        // Revoga o URL anterior antes de criar o novo para evitar memory leak
-        if (pdfUrl) URL.revokeObjectURL(pdfUrl);
-        const url = URL.createObjectURL(blob);
-        setPdfUrl(url);
+        if (apiresponse.ok) {
+          const blob = await apiresponse.blob();
+          if (pdfUrl) URL.revokeObjectURL(pdfUrl); // Revoga o URL anterior antes de criar o novo para evitar memory leak
+          const url = URL.createObjectURL(blob);
+          setPdfUrl(url);
+        } else {
+          throw new Error("Ocorreu um erro com o blob de geração do PDF do CV");
+        }
         setIsGenerating(false);
         return;
       } catch (error) {
@@ -301,7 +318,11 @@ export default function ResumeGen() {
       }
     }
 
+    if (!apiresponse.ok) return undefined;
+
     const { content } = await apiresponse.json();
+    setIsGenerating(false);
+
     return content;
   };
 
@@ -601,29 +622,37 @@ export default function ResumeGen() {
                 <div>
                   <label className={labelCls}>Resumo profissional</label>
                   <textarea
-                    rows={5}
+                    rows={8}
                     placeholder="Descreva sua trajetória, principais habilidades e o que você busca na próxima oportunidade…"
                     value={perfil}
                     onChange={(e) => setPerfil(e.target.value)}
-                    className={`${inputCls} resize-none leading-relaxed`}
-                    maxLength={800}
+                    className={`${inputCls} leading-relaxed`}
+                    maxLength={850}
                   />
                   <div className="mt-2 flex items-center justify-between">
                     <p className="text-xs text-zinc-600">
-                      {perfil.length} / 800 caracteres
+                      {perfil.length} / 850 caracteres
                     </p>
                     <button
                       type="button"
+                      disabled={isGenerating}
                       onClick={async () => {
-                        setTextToRewrite(perfil);
-                        const profileRewriten =
-                          await performAIActivity("rewrite");
-                        setPerfil(profileRewriten);
+                        const profileRewriten = await performAIActivity(
+                          "rewrite",
+                          perfil,
+                        );
+                        if (profileRewriten) setPerfil(profileRewriten);
                       }}
-                      className="flex items-center gap-1.5 rounded-lg border border-violet-500/20 bg-violet-500/8 px-3 py-1.5 text-xs font-medium text-violet-300 transition-all hover:border-violet-500/40 hover:bg-violet-500/14 cursor-pointer"
+                      className="flex items-center gap-1.5 rounded-lg border border-violet-500/20 bg-violet-500/8 px-3 py-1.5 text-xs font-medium text-violet-300 transition-all hover:border-violet-500/40 hover:bg-violet-500/14 cursor-pointer disabled:cursor-not-allowed"
                     >
-                      <Sparkles className="size-3.5" />
-                      Melhorar texto com IA
+                      {!isGenerating ? (
+                        <Sparkles className="size-3.5" />
+                      ) : (
+                        <Loader />
+                      )}
+                      {!isGenerating
+                        ? "Melhorar texto com IA"
+                        : "Melhorando seu texto com IA..."}
                     </button>
                   </div>
                 </div>
@@ -802,18 +831,19 @@ export default function ResumeGen() {
                               e.target.value,
                             )
                           }
-                          className={`${inputCls} resize-none`}
+                          className={`${inputCls}`}
                         />
                         <div className="mt-2 flex justify-end">
                           <button
                             type="button"
+                            disabled={isGenerating}
                             onClick={async () => {
-                              setTextToRewrite(
-                                "Reescreva em tópicos/bullets: " +
-                                  exp.descricao,
-                              );
                               const experienceRewriten =
-                                await performAIActivity("rewrite");
+                                await performAIActivity(
+                                  "rewrite",
+                                  "Reescreva em tópicos/bullets: " +
+                                    exp.descricao,
+                                );
                               if (experienceRewriten) {
                                 updateExperience(
                                   exp.id,
@@ -822,10 +852,16 @@ export default function ResumeGen() {
                                 );
                               }
                             }}
-                            className="flex items-center gap-1.5 rounded-lg border border-violet-500/20 bg-violet-500/8 px-3 py-1.5 text-xs font-medium text-violet-300 transition-all hover:border-violet-500/40 hover:bg-violet-500/14 cursor-pointer"
+                            className="flex items-center gap-1.5 rounded-lg border border-violet-500/20 bg-violet-500/8 px-3 py-1.5 text-xs font-medium text-violet-300 transition-all hover:border-violet-500/40 hover:bg-violet-500/14 cursor-pointer disabled:cursor-not-allowed"
                           >
-                            <Sparkles className="size-3.5" />
-                            Melhorar texto com IA
+                            {!isGenerating ? (
+                              <Sparkles className="size-3.5" />
+                            ) : (
+                              <Loader />
+                            )}
+                            {!isGenerating
+                              ? "Melhorar texto com IA"
+                              : "Melhorando seu texto com IA..."}
                           </button>
                         </div>
                       </div>
@@ -1102,7 +1138,7 @@ export default function ResumeGen() {
           {/* RIGHT: PDF PREVIEW */}
           <div className="xl:sticky xl:top-24 xl:self-start">
             {/* Toolbar: filename + download */}
-            <div className="mb-4 flex items-center gap-3">
+            <div className="mb-3 flex items-center gap-3">
               <div className="relative flex-1">
                 <FileText className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-zinc-500" />
                 <input
@@ -1133,32 +1169,61 @@ export default function ResumeGen() {
               </Button>
             </div>
 
+            {/* Language selector */}
+            <div className="mb-4 flex items-center gap-2">
+              <Globe className="size-4 shrink-0 text-zinc-500" />
+              {(
+                [
+                  { code: "pt", label: "Português" },
+                  { code: "en", label: "Inglês" },
+                  { code: "es", label: "Espanhol" },
+                  { code: "fr", label: "Francês" },
+                ] as const
+              ).map(({ code, label }) => (
+                <button
+                  key={code}
+                  type="button"
+                  onClick={() => setCvLanguage(code)}
+                  className={`flex-1 rounded-lg border py-2 text-xs font-medium cursor-pointer transition-all ${
+                    cvLanguage === code
+                      ? "border-blue-500/40 bg-blue-600/20 text-blue-300"
+                      : "border-white/6 bg-white/2 text-zinc-500 hover:border-white/10 hover:text-zinc-300"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
             {/* PDF Container */}
             <div className="rounded-2xl border border-white/6 bg-zinc-950 p-4">
               {/* Browser-like top bar */}
               <div className="mb-3 flex items-center gap-2 px-1">
                 <div className="flex gap-1.5">
-                  <span className="size-2.5 rounded-full bg-white/10" />
-                  <span className="size-2.5 rounded-full bg-white/10" />
-                  <span className="size-2.5 rounded-full bg-white/10" />
+                  <span className="size-2.5 rounded-full bg-[#FF5F57]" />
+                  <span className="size-2.5 rounded-full bg-[#FEBC2E]" />
+                  <span className="size-2.5 rounded-full bg-[#28C840]" />
                 </div>
                 <div className="flex-1 rounded-md bg-white/4 px-3 py-1 text-center text-[10px] text-zinc-600">
-                  {fileName || "meu-curriculo"}.pdf
+                  {fileName || "CV [Título Profissional] [Seu nome]"}.pdf
                 </div>
               </div>
 
               {/* Scrollable PDF page */}
               <div className="max-h-225 overflow-y-auto rounded-lg">
-                <PdfPreview pdfUrl={pdfUrl} />
+                <PdfPreview pdfUrl={pdfUrl} isGenerating={isGenerating} />
               </div>
               <div className="mt-4">
                 <button
                   type="button"
+                  disabled={isGenerating}
                   onClick={() => performAIActivity("update")}
-                  className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-blue-500/30 bg-blue-600/10 py-3 text-sm font-semibold text-blue-300 transition-all hover:border-blue-500/60 hover:bg-blue-600/20 hover:text-blue-200"
+                  className="flex w-full cursor-pointer disabled:cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-blue-500/30 bg-blue-600/10 py-3 text-sm font-semibold text-blue-300 transition-all hover:border-blue-500/60 hover:bg-blue-600/20 hover:text-blue-200"
                 >
-                  <FileText className="size-4" />
-                  Gerar PDF
+                  {!isGenerating ? <FileText className="size-4" /> : <Loader />}
+                  {!isGenerating
+                    ? "Gerar PDF"
+                    : "Gerando PDF do seu CV otimizado para ATS..."}
                 </button>
               </div>
             </div>
