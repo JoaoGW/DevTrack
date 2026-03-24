@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { SectionTitle } from "@/components/ResumeGen UI/SectionTitle";
-import { Toggle } from "@/components/ResumeGen UI/Toggle";
-import { PdfPreview } from "@/components/ResumeGen UI/PDFPreview";
+import { SectionTitle } from "@/components/ResumeGenUI/SectionTitle";
+import { Toggle } from "@/components/ResumeGenUI/Toggle";
+import { PdfPreview } from "@/components/ResumeGenUI/PDFPreview";
 
 import { useAuthUserFirebase } from "@/store/authUser.store";
+
+import { baseSourceCVLatex } from "@/services/pdfLatex.constants";
 
 import { Certification } from "@/app/contentData/resumegen/interfaces/ICertification";
 import { Education } from "@/app/contentData/resumegen/interfaces/IEducation";
@@ -55,6 +57,14 @@ export default function ResumeGen() {
   const displayName = user?.displayName ?? "Desenvolvedor";
   const photoURL = user?.photoURL;
   const handle = user?.email?.split("@")[0] ?? "dev";
+
+  // Parâmetros que a IA utilizará naquela rodada solicitada
+  const [textToRewrite, setTextToRewrite] = useState<string>("");
+
+  // Parâmetros do PDF que será gerado
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
 
   // Contact
   const [nome, setNome] = useState(user?.displayName ?? "");
@@ -226,6 +236,75 @@ export default function ResumeGen() {
     (sections.filter((s) => s.done).length / sections.length) * 100,
   );
 
+  const performAIActivity = async (actionType: "update" | "rewrite") => {
+    const payload = {
+      nomeArquivo: fileName,
+      nome,
+      email,
+      telefone,
+      localizacao,
+      github: githubUrl,
+      linkedin: linkedinUrl,
+      website,
+      perfil,
+      tituloProfissional,
+      skills,
+      experiences,
+      educations,
+      certifications,
+      languages,
+    };
+
+    let maxOutputTokens = 0;
+
+    function devRoundInput() {
+      if (actionType === "rewrite") {
+        maxOutputTokens = 275;
+        return "Reescreva, de forma profissional o seguinte texto para ficar adequado para um currículo profissional.";
+      } else {
+        maxOutputTokens = 2900;
+        return (
+          "Adapte o código Tex a seguir preenchendo e adaptando os placeholders {{...}} de acordo com as informações do usuário. Retorne somente código TeX puro sem markdown. Código Tex para adaptar: " +
+          baseSourceCVLatex
+        );
+      }
+    }
+
+    const apiresponse = await fetch("/api/resumegen", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        devInput: devRoundInput(),
+        nanoInput: textToRewrite,
+        miniInput: "As infos para colocar são: ",
+        maxTokens: maxOutputTokens,
+        actionType: actionType,
+        data: payload,
+      }),
+    });
+
+    if (actionType === "update") {
+      try {
+        setIsGenerating(true);
+        const blob = await apiresponse.blob();
+        // Revoga o URL anterior antes de criar o novo para evitar memory leak
+        if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+        const url = URL.createObjectURL(blob);
+        setPdfUrl(url);
+        setIsGenerating(false);
+        return;
+      } catch (error) {
+        const erro = "Ocorreu um erro ao gerar o PDF: " + error;
+        setPdfError(erro);
+      } finally {
+        setIsGenerating(false);
+      }
+    }
+
+    const { content } = await apiresponse.json();
+    return content;
+  };
+
   // Verifica se este usuário já possui informações salvas no database
   useEffect(() => {
     const currentUserId = user?.uid;
@@ -280,10 +359,13 @@ export default function ResumeGen() {
         setLanguages(
           parseArrayField<Language>(dados.languages ?? dados.idiomas),
         );
+
+        return response.ok;
       } catch {
         // falha silenciosa (o formulário ficará em branco)
       }
     }
+
     loadPortfolio();
   }, [user?.uid]);
 
@@ -532,7 +614,12 @@ export default function ResumeGen() {
                     </p>
                     <button
                       type="button"
-                      onClick={() => {}}
+                      onClick={async () => {
+                        setTextToRewrite(perfil);
+                        const profileRewriten =
+                          await performAIActivity("rewrite");
+                        setPerfil(profileRewriten);
+                      }}
                       className="flex items-center gap-1.5 rounded-lg border border-violet-500/20 bg-violet-500/8 px-3 py-1.5 text-xs font-medium text-violet-300 transition-all hover:border-violet-500/40 hover:bg-violet-500/14 cursor-pointer"
                     >
                       <Sparkles className="size-3.5" />
@@ -720,7 +807,21 @@ export default function ResumeGen() {
                         <div className="mt-2 flex justify-end">
                           <button
                             type="button"
-                            onClick={() => {}}
+                            onClick={async () => {
+                              setTextToRewrite(
+                                "Reescreva em tópicos/bullets: " +
+                                  exp.descricao,
+                              );
+                              const experienceRewriten =
+                                await performAIActivity("rewrite");
+                              if (experienceRewriten) {
+                                updateExperience(
+                                  exp.id,
+                                  "descricao",
+                                  experienceRewriten,
+                                );
+                              }
+                            }}
                             className="flex items-center gap-1.5 rounded-lg border border-violet-500/20 bg-violet-500/8 px-3 py-1.5 text-xs font-medium text-violet-300 transition-all hover:border-violet-500/40 hover:bg-violet-500/14 cursor-pointer"
                           >
                             <Sparkles className="size-3.5" />
@@ -1017,8 +1118,15 @@ export default function ResumeGen() {
               </div>
               <Button
                 type="button"
-                onClick={() => {}}
-                className="shrink-0 cursor-pointer gap-2 h-10 bg-blue-600 text-white hover:bg-blue-500"
+                disabled={!pdfUrl}
+                onClick={() => {
+                  if (!pdfUrl) return;
+                  const a = document.createElement("a");
+                  a.href = pdfUrl;
+                  a.download = `${fileName || "Curriculum Vitae"}.pdf`;
+                  a.click();
+                }}
+                className="shrink-0 cursor-pointer gap-2 h-10 bg-blue-600 text-white hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Download className="size-4" />
                 Download
@@ -1041,21 +1149,17 @@ export default function ResumeGen() {
 
               {/* Scrollable PDF page */}
               <div className="max-h-225 overflow-y-auto rounded-lg">
-                <PdfPreview
-                  nome={nome}
-                  tituloProfissional={tituloProfissional}
-                  email={email}
-                  telefone={telefone}
-                  localizacao={localizacao}
-                  githubUrl={githubUrl}
-                  linkedinUrl={linkedinUrl}
-                  perfil={perfil}
-                  skills={skills}
-                  experiences={experiences}
-                  educations={educations}
-                  certifications={certifications}
-                  languages={languages}
-                />
+                <PdfPreview pdfUrl={pdfUrl} />
+              </div>
+              <div className="mt-4">
+                <button
+                  type="button"
+                  onClick={() => performAIActivity("update")}
+                  className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-blue-500/30 bg-blue-600/10 py-3 text-sm font-semibold text-blue-300 transition-all hover:border-blue-500/60 hover:bg-blue-600/20 hover:text-blue-200"
+                >
+                  <FileText className="size-4" />
+                  Gerar PDF
+                </button>
               </div>
             </div>
           </div>

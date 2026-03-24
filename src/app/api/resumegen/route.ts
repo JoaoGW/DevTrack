@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { generateResponseMini, generateResponseNano } from "@/services/openai";
+import { compileTex } from "@/services/pdfLatex";
+
 
 export async function POST(request: NextRequest, response: NextResponse) {
   try {
@@ -30,14 +33,15 @@ export async function POST(request: NextRequest, response: NextResponse) {
       );
     }
 
-    const miniInputFinal = miniInput + ". As informações para colocar no currículo são: " + fieldFormValues
-
     if (actionType === "rewrite") {
       const content = await generateResponseNano(devInput, nanoInput, maxTokens);
       return NextResponse.json({ content });
     } else if (actionType === "update") {
-      const content = await generateResponseMini(devInput, miniInputFinal, maxTokens);
-      return NextResponse.json({ content });
+      const texCode = await generateResponseMini(devInput, miniInput + fieldFormValues, maxTokens);
+      const pdfBuffer = await compileTex(texCode);
+      return new Response(new Uint8Array(pdfBuffer), {
+        headers: { "Content-Type": "application/pdf" },
+      });
     } else {
       return NextResponse.json(
         { error: "Tipo de ação não definido no escopo" },
