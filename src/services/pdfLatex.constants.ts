@@ -64,7 +64,15 @@ export const baseSourceCVLatex = String.raw`
     \end{itemize}
 
 \section{Experiência}
-    {{EXPERIENCIAS_BLOCK}}
+    \subsection*{\texorpdfstring{
+            \textbf{{{EXPERIENCIAS_NOME_EMPRESA}}} \hfill {{EXPERIENCIAS_LOCALIZACAO}}
+        }{
+            {{EXPERIENCIAS_NOME_EMPRESA}} -- {{EXPERIENCIAS_LOCALIZACAO}}
+        }}
+    \textit{{{EXPERIENCIAS_CARGO}} \hfill {{EXPERIENCIAS_DATA_INICIO}} - {{EXPERIENCIAS_DATA_FIM}}}
+        \begin{itemize} 
+            \item {{EXPERIENCIAS_DESCRICAO_RESPONSABILIDADES_ITEM}}
+        \end{itemize}
 
 \section{Educação}
     \subsection*{\texorpdfstring{

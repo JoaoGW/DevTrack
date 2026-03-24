@@ -1,21 +1,21 @@
-"use client";
-import { useEffect, useState } from "react";
+'use client';
+import { useEffect, useState } from 'react';
 
-import { Navbar } from "@/components/Navbar";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { SectionTitle } from "@/components/ResumeGenUI/SectionTitle";
-import { Toggle } from "@/components/ResumeGenUI/Toggle";
-import { PdfPreview } from "@/components/ResumeGenUI/PDFPreview";
+import { Navbar } from '@/components/Navbar';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { SectionTitle } from '@/components/ResumeGenUI/SectionTitle';
+import { Toggle } from '@/components/ResumeGenUI/Toggle';
+import { PdfPreview } from '@/components/ResumeGenUI/PDFPreview';
 
-import { useAuthUserFirebase } from "@/store/authUser.store";
+import { useAuthUserFirebase } from '@/store/authUser.store';
 
-import { baseSourceCVLatex } from "@/services/pdfLatex.constants";
+import { baseSourceCVLatex } from '@/services/pdfLatex.constants';
 
-import { Certification } from "@/app/contentData/resumegen/interfaces/ICertification";
-import { Education } from "@/app/contentData/resumegen/interfaces/IEducation";
-import { Experience } from "@/app/contentData/resumegen/interfaces/IExperience";
-import { Language } from "@/app/contentData/resumegen/interfaces/ILanguage";
+import { Certification } from '@/app/contentData/resumegen/interfaces/ICertification';
+import { Education } from '@/app/contentData/resumegen/interfaces/IEducation';
+import { Experience } from '@/app/contentData/resumegen/interfaces/IExperience';
+import { Language } from '@/app/contentData/resumegen/interfaces/ILanguage';
 
 import {
   User,
@@ -39,53 +39,53 @@ import {
   CheckCircle2,
   FileBadge,
   Loader,
-} from "lucide-react";
+} from 'lucide-react';
 
 // Design tokens
 const uid = () => Math.random().toString(36).slice(2, 9);
 const inputCls =
-  "w-full rounded-xl border border-white/6 bg-white/2 py-3 px-4 text-sm text-white placeholder-zinc-600 outline-none transition-all focus:border-blue-500/40 focus:bg-white/4";
-const labelCls = "block text-sm font-medium text-zinc-300 mb-1.5";
-const cardCls = "rounded-2xl border border-white/6 bg-white/2 p-8";
-const innerCardCls = "rounded-xl border border-white/6 bg-white/2 p-5";
+  'w-full rounded-xl border border-white/6 bg-white/2 py-3 px-4 text-sm text-white placeholder-zinc-600 outline-none transition-all focus:border-blue-500/40 focus:bg-white/4';
+const labelCls = 'block text-sm font-medium text-zinc-300 mb-1.5';
+const cardCls = 'rounded-2xl border border-white/6 bg-white/2 p-8';
+const innerCardCls = 'rounded-xl border border-white/6 bg-white/2 p-5';
 const dottedBtnCls =
-  "flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/10 py-3.5 text-sm text-zinc-500 transition-all duration-200 hover:border-blue-500/30 hover:bg-blue-500/4 hover:text-blue-300 cursor-pointer";
+  'flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/10 py-3.5 text-sm text-zinc-500 transition-all duration-200 hover:border-blue-500/30 hover:bg-blue-500/4 hover:text-blue-300 cursor-pointer';
 
 // Main Page
 export default function ResumeGen() {
   const { user } = useAuthUserFirebase();
 
-  const displayName = user?.displayName ?? "Desenvolvedor";
+  const displayName = user?.displayName ?? 'Desenvolvedor';
   const photoURL = user?.photoURL;
-  const handle = user?.email?.split("@")[0] ?? "dev";
+  const handle = user?.email?.split('@')[0] ?? 'dev';
 
   // Parâmetros do PDF que será gerado
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [, setPdfError] = useState<string | null>(null);
+  const [pdfError, setPdfError] = useState<string | null>(null);
 
   // Contact
-  const [nome, setNome] = useState(user?.displayName ?? "");
-  const [email, setEmail] = useState(user?.email ?? "");
-  const [telefone, setTelefone] = useState("");
-  const [localizacao, setLocalizacao] = useState("");
-  const [githubUrl, setGithubUrl] = useState("");
-  const [linkedinUrl, setLinkedinUrl] = useState("");
-  const [website, setWebsite] = useState("");
+  const [nome, setNome] = useState(user?.displayName ?? '');
+  const [email, setEmail] = useState(user?.email ?? '');
+  const [telefone, setTelefone] = useState('');
+  const [localizacao, setLocalizacao] = useState('');
+  const [githubUrl, setGithubUrl] = useState('');
+  const [linkedinUrl, setLinkedinUrl] = useState('');
+  const [website, setWebsite] = useState('');
 
   // Profile
-  const [perfil, setPerfil] = useState("");
-  const [tituloProfissional, setTituloProfissional] = useState("");
+  const [perfil, setPerfil] = useState('');
+  const [tituloProfissional, setTituloProfissional] = useState('');
 
   // Skills
-  const [skillInput, setSkillInput] = useState("");
+  const [skillInput, setSkillInput] = useState('');
   const [skills, setSkills] = useState<string[]>([]);
 
   const addSkill = () => {
     const trimmed = skillInput.trim();
     if (trimmed && !skills.includes(trimmed)) {
       setSkills((prev) => [...prev, trimmed]);
-      setSkillInput("");
+      setSkillInput('');
     }
   };
 
@@ -93,13 +93,13 @@ export default function ResumeGen() {
   const [experiences, setExperiences] = useState<Experience[]>([
     {
       id: uid(),
-      cargo: "",
-      empresa: "",
-      local: "",
-      inicio: "",
-      fim: "",
+      cargo: '',
+      empresa: '',
+      local: '',
+      inicio: '',
+      fim: '',
       atual: false,
-      descricao: "",
+      descricao: '',
     },
   ]);
 
@@ -108,13 +108,13 @@ export default function ResumeGen() {
       ...prev,
       {
         id: uid(),
-        cargo: "",
-        empresa: "",
-        local: "",
-        inicio: "",
-        fim: "",
+        cargo: '',
+        empresa: '',
+        local: '',
+        inicio: '',
+        fim: '',
         atual: false,
-        descricao: "",
+        descricao: '',
       },
     ]);
 
@@ -123,22 +123,22 @@ export default function ResumeGen() {
 
   const updateExperience = (
     id: string,
-    field: keyof Omit<Experience, "id">,
-    value: string | boolean,
+    field: keyof Omit<Experience, 'id'>,
+    value: string | boolean
   ) =>
     setExperiences((prev) =>
-      prev.map((e) => (e.id === id ? { ...e, [field]: value } : e)),
+      prev.map((e) => (e.id === id ? { ...e, [field]: value } : e))
     );
 
   // Educations
   const [educations, setEducations] = useState<Education[]>([
     {
       id: uid(),
-      curso: "",
-      instituicao: "",
-      grau: "",
-      inicio: "",
-      fim: "",
+      curso: '',
+      instituicao: '',
+      grau: '',
+      inicio: '',
+      fim: '',
       atual: false,
     },
   ]);
@@ -148,11 +148,11 @@ export default function ResumeGen() {
       ...prev,
       {
         id: uid(),
-        curso: "",
-        instituicao: "",
-        grau: "",
-        inicio: "",
-        fim: "",
+        curso: '',
+        instituicao: '',
+        grau: '',
+        inicio: '',
+        fim: '',
         atual: false,
       },
     ]);
@@ -162,11 +162,11 @@ export default function ResumeGen() {
 
   const updateEducation = (
     id: string,
-    field: keyof Omit<Education, "id">,
-    value: string | boolean,
+    field: keyof Omit<Education, 'id'>,
+    value: string | boolean
   ) =>
     setEducations((prev) =>
-      prev.map((e) => (e.id === id ? { ...e, [field]: value } : e)),
+      prev.map((e) => (e.id === id ? { ...e, [field]: value } : e))
     );
 
   // Certifications
@@ -175,7 +175,7 @@ export default function ResumeGen() {
   const addCertification = () =>
     setCertifications((prev) => [
       ...prev,
-      { id: uid(), nome: "", emissor: "", data: "" },
+      { id: uid(), nome: '', emissor: '', data: '' },
     ]);
 
   const removeCertification = (id: string) =>
@@ -183,22 +183,22 @@ export default function ResumeGen() {
 
   const updateCertification = (
     id: string,
-    field: keyof Omit<Certification, "id">,
-    value: string,
+    field: keyof Omit<Certification, 'id'>,
+    value: string
   ) =>
     setCertifications((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, [field]: value } : c)),
+      prev.map((c) => (c.id === id ? { ...c, [field]: value } : c))
     );
 
   // Languages
   const [languages, setLanguages] = useState<Language[]>([
-    { id: uid(), idioma: "", nivel: "Intermediário" },
+    { id: uid(), idioma: '', nivel: 'Intermediário' },
   ]);
 
   const addLanguage = () =>
     setLanguages((prev) => [
       ...prev,
-      { id: uid(), idioma: "", nivel: "Intermediário" },
+      { id: uid(), idioma: '', nivel: 'Intermediário' },
     ]);
 
   const removeLanguage = (id: string) =>
@@ -206,48 +206,48 @@ export default function ResumeGen() {
 
   const updateLanguage = (
     id: string,
-    field: keyof Omit<Language, "id">,
-    value: string,
+    field: keyof Omit<Language, 'id'>,
+    value: string
   ) =>
     setLanguages((prev) =>
-      prev.map((l) => (l.id === id ? { ...l, [field]: value } : l)),
+      prev.map((l) => (l.id === id ? { ...l, [field]: value } : l))
     );
 
   // Filename
   const [fileName, setFileName] = useState(
-    "CV [Título Profissional] [Seu nome]",
+    'CV [Título Profissional] [Seu nome]'
   );
 
   // Idioma do currículo
-  const [cvLanguage, setCvLanguage] = useState("pt");
+  const [cvLanguage, setCvLanguage] = useState('pt');
   const cvLanguageMap: Record<string, string> = {
-    pt: "português",
-    en: "inglês",
-    es: "espanhol",
-    fr: "francês",
+    pt: 'português',
+    en: 'inglês',
+    es: 'espanhol',
+    fr: 'francês',
   };
 
   // Progress
   const sections = [
-    { label: "Contato", done: !!(nome && email) },
-    { label: "Perfil", done: perfil.length > 20 },
-    { label: "Habilidades", done: skills.length > 0 },
+    { label: 'Contato', done: !!(nome && email) },
+    { label: 'Perfil', done: perfil.length > 20 },
+    { label: 'Habilidades', done: skills.length > 0 },
     {
-      label: "Experiências",
+      label: 'Experiências',
       done: experiences.some((e) => e.cargo && e.empresa),
     },
     {
-      label: "Educação",
+      label: 'Educação',
       done: educations.some((e) => e.curso && e.instituicao),
     },
   ];
   const completeness = Math.round(
-    (sections.filter((s) => s.done).length / sections.length) * 100,
+    (sections.filter((s) => s.done).length / sections.length) * 100
   );
 
   const performAIActivity = async (
-    actionType: "update" | "rewrite",
-    nanoInputOverride?: string,
+    actionType: 'update' | 'rewrite',
+    nanoInputOverride?: string
   ) => {
     const payload = {
       nomeArquivo: fileName,
@@ -270,13 +270,13 @@ export default function ResumeGen() {
     let maxOutputTokens = 0;
 
     function devRoundInput() {
-      if (actionType === "rewrite") {
+      if (actionType === 'rewrite') {
         maxOutputTokens = 275;
-        return "Reescreva, de forma profissional o seguinte texto para ficar adequado para um currículo profissional.";
+        return 'Reescreva, de forma profissional o seguinte texto para ficar adequado para um currículo profissional.';
       } else {
         maxOutputTokens = 2900;
         return (
-          `Adapte o código Tex a seguir preenchendo e adaptando os placeholders {{...}} de acordo com as informações do usuário. Escreva todo o conteúdo textual do currículo no idioma: ${cvLanguageMap[cvLanguage] ?? "português"}. Retorne somente código TeX puro sem markdown. Código Tex para adaptar: ` +
+          `Adapte o código Tex a seguir preenchendo o molde e adaptando os placeholders {{...}} de acordo com as informações do usuário e a quantidade de itens necessários para as informações. Escreva todo o conteúdo textual do currículo no idioma: ${cvLanguageMap[cvLanguage] ?? 'português'}. Retorne somente código TeX puro sem markdown. Código Tex para adaptar: ` +
           baseSourceCVLatex
         );
       }
@@ -285,45 +285,59 @@ export default function ResumeGen() {
     // Bloqueia botões para evitar múltiplas requisições (debounce barato)
     setIsGenerating(true);
 
-    const apiresponse = await fetch("/api/resumegen", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const apiresponse = await fetch('/api/resumegen', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         devInput: devRoundInput(),
-        nanoInput: nanoInputOverride ?? "",
-        miniInput: "As infos para colocar são: ",
+        nanoInput: nanoInputOverride ?? '',
+        miniInput: 'As infos para colocar são: ',
         maxTokens: maxOutputTokens,
         actionType: actionType,
         data: payload,
       }),
     });
 
-    if (actionType === "update") {
+    if (actionType === 'update') {
       try {
-        if (apiresponse.ok) {
-          const blob = await apiresponse.blob();
-          
-          // Logica para salvar o binario do PDF para aquele usuario
-          const pdfArrayBuffer = await blob.arrayBuffer();
-          if(user?.uid){
-            await fetch(`/api/cv-pdf?userId=${user?.uid}`, {
-              method: "POST",
-              headers: { "Content-Type": "application/pdf" },
-              body: pdfArrayBuffer 
-            });
-          }
-
-          if (pdfUrl) URL.revokeObjectURL(pdfUrl); // Revoga o URL anterior antes de criar o novo para evitar memory leak
-          const url = URL.createObjectURL(blob);
-          setPdfUrl(url);
-        } else {
-          throw new Error("Ocorreu um erro com o blob de geração do PDF do CV");
+        if (!apiresponse.ok) {
+          const errBody = await apiresponse.json().catch(() => ({}));
+          throw new Error(
+            errBody?.error ?? `Erro HTTP ${apiresponse.status} ao gerar o PDF`
+          );
         }
+
+        const blob = await apiresponse.blob();
+
+        // Exibe o PDF imediatamente
+        if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+        const url = URL.createObjectURL(blob);
+        setPdfUrl(url);
+        setPdfError(null);
         setIsGenerating(false);
+
+        // Salva o binário no banco em segundo plano (não bloqueia a exibição)
+        if (user?.uid) {
+          blob
+            .arrayBuffer()
+            .then((pdfArrayBuffer) =>
+              fetch(`/api/cv-pdf?userId=${user.uid}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/pdf' },
+                body: pdfArrayBuffer,
+              })
+            )
+            .catch(() => {
+              /* salvar falhou — PDF ainda é exibido */
+            });
+        }
+
         return;
       } catch (error) {
-        const erro = "Ocorreu um erro ao gerar o PDF: " + error;
-        setPdfError(erro);
+        setPdfError(
+          'Ocorreu um erro ao gerar o PDF: ' +
+            (error instanceof Error ? error.message : String(error))
+        );
       } finally {
         setIsGenerating(false);
       }
@@ -353,7 +367,7 @@ export default function ResumeGen() {
         const dados = data.data;
         const parseArrayField = <T,>(value: unknown): T[] => {
           if (Array.isArray(value)) return value as T[];
-          if (typeof value === "string") {
+          if (typeof value === 'string') {
             try {
               const parsed = JSON.parse(value);
               return Array.isArray(parsed) ? (parsed as T[]) : [];
@@ -374,22 +388,22 @@ export default function ResumeGen() {
         if (dados.perfil) setPerfil(dados.perfil);
         if (dados.tituloProfissional || dados.titulo_profissional)
           setTituloProfissional(
-            dados.tituloProfissional ?? dados.titulo_profissional,
+            dados.tituloProfissional ?? dados.titulo_profissional
           );
         setSkills(parseArrayField<string>(dados.skills));
         setExperiences(
-          parseArrayField<Experience>(dados.experiences ?? dados.experiencias),
+          parseArrayField<Experience>(dados.experiences ?? dados.experiencias)
         );
         setEducations(
-          parseArrayField<Education>(dados.educations ?? dados.educacoes),
+          parseArrayField<Education>(dados.educations ?? dados.educacoes)
         );
         setCertifications(
           parseArrayField<Certification>(
-            dados.certifications ?? dados.certificacoes,
-          ),
+            dados.certifications ?? dados.certificacoes
+          )
         );
         setLanguages(
-          parseArrayField<Language>(dados.languages ?? dados.idiomas),
+          parseArrayField<Language>(dados.languages ?? dados.idiomas)
         );
 
         return response.ok;
@@ -404,14 +418,14 @@ export default function ResumeGen() {
   // Sistema que sera responsavel por analisar se um curriculo ja foi gerado posteriormente
   useEffect(() => {
     const userId = user?.uid;
-    if(!userId) return;
+    if (!userId) return;
 
     let objectUrl: string | null = null;
 
-    async function loadSavedCV () {
+    async function loadSavedCV() {
       try {
-        const response = await fetch(`/api/cv-pdf?userId=${userId}`)
-        if(response.ok){
+        const response = await fetch(`/api/cv-pdf?userId=${userId}`);
+        if (response.ok) {
           const blob = await response.blob();
           objectUrl = URL.createObjectURL(blob);
           setPdfUrl(objectUrl);
@@ -431,7 +445,7 @@ export default function ResumeGen() {
   return (
     <div
       className="min-h-screen bg-[#080810] text-white"
-      style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
+      style={{ fontFamily: 'var(--font-geist-sans), sans-serif' }}
     >
       <Navbar
         displayName={displayName}
@@ -446,14 +460,14 @@ export default function ResumeGen() {
           className="relative overflow-hidden rounded-2xl border border-white/6 p-10"
           style={{
             background:
-              "linear-gradient(135deg, rgba(37,99,235,0.10) 0%, rgba(8,8,16,0) 60%)",
+              'linear-gradient(135deg, rgba(37,99,235,0.10) 0%, rgba(8,8,16,0) 60%)',
           }}
         >
           <div
             className="pointer-events-none absolute inset-0"
             style={{
               background:
-                "radial-gradient(ellipse at 0% 50%, rgba(59,130,246,0.08) 0%, transparent 60%)",
+                'radial-gradient(ellipse at 0% 50%, rgba(59,130,246,0.08) 0%, transparent 60%)',
             }}
           />
           <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
@@ -516,7 +530,7 @@ export default function ResumeGen() {
                     <span
                       key={s.label}
                       className={`flex items-center gap-1 text-xs ${
-                        s.done ? "text-emerald-400" : "text-zinc-600"
+                        s.done ? 'text-emerald-400' : 'text-zinc-600'
                       }`}
                     >
                       <CheckCircle2 className="size-3" />
@@ -676,8 +690,8 @@ export default function ResumeGen() {
                       disabled={isGenerating}
                       onClick={async () => {
                         const profileRewriten = await performAIActivity(
-                          "rewrite",
-                          perfil,
+                          'rewrite',
+                          perfil
                         );
                         if (profileRewriten) setPerfil(profileRewriten);
                       }}
@@ -689,8 +703,8 @@ export default function ResumeGen() {
                         <Loader />
                       )}
                       {!isGenerating
-                        ? "Melhorar texto com IA"
-                        : "Melhorando seu texto com IA..."}
+                        ? 'Melhorar texto com IA'
+                        : 'Melhorando seu texto com IA...'}
                     </button>
                   </div>
                 </div>
@@ -712,7 +726,7 @@ export default function ResumeGen() {
                     value={skillInput}
                     onChange={(e) => setSkillInput(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") {
+                      if (e.key === 'Enter') {
                         e.preventDefault();
                         addSkill();
                       }
@@ -791,7 +805,7 @@ export default function ResumeGen() {
                           placeholder="Ex: Desenvolvedor Front-End Sênior"
                           value={exp.cargo}
                           onChange={(e) =>
-                            updateExperience(exp.id, "cargo", e.target.value)
+                            updateExperience(exp.id, 'cargo', e.target.value)
                           }
                           className={inputCls}
                         />
@@ -803,7 +817,7 @@ export default function ResumeGen() {
                           placeholder="Ex: Google"
                           value={exp.empresa}
                           onChange={(e) =>
-                            updateExperience(exp.id, "empresa", e.target.value)
+                            updateExperience(exp.id, 'empresa', e.target.value)
                           }
                           className={inputCls}
                         />
@@ -815,7 +829,7 @@ export default function ResumeGen() {
                           placeholder="São Paulo, SP (Remoto)"
                           value={exp.local}
                           onChange={(e) =>
-                            updateExperience(exp.id, "local", e.target.value)
+                            updateExperience(exp.id, 'local', e.target.value)
                           }
                           className={inputCls}
                         />
@@ -827,7 +841,7 @@ export default function ResumeGen() {
                             type="month"
                             value={exp.inicio}
                             onChange={(e) =>
-                              updateExperience(exp.id, "inicio", e.target.value)
+                              updateExperience(exp.id, 'inicio', e.target.value)
                             }
                             className={inputCls}
                           />
@@ -839,7 +853,7 @@ export default function ResumeGen() {
                             value={exp.fim}
                             disabled={exp.atual}
                             onChange={(e) =>
-                              updateExperience(exp.id, "fim", e.target.value)
+                              updateExperience(exp.id, 'fim', e.target.value)
                             }
                             className={`${inputCls} disabled:opacity-40`}
                           />
@@ -849,7 +863,7 @@ export default function ResumeGen() {
                         <Toggle
                           checked={exp.atual}
                           onToggle={() =>
-                            updateExperience(exp.id, "atual", !exp.atual)
+                            updateExperience(exp.id, 'atual', !exp.atual)
                           }
                           label="Emprego atual"
                         />
@@ -865,8 +879,8 @@ export default function ResumeGen() {
                           onChange={(e) =>
                             updateExperience(
                               exp.id,
-                              "descricao",
-                              e.target.value,
+                              'descricao',
+                              e.target.value
                             )
                           }
                           className={`${inputCls}`}
@@ -878,15 +892,15 @@ export default function ResumeGen() {
                             onClick={async () => {
                               const experienceRewriten =
                                 await performAIActivity(
-                                  "rewrite",
-                                  "Reescreva em tópicos/bullets: " +
-                                    exp.descricao,
+                                  'rewrite',
+                                  'Reescreva em tópicos/bullets: ' +
+                                    exp.descricao
                                 );
                               if (experienceRewriten) {
                                 updateExperience(
                                   exp.id,
-                                  "descricao",
-                                  experienceRewriten,
+                                  'descricao',
+                                  experienceRewriten
                                 );
                               }
                             }}
@@ -898,8 +912,8 @@ export default function ResumeGen() {
                               <Loader />
                             )}
                             {!isGenerating
-                              ? "Melhorar texto com IA"
-                              : "Melhorando seu texto com IA..."}
+                              ? 'Melhorar texto com IA'
+                              : 'Melhorando seu texto com IA...'}
                           </button>
                         </div>
                       </div>
@@ -950,7 +964,7 @@ export default function ResumeGen() {
                           placeholder="Ex: Ciência da Computação"
                           value={edu.curso}
                           onChange={(e) =>
-                            updateEducation(edu.id, "curso", e.target.value)
+                            updateEducation(edu.id, 'curso', e.target.value)
                           }
                           className={inputCls}
                         />
@@ -964,8 +978,8 @@ export default function ResumeGen() {
                           onChange={(e) =>
                             updateEducation(
                               edu.id,
-                              "instituicao",
-                              e.target.value,
+                              'instituicao',
+                              e.target.value
                             )
                           }
                           className={inputCls}
@@ -978,7 +992,7 @@ export default function ResumeGen() {
                           placeholder="Ex: Bacharelado"
                           value={edu.grau}
                           onChange={(e) =>
-                            updateEducation(edu.id, "grau", e.target.value)
+                            updateEducation(edu.id, 'grau', e.target.value)
                           }
                           className={inputCls}
                         />
@@ -990,7 +1004,7 @@ export default function ResumeGen() {
                             type="month"
                             value={edu.inicio}
                             onChange={(e) =>
-                              updateEducation(edu.id, "inicio", e.target.value)
+                              updateEducation(edu.id, 'inicio', e.target.value)
                             }
                             className={inputCls}
                           />
@@ -1002,7 +1016,7 @@ export default function ResumeGen() {
                             value={edu.fim}
                             disabled={edu.atual}
                             onChange={(e) =>
-                              updateEducation(edu.id, "fim", e.target.value)
+                              updateEducation(edu.id, 'fim', e.target.value)
                             }
                             className={`${inputCls} disabled:opacity-40`}
                           />
@@ -1012,7 +1026,7 @@ export default function ResumeGen() {
                         <Toggle
                           checked={edu.atual}
                           onToggle={() =>
-                            updateEducation(edu.id, "atual", !edu.atual)
+                            updateEducation(edu.id, 'atual', !edu.atual)
                           }
                           label="Em andamento"
                         />
@@ -1061,7 +1075,7 @@ export default function ResumeGen() {
                           placeholder="Ex: AWS Solutions Architect"
                           value={cert.nome}
                           onChange={(e) =>
-                            updateCertification(cert.id, "nome", e.target.value)
+                            updateCertification(cert.id, 'nome', e.target.value)
                           }
                           className={inputCls}
                         />
@@ -1075,8 +1089,8 @@ export default function ResumeGen() {
                           onChange={(e) =>
                             updateCertification(
                               cert.id,
-                              "emissor",
-                              e.target.value,
+                              'emissor',
+                              e.target.value
                             )
                           }
                           className={inputCls}
@@ -1088,7 +1102,7 @@ export default function ResumeGen() {
                           type="month"
                           value={cert.data}
                           onChange={(e) =>
-                            updateCertification(cert.id, "data", e.target.value)
+                            updateCertification(cert.id, 'data', e.target.value)
                           }
                           className={inputCls}
                         />
@@ -1123,7 +1137,7 @@ export default function ResumeGen() {
                         placeholder="Ex: Inglês"
                         value={lang.idioma}
                         onChange={(e) =>
-                          updateLanguage(lang.id, "idioma", e.target.value)
+                          updateLanguage(lang.id, 'idioma', e.target.value)
                         }
                         className={inputCls}
                       />
@@ -1133,16 +1147,16 @@ export default function ResumeGen() {
                       <select
                         value={lang.nivel}
                         onChange={(e) =>
-                          updateLanguage(lang.id, "nivel", e.target.value)
+                          updateLanguage(lang.id, 'nivel', e.target.value)
                         }
                         className={inputCls}
                       >
                         {[
-                          "Básico",
-                          "Intermediário",
-                          "Avançado",
-                          "Fluente",
-                          "Nativo",
+                          'Básico',
+                          'Intermediário',
+                          'Avançado',
+                          'Fluente',
+                          'Nativo',
                         ].map((n) => (
                           <option key={n} value={n} className="bg-zinc-900">
                             {n}
@@ -1195,9 +1209,9 @@ export default function ResumeGen() {
                 disabled={!pdfUrl}
                 onClick={() => {
                   if (!pdfUrl) return;
-                  const a = document.createElement("a");
+                  const a = document.createElement('a');
                   a.href = pdfUrl;
-                  a.download = `${fileName || "Curriculum Vitae"}.pdf`;
+                  a.download = `${fileName || 'Curriculum Vitae'}.pdf`;
                   a.click();
                 }}
                 className="shrink-0 cursor-pointer gap-2 h-10 bg-blue-600 text-white hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed"
@@ -1212,10 +1226,10 @@ export default function ResumeGen() {
               <Globe className="size-4 shrink-0 text-zinc-500" />
               {(
                 [
-                  { code: "pt", label: "Português" },
-                  { code: "en", label: "Inglês" },
-                  { code: "es", label: "Espanhol" },
-                  { code: "fr", label: "Francês" },
+                  { code: 'pt', label: 'Português' },
+                  { code: 'en', label: 'Inglês' },
+                  { code: 'es', label: 'Espanhol' },
+                  { code: 'fr', label: 'Francês' },
                 ] as const
               ).map(({ code, label }) => (
                 <button
@@ -1224,8 +1238,8 @@ export default function ResumeGen() {
                   onClick={() => setCvLanguage(code)}
                   className={`flex-1 rounded-lg border py-2 text-xs font-medium cursor-pointer transition-all ${
                     cvLanguage === code
-                      ? "border-blue-500/40 bg-blue-600/20 text-blue-300"
-                      : "border-white/6 bg-white/2 text-zinc-500 hover:border-white/10 hover:text-zinc-300"
+                      ? 'border-blue-500/40 bg-blue-600/20 text-blue-300'
+                      : 'border-white/6 bg-white/2 text-zinc-500 hover:border-white/10 hover:text-zinc-300'
                   }`}
                 >
                   {label}
@@ -1243,9 +1257,16 @@ export default function ResumeGen() {
                   <span className="size-2.5 rounded-full bg-[#28C840]" />
                 </div>
                 <div className="flex-1 rounded-md bg-white/4 px-3 py-1 text-center text-[10px] text-zinc-600">
-                  {fileName || "CV [Título Profissional] [Seu nome]"}.pdf
+                  {fileName || 'CV [Título Profissional] [Seu nome]'}.pdf
                 </div>
               </div>
+
+              {/* Erro de geração do PDF */}
+              {pdfError && (
+                <div className="mb-3 rounded-xl border border-red-500/30 bg-red-500/8 px-4 py-3 text-sm text-red-400">
+                  {pdfError}
+                </div>
+              )}
 
               {/* Scrollable PDF page */}
               <div className="max-h-225 overflow-y-auto rounded-lg">
@@ -1255,13 +1276,13 @@ export default function ResumeGen() {
                 <button
                   type="button"
                   disabled={isGenerating}
-                  onClick={() => performAIActivity("update")}
+                  onClick={() => performAIActivity('update')}
                   className="flex w-full cursor-pointer disabled:cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-blue-500/30 bg-blue-600/10 py-3 text-sm font-semibold text-blue-300 transition-all hover:border-blue-500/60 hover:bg-blue-600/20 hover:text-blue-200"
                 >
                   {!isGenerating ? <FileText className="size-4" /> : <Loader />}
                   {!isGenerating
-                    ? "Gerar PDF"
-                    : "Gerando PDF do seu CV otimizado para ATS..."}
+                    ? 'Gerar PDF'
+                    : 'Gerando PDF do seu CV otimizado para ATS...'}
                 </button>
               </div>
             </div>
