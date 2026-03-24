@@ -1,13 +1,13 @@
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from 'next/navigation';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 
-import { auth } from "@/services/firebase";
-import { signOut } from "firebase/auth";
+import { auth } from '@/services/firebase';
+import { signOut } from 'firebase/auth';
 
-import { useAuthUserFirebase } from "@/store/authUser.store";
+import { useAuthUserFirebase } from '@/store/authUser.store';
 
-import { Bell, GitBranch, Github, LogOut } from "lucide-react";
+import { Bell, GitBranch, Github, LogOut } from 'lucide-react';
 
 type NavbarPropsType = {
   photoURL: string | null | undefined;
@@ -35,7 +35,7 @@ export function Navbar({
     setUser(null);
     setToken(undefined);
     setCredential(null);
-    router.push("/");
+    router.push('/');
   };
 
   return (
@@ -55,12 +55,12 @@ export function Navbar({
         {/* Nav links */}
         <nav className="absolute left-1/2 -translate-x-1/2 hidden items-center gap-1 md:flex">
           {[
-            { label: "Dashboard", href: "/dashboard" },
-            { label: "Portfólio", href: "/tools/portfoliogen" },
-            { label: "Currículos", href: "/tools/resumegen" },
-            { label: "Score", href: "#" },
-            { label: "Entrevistas", href: "#" },
-            { label: "Premium", href: "/premium/gopremium" },
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Portfólio', href: '/tools/portfoliogen' },
+            { label: 'Currículos', href: '/tools/resumegen' },
+            { label: 'Score', href: '#' },
+            { label: 'Entrevistas', href: '#' },
+            { label: 'Premium', href: '/premium/gopremium' },
           ].map((item) => {
             const isActive = pathname === item.href;
 
@@ -70,8 +70,8 @@ export function Navbar({
                 href={item.href}
                 className={`cursor-pointer rounded-md px-5 py-2.5 text-base font-medium transition-colors ${
                   isActive
-                    ? "bg-white/8 text-white"
-                    : "text-zinc-400 hover:bg-white/5 hover:text-white"
+                    ? 'bg-white/8 text-white'
+                    : 'text-zinc-400 hover:bg-white/5 hover:text-white'
                 }`}
               >
                 {item.label}
@@ -102,7 +102,7 @@ export function Navbar({
               />
             ) : (
               <div className="flex size-9 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
-                {displayName[0]?.toUpperCase() ?? "U"}
+                {displayName[0]?.toUpperCase() ?? 'U'}
               </div>
             )}
             <div className="hidden sm:block">

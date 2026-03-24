@@ -48,7 +48,7 @@ export const tools = [
     description: "Adapte seu currículo para qualquer vaga em segundos.",
     tag: "Smart",
     color: "blue",
-    route: "tools/#"
+    route: "tools/resumeadapter"
   },
   {
     icon: BarChart2,
