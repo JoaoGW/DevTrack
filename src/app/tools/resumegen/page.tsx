@@ -302,6 +302,17 @@ export default function ResumeGen() {
       try {
         if (apiresponse.ok) {
           const blob = await apiresponse.blob();
+          
+          // Logica para salvar o binario do PDF para aquele usuario
+          const pdfArrayBuffer = await blob.arrayBuffer();
+          if(user?.uid){
+            await fetch(`/api/cv-pdf?userId=${user?.uid}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/pdf" },
+              body: pdfArrayBuffer 
+            });
+          }
+
           if (pdfUrl) URL.revokeObjectURL(pdfUrl); // Revoga o URL anterior antes de criar o novo para evitar memory leak
           const url = URL.createObjectURL(blob);
           setPdfUrl(url);
@@ -388,6 +399,33 @@ export default function ResumeGen() {
     }
 
     loadPortfolio();
+  }, [user?.uid]);
+
+  // Sistema que sera responsavel por analisar se um curriculo ja foi gerado posteriormente
+  useEffect(() => {
+    const userId = user?.uid;
+    if(!userId) return;
+
+    let objectUrl: string | null = null;
+
+    async function loadSavedCV () {
+      try {
+        const response = await fetch(`/api/cv-pdf?userId=${userId}`)
+        if(response.ok){
+          const blob = await response.blob();
+          objectUrl = URL.createObjectURL(blob);
+          setPdfUrl(objectUrl);
+        }
+      } catch (error) {
+        // Falha silenciosa. Ainda nao ha um pdf salvo
+      }
+    }
+
+    loadSavedCV();
+
+    return () => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
   }, [user?.uid]);
 
   return (
