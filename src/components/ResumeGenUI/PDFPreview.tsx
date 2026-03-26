@@ -1,6 +1,6 @@
-"use client";
-import { useState, useMemo } from "react";
-import { Document, Page, pdfjs } from "react-pdf";
+'use client';
+import { useState, useMemo } from 'react';
+import { Document, Page, pdfjs } from 'react-pdf';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -23,8 +23,8 @@ export function PdfPreview({
       {!hasPdf ? (
         <div className="flex min-h-105 items-center justify-center px-6 text-center text-sm text-zinc-500">
           {!isGenerating
-            ? "Gere um PDF para visualizar o resultado aqui."
-            : "Finalizando documento e Carregando a prévia online. Aguarde..."}
+            ? 'Gere/Escolha um PDF para visualizar o resultado aqui.'
+            : 'Finalizando documento e Carregando a prévia online. Aguarde...'}
         </div>
       ) : (
         <Document

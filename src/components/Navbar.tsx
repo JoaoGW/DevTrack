@@ -57,17 +57,22 @@ export function Navbar({
           {[
             { label: 'Dashboard', href: '/dashboard' },
             { label: 'Portfólio', href: '/tools/portfoliogen' },
-            { label: 'Currículos', href: '/tools/resumegen' },
+            {
+              label: 'Currículos',
+              href: ['/tools/resumegen', '/tools/resumeadapter'],
+            },
             { label: 'Score', href: '#' },
             { label: 'Entrevistas', href: '#' },
             { label: 'Premium', href: '/premium/gopremium' },
           ].map((item) => {
-            const isActive = pathname === item.href;
+            const isActive = Array.isArray(item.href)
+              ? item.href.includes(pathname)
+              : pathname === item.href;
 
             return (
               <a
                 key={item.label}
-                href={item.href}
+                href={Array.isArray(item.href) ? item.href[0] : item.href}
                 className={`cursor-pointer rounded-md px-5 py-2.5 text-base font-medium transition-colors ${
                   isActive
                     ? 'bg-white/8 text-white'

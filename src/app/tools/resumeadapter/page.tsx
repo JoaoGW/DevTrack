@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Navbar } from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,9 @@ import { Toggle } from '@/components/ResumeGenUI/Toggle';
 import { PdfPreview } from '@/components/ResumeGenUI/PDFPreview';
 
 import { useAuthUserFirebase } from '@/store/authUser.store';
+
+import { PlatformId } from '@/app/contentData/resumeAdapter/types/PlatformIdTypes';
+import { platforms } from '@/app/contentData/resumeAdapter/plataforms';
 
 import {
   FileText,
@@ -24,6 +27,7 @@ import {
   Info,
   ClipboardPaste,
   CheckCircle2,
+  AlertCircle,
 } from 'lucide-react';
 
 // Design tokens (mesmos padrões do projeto)
@@ -32,59 +36,12 @@ const inputCls =
 const labelCls = 'block text-sm font-medium text-zinc-300 mb-1.5';
 const cardCls = 'rounded-2xl border border-white/6 bg-white/2 p-8';
 
-// Mock de currículos salvos — backend alimentará esta lista via userId
-const savedCVs = [
-  { id: '1', name: 'CV Dev Front-End Sênior', date: '20/03/2025' },
-  { id: '2', name: 'CV Fullstack Developer', date: '15/03/2025' },
-  { id: '3', name: 'CV Back-End Engineer', date: '10/03/2025' },
-];
-
-type PlatformId = 'linkedin' | 'gupy' | 'catho';
-
-const platforms: {
-  id: PlatformId;
+interface ISavedCV {
+  id: string;
   name: string;
-  description: string;
-  accent: string;
-  border: string;
-  bg: string;
-  text: string;
-  dot: string;
-}[] = [
-  {
-    id: 'linkedin',
-    name: 'LinkedIn',
-    description:
-      'Otimizado para perfil e candidaturas na maior rede profissional',
-    accent: 'bg-blue-500/10',
-    border: 'border-blue-500/40',
-    bg: 'bg-blue-600/15',
-    text: 'text-blue-300',
-    dot: 'bg-blue-400',
-  },
-  {
-    id: 'gupy',
-    name: 'Gupy',
-    description:
-      'Adaptado para processos seletivos na plataforma mais usada no Brasil',
-    accent: 'bg-violet-500/10',
-    border: 'border-violet-500/40',
-    bg: 'bg-violet-600/15',
-    text: 'text-violet-300',
-    dot: 'bg-violet-400',
-  },
-  {
-    id: 'catho',
-    name: 'Catho',
-    description:
-      'Formatado para maximizar visibilidade no portal de empregos Catho',
-    accent: 'bg-emerald-500/10',
-    border: 'border-emerald-500/40',
-    bg: 'bg-emerald-600/15',
-    text: 'text-emerald-300',
-    dot: 'bg-emerald-400',
-  },
-];
+  blob: Blob;
+  created_at: string;
+}
 
 export default function ResumeAdapter() {
   const { user } = useAuthUserFirebase();
@@ -93,8 +50,11 @@ export default function ResumeAdapter() {
   const photoURL = user?.photoURL;
   const handle = user?.email?.split('@')[0] ?? 'dev';
 
+  // Estados para solicitações (requests e responses) de APIs
+  const [savedCVs, setSavedCVs] = useState<ISavedCV[]>([]);
+
   // PDF state (preenchido pelo backend futuramente)
-  const [pdfUrl] = useState<string | null>(null);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isAdapting, setIsAdapting] = useState(false);
   const [pdfError] = useState<string | null>(null);
 
@@ -122,6 +82,27 @@ export default function ResumeAdapter() {
     { label: 'Plataforma escolhida', done: !!selectedPlatform },
     { label: 'Descrição da vaga', done: jobDescription.length > 30 },
   ];
+
+  // Captura de todos os CVs já gerados pelo usuário
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    async function captureCVs() {
+      const apiResponse = await fetch(
+        `/api/cv-pdf?userId=${encodeURIComponent(user!.uid)}&list=true`,
+        { method: 'GET' }
+      );
+
+      if (!apiResponse.ok) return [];
+
+      const { content } = await apiResponse.json();
+      return content ?? [];
+    }
+
+    captureCVs()
+      .then((data) => setSavedCVs(data))
+      .catch(() => setSavedCVs([]));
+  }, [user?.uid]);
 
   return (
     <div
@@ -227,46 +208,64 @@ export default function ResumeAdapter() {
 
                 {/* Cards de seleção */}
                 <div className="flex flex-col gap-2">
-                  {savedCVs.map((cv) => {
-                    const isSelected = selectedCVId === cv.id;
-                    return (
-                      <button
-                        key={cv.id}
-                        type="button"
-                        onClick={() => setSelectedCVId(cv.id)}
-                        className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-all cursor-pointer ${
-                          isSelected
-                            ? 'border-violet-500/40 bg-violet-500/8'
-                            : 'border-white/6 bg-white/2 hover:border-white/12 hover:bg-white/3'
-                        }`}
-                      >
-                        <div
-                          className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${
-                            isSelected ? 'bg-violet-500/15' : 'bg-white/4'
+                  {savedCVs.length > 0 ? (
+                    savedCVs.map((cv) => {
+                      const isSelected = selectedCVId === cv.id;
+                      return (
+                        <button
+                          key={cv.id}
+                          type="button"
+                          onClick={async () => {
+                            // Exibe o PDF imediatamente
+                            const res = await fetch(
+                              `/api/cv-pdf?userId=${cv.id}`
+                            );
+                            const blob = await res.blob();
+                            const url = URL.createObjectURL(blob);
+                            setPdfUrl(url);
+                            setSelectedCVId(cv.id);
+                          }}
+                          className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-all cursor-pointer ${
+                            isSelected
+                              ? 'border-violet-500/40 bg-violet-500/8'
+                              : 'border-white/6 bg-white/2 hover:border-white/12 hover:bg-white/3'
                           }`}
                         >
-                          <FileText
-                            className={`size-4 ${isSelected ? 'text-violet-400' : 'text-zinc-500'}`}
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p
-                            className={`text-sm font-medium truncate ${
-                              isSelected ? 'text-violet-200' : 'text-zinc-300'
+                          <div
+                            className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${
+                              isSelected ? 'bg-violet-500/15' : 'bg-white/4'
                             }`}
                           >
-                            {cv.name}
-                          </p>
-                          <p className="text-xs text-zinc-500">
-                            Gerado em {cv.date}
-                          </p>
-                        </div>
-                        {isSelected && (
-                          <CheckCircle2 className="size-4 shrink-0 text-violet-400" />
-                        )}
-                      </button>
-                    );
-                  })}
+                            <FileText
+                              className={`size-4 ${isSelected ? 'text-violet-400' : 'text-zinc-500'}`}
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p
+                              className={`text-sm font-medium truncate ${
+                                isSelected ? 'text-violet-200' : 'text-zinc-300'
+                              }`}
+                            >
+                              {cv.name}
+                            </p>
+                            <p className="text-xs text-zinc-500">
+                              Gerado em {cv.created_at}
+                            </p>
+                          </div>
+                          {isSelected && (
+                            <CheckCircle2 className="size-4 shrink-0 text-violet-400" />
+                          )}
+                        </button>
+                      );
+                    })
+                  ) : (
+                    <div className="flex items-center justify-center gap-3 rounded-xl border border-amber-500/20 bg-amber-500/6 px-4 py-3.5 mt-3">
+                      <AlertCircle className="size-5 shrink-0 text-amber-400" />
+                      <span className="text-sm text-amber-300">
+                        Gere um novo Currículo antes de tentar modificar!
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </section>

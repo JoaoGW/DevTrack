@@ -4,14 +4,37 @@ import { pool } from "@/lib/db";
 
 export async function GET(request: NextRequest, response: NextResponse) {
   const userId = request.nextUrl.searchParams.get("userId");
+  const list = request.nextUrl.searchParams.get("list");
 
   if (!userId) {
     return NextResponse.json({ error: "Nao foi encontrado um userId nos parametros da URL" }, { status: 400 });
   }
 
+  // Retorna metadados dos CVs salvos como JSON
+  if (list === "true") {
+    try {
+      const [rows] = await pool.query(
+        "SELECT user_id, updated_at FROM cv_pdf WHERE user_id = ?",
+        [userId]
+      );
+
+      const result = rows as { user_id: string; updated_at: Date }[];
+
+      const content = result.map((row) => ({
+        id: row.user_id,
+        name: "Meu Currículo",
+        created_at: row.updated_at ? new Date(row.updated_at).toLocaleDateString("pt-BR") : "-",
+      }));
+
+      return NextResponse.json({ content });
+    } catch (error) {
+      return NextResponse.json({ error: "Erro ao listar CVs: " + error }, { status: 500 });
+    }
+  }
+
   try {
     const [rows] = await pool.query(
-      "SELECT pdf_data FROM cv_pdf WHERE user_id = ? LIMIT 1",
+      "SELECT pdf_data FROM cv_pdf WHERE user_id = ?",
       [userId]
     );
 
