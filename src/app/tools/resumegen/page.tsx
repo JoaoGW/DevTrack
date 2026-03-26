@@ -307,7 +307,12 @@ export default function ResumeGen() {
           );
         }
 
-        const blob = await apiresponse.blob();
+        // Novo formato: JSON com pdfBase64 + texCode
+        const { pdfBase64, texCode } = await apiresponse.json();
+        const pdfBytes = Uint8Array.from(atob(pdfBase64), (c) =>
+          c.charCodeAt(0)
+        );
+        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
 
         // Exibe o PDF imediatamente
         if (pdfUrl) URL.revokeObjectURL(pdfUrl);
@@ -316,20 +321,15 @@ export default function ResumeGen() {
         setPdfError(null);
         setIsGenerating(false);
 
-        // Salva o binário no banco em segundo plano (não bloqueia a exibição)
+        // Salva PDF + código LaTeX no banco em segundo plano
         if (user?.uid) {
-          blob
-            .arrayBuffer()
-            .then((pdfArrayBuffer) =>
-              fetch(`/api/cv-pdf?userId=${user.uid}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/pdf' },
-                body: pdfArrayBuffer,
-              })
-            )
-            .catch(() => {
-              /* salvar falhou — PDF ainda é exibido */
-            });
+          fetch(`/api/cv-pdf?userId=${user.uid}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pdfBase64, latexSource: texCode }),
+          }).catch(() => {
+            /* salvar falhou — PDF ainda é exibido */
+          });
         }
 
         return;

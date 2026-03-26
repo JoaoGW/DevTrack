@@ -39,8 +39,8 @@ const cardCls = 'rounded-2xl border border-white/6 bg-white/2 p-8';
 interface ISavedCV {
   id: string;
   name: string;
-  blob: Blob;
   created_at: string;
+  latex_source: string;
 }
 
 export default function ResumeAdapter() {
@@ -53,10 +53,11 @@ export default function ResumeAdapter() {
   // Estados para solicitações (requests e responses) de APIs
   const [savedCVs, setSavedCVs] = useState<ISavedCV[]>([]);
 
-  // PDF state (preenchido pelo backend futuramente)
+  // PDF state
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isAdapting, setIsAdapting] = useState(false);
   const [pdfError] = useState<string | null>(null);
+  const [originalCV, setOriginalCV] = useState<string>('');
 
   // Seleções
   const [selectedCVId, setSelectedCVId] = useState('');
@@ -67,8 +68,8 @@ export default function ResumeAdapter() {
   const [fileName, setFileName] = useState('CV Adaptado');
 
   // Opções de adaptação
-  const [focusTechSkills, setFocusTechSkills] = useState(true);
-  const [includeKeywords, setIncludeKeywords] = useState(true);
+  const [focusTechSkills, setFocusTechSkills] = useState(false);
+  const [includeKeywords, setIncludeKeywords] = useState(false);
   const [adjustProfile, setAdjustProfile] = useState(true);
   const canAdapt =
     !!selectedCVId && !!selectedPlatform && jobDescription.length > 30;
@@ -82,6 +83,51 @@ export default function ResumeAdapter() {
     { label: 'Plataforma escolhida', done: !!selectedPlatform },
     { label: 'Descrição da vaga', done: jobDescription.length > 30 },
   ];
+
+  // Seguindo o que foi inserido no formulário desta tela + o conteúdo do CV original, enviamos
+  //  a solicitação à IA que retorna somente alguns campos específicos modificados
+  async function handleCVAdapter() {
+    setIsAdapting(true);
+
+    const positionDesc = `Cargo:${jobTitle} - Nome da Empresa:${companyName} - Descrição da vaga:${jobDescription}`;
+
+    const selectedAdaptOptions: string[] = [];
+    if (focusTechSkills) {
+      selectedAdaptOptions.push(
+        'Destaque habilidades técnicas, priorizando as skills técnicas relevantes para a vaga'
+      );
+    }
+    if (includeKeywords) {
+      selectedAdaptOptions.push(
+        'Insira palavras-chave da vaga, adicionando termos do anúncio para melhorar matching em ATS'
+      );
+    }
+    if (adjustProfile) {
+      selectedAdaptOptions.push(
+        'Reescreva o perfil profissional, ajustando o resumo profissional ao contexto da vaga'
+      );
+    }
+
+    const payload = {
+      platform: selectedPlatform,
+      positionDescription: positionDesc,
+      selectedOptions: selectedAdaptOptions,
+    };
+
+    const apiResponse = await fetch('/api/resumeadapter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        devInput:
+          '[ROLE]:Você é um Tech Recruiter Sênior que está ajudando devs a arrumarem um novo emprego. [TASK]:Sem mexer na estrutura do CV, modifique somente as informações dentro de Perfil Profissional, Título Profissional e Habilidades dos tópicos dentro das seções do currículo já existente.',
+        nanoInput: `Currículo original a ser modificado: ${originalCV}`,
+        maxTokens: 3250,
+        payload: payload,
+      }),
+    });
+
+    setIsAdapting(false);
+  }
 
   // Captura de todos os CVs já gerados pelo usuário
   useEffect(() => {
@@ -216,14 +262,17 @@ export default function ResumeAdapter() {
                           key={cv.id}
                           type="button"
                           onClick={async () => {
-                            // Exibe o PDF imediatamente
+                            setSelectedCVId(cv.id);
+                            setOriginalCV(cv.latex_source);
+                            // Busca e exibe o PDF do currículo selecionado
                             const res = await fetch(
                               `/api/cv-pdf?userId=${cv.id}`
                             );
-                            const blob = await res.blob();
-                            const url = URL.createObjectURL(blob);
-                            setPdfUrl(url);
-                            setSelectedCVId(cv.id);
+                            if (res.ok) {
+                              const blob = await res.blob();
+                              if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+                              setPdfUrl(URL.createObjectURL(blob));
+                            }
                           }}
                           className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-all cursor-pointer ${
                             isSelected

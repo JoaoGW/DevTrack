@@ -55,8 +55,9 @@ export async function POST(request: NextRequest, response: NextResponse) {
         );
       }
 
-      return new Response(new Uint8Array(pdfBuffer), {
-        headers: { "Content-Type": "application/pdf" },
+      return NextResponse.json({
+        pdfBase64: pdfBuffer.toString('base64'),
+        texCode,
       });
     } else {
       return NextResponse.json(
