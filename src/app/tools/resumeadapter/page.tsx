@@ -74,7 +74,10 @@ export default function ResumeAdapter() {
   const [includeKeywords, setIncludeKeywords] = useState(false);
   const [adjustProfile, setAdjustProfile] = useState(true);
   const canAdapt =
-    !!selectedCVId && !!selectedPlatform && jobDescription.length > 30;
+    !!selectedCVId &&
+    !!originalCV &&
+    !!selectedPlatform &&
+    jobDescription.length > 30;
 
   const selectedCV = savedCVs.find((c) => c.id === selectedCVId);
   const selectedPlatformData = platforms.find((p) => p.id === selectedPlatform);
@@ -89,6 +92,10 @@ export default function ResumeAdapter() {
   // Seguindo o que foi inserido no formulário desta tela + o conteúdo do CV original, enviamos
   //  a solicitação à IA que retorna somente alguns campos específicos modificados
   async function handleCVAdapter() {
+    if (!originalCV) {
+      setIsAdapting(false);
+      return;
+    }
     setIsAdapting(true);
 
     const positionDesc = `Cargo:${jobTitle} - Nome da Empresa:${companyName} - Descrição da vaga:${emojiStrip(jobDescription)}`;
@@ -628,9 +635,11 @@ export default function ResumeAdapter() {
                   <p className="mt-2 text-center text-xs text-zinc-600">
                     {!selectedCVId
                       ? 'Selecione um currículo para continuar.'
-                      : !selectedPlatform
-                        ? 'Escolha a plataforma de destino.'
-                        : 'Cole a descrição da vaga (mín. 30 caracteres).'}
+                      : !originalCV
+                        ? 'O currículo selecionado não possui código fonte. Gere-o novamente.'
+                        : !selectedPlatform
+                          ? 'Escolha a plataforma de destino.'
+                          : 'Cole a descrição da vaga (mín. 30 caracteres).'}
                   </p>
                 )}
               </div>

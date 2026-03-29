@@ -1,24 +1,24 @@
-"use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+'use client';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
-import { Octokit } from "octokit";
+import { Octokit } from 'octokit';
 
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
-} from "@/components/ui/card";
-import AnimatedStat from "@/components/AnimatedStat";
-import { LoadingGeneralContent } from "@/components/Loading/loading";
+} from '@/components/ui/card';
+import AnimatedStat from '@/components/AnimatedStat';
+import { LoadingGeneralContent } from '@/components/Loading/loading';
 
-import { useAuthUserFirebase } from "@/store/authUser.store";
+import { useAuthUserFirebase } from '@/store/authUser.store';
 
-import { tools } from "../contentData/dashboard/tools";
+import { tools } from '../contentData/dashboard/tools';
 
 import {
   Github,
@@ -48,8 +48,8 @@ import {
   Trophy,
   Crown,
   LucideIcon,
-} from "lucide-react";
-import { Navbar } from "@/components/Navbar";
+} from 'lucide-react';
+import { Navbar } from '@/components/Navbar';
 
 interface IGitHubStats {
   label: string;
@@ -59,24 +59,24 @@ interface IGitHubStats {
 }
 
 const recentResumes = [
-  { name: "Currículo Padrão", updatedAt: "há 2 dias", ats: 92, tag: "Geral" },
+  { name: 'Currículo Padrão', updatedAt: 'há 2 dias', ats: 92, tag: 'Geral' },
 ];
 
 const recentTools = [
   {
     icon: Search,
-    name: "GitHub Analyzer",
-    lastUsed: "Hoje, 14:32",
-    color: "blue",
+    name: 'GitHub Analyzer',
+    lastUsed: 'Hoje, 14:32',
+    color: 'blue',
   },
 ];
 
 // Helpers
 const getGreeting = () => {
   const hour = new Date().getHours();
-  if (hour < 12) return "Bom dia";
-  if (hour < 18) return "Boa tarde";
-  return "Boa noite";
+  if (hour < 12) return 'Bom dia';
+  if (hour < 18) return 'Boa tarde';
+  return 'Boa noite';
 };
 
 const SCORE_VALUE = 78;
@@ -89,16 +89,16 @@ export default function Dashboard() {
   const { user, token, isLoading } = useAuthUserFirebase();
 
   // Informações para a Navbar e Banner
-  const displayName = user?.displayName ?? "Desenvolvedor";
+  const displayName = user?.displayName ?? 'Desenvolvedor';
   const photoURL = user?.photoURL;
-  const handle = user?.email?.split("@")[0] ?? "dev";
+  const handle = user?.email?.split('@')[0] ?? 'dev';
 
   // Informações para o UserData de repositórios e outros dados do GitHub
   const [githubStats, setGithubStats] = useState<Array<IGitHubStats>>([
-    { label: "Repositórios", value: 0, icon: Code2, accent: "blue" },
-    { label: "Estrelas Recebidas", value: 0, icon: Star, accent: "yellow" },
-    { label: "Seguidores", value: 0, icon: Users, accent: "sky" },
-    { label: "Contribuições", value: 0, icon: Activity, accent: "emerald" },
+    { label: 'Repositórios', value: 0, icon: Code2, accent: 'blue' },
+    { label: 'Estrelas Recebidas', value: 0, icon: Star, accent: 'yellow' },
+    { label: 'Seguidores', value: 0, icon: Users, accent: 'sky' },
+    { label: 'Contribuições', value: 0, icon: Activity, accent: 'emerald' },
   ]);
   // Todas as informações de GitHub Data (GraphQL + Rest API)
   const [username, setUsername] = useState<string>();
@@ -112,19 +112,19 @@ export default function Dashboard() {
     // Busca dados do usuário autenticado
     async function fetchGithubData() {
       // Perfil + número de repos públicos
-      const { data: userData } = await octokit.request("GET /user", {
-        headers: { "X-GitHub-Api-Version": "2022-11-28" },
+      const { data: userData } = await octokit.request('GET /user', {
+        headers: { 'X-GitHub-Api-Version': '2022-11-28' },
       });
 
       // Repositórios do usuário (para calcular stars totais)
-      const { data: repos } = await octokit.request("GET /user/repos", {
+      const { data: repos } = await octokit.request('GET /user/repos', {
         per_page: 100,
-        headers: { "X-GitHub-Api-Version": "2022-11-28" },
+        headers: { 'X-GitHub-Api-Version': '2022-11-28' },
       });
 
       const totalStars = repos.reduce(
         (acc, repo) => acc + repo.stargazers_count,
-        0,
+        0
       );
 
       // Busca contribuições do ano atual via GraphQL
@@ -146,7 +146,7 @@ export default function Dashboard() {
             }
           }
         }`,
-        { login: userData.login },
+        { login: userData.login }
       );
 
       // Soma/cálculo de todas as contribuições do usuário por onde ele teve atividade nos últimos 365 dias
@@ -161,28 +161,28 @@ export default function Dashboard() {
       // Substitui os valores default da seção Estatísticas do GitHub
       setGithubStats([
         {
-          label: "Repositórios",
+          label: 'Repositórios',
           value: userData.public_repos + (userData.total_private_repos ?? 0),
           icon: Code2,
-          accent: "blue",
+          accent: 'blue',
         },
         {
-          label: "Stars Recebidas",
+          label: 'Stars Recebidas',
           value: totalStars,
           icon: Star,
-          accent: "yellow",
+          accent: 'yellow',
         },
         {
-          label: "Seguidores",
+          label: 'Seguidores',
           value: userData.followers,
           icon: Users,
-          accent: "sky",
+          accent: 'sky',
         },
         {
-          label: "Contribuições",
+          label: 'Contribuições',
           value: totalContributions,
           icon: Activity,
-          accent: "emerald",
+          accent: 'emerald',
         },
       ]);
     }
@@ -198,7 +198,7 @@ export default function Dashboard() {
   return (
     <div
       className="min-h-screen bg-[#080810] text-white"
-      style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
+      style={{ fontFamily: 'var(--font-geist-sans), sans-serif' }}
     >
       {/* ── NAVBAR ── */}
       <Navbar
@@ -217,14 +217,14 @@ export default function Dashboard() {
             className="relative flex-1 overflow-hidden rounded-2xl border border-white/6 p-10"
             style={{
               background:
-                "linear-gradient(135deg, rgba(37,99,235,0.10) 0%, rgba(8,8,16,0) 60%)",
+                'linear-gradient(135deg, rgba(37,99,235,0.10) 0%, rgba(8,8,16,0) 60%)',
             }}
           >
             <div
               className="pointer-events-none absolute inset-0"
               style={{
                 background:
-                  "radial-gradient(ellipse at 0% 50%, rgba(59,130,246,0.08) 0%, transparent 60%)",
+                  'radial-gradient(ellipse at 0% 50%, rgba(59,130,246,0.08) 0%, transparent 60%)',
               }}
             />
             <div className="relative">
@@ -239,6 +239,7 @@ export default function Dashboard() {
                 <Button
                   size="default"
                   className="cursor-pointer gap-2 bg-blue-600 text-white shadow-lg shadow-blue-950/40 hover:bg-blue-500"
+                  onClick={() => router.push(`/portfolio/${user?.uid}`)}
                 >
                   <Globe className="size-4" />
                   Ver Portfólio
@@ -299,14 +300,14 @@ export default function Dashboard() {
           className="relative overflow-hidden rounded-2xl border border-amber-500/20 px-8 py-6"
           style={{
             background:
-              "linear-gradient(135deg, rgba(217,119,6,0.12) 0%, rgba(8,8,16,0) 50%, rgba(245,158,11,0.08) 100%)",
+              'linear-gradient(135deg, rgba(217,119,6,0.12) 0%, rgba(8,8,16,0) 50%, rgba(245,158,11,0.08) 100%)',
           }}
         >
           <div
             className="pointer-events-none absolute inset-0"
             style={{
               background:
-                "radial-gradient(ellipse at 0% 50%, rgba(245,158,11,0.10) 0%, transparent 60%)",
+                'radial-gradient(ellipse at 0% 50%, rgba(245,158,11,0.10) 0%, transparent 60%)',
             }}
           />
           <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
@@ -336,7 +337,7 @@ export default function Dashboard() {
               className="cursor-pointer shrink-0 gap-2 bg-amber-500 font-semibold text-black shadow-lg shadow-amber-950/40 hover:bg-amber-400"
               size="default"
               onClick={() => {
-                router.push("/premium/gopremium");
+                router.push('/premium/gopremium');
               }}
             >
               <Sparkles className="size-4" />
@@ -360,10 +361,10 @@ export default function Dashboard() {
             {githubStats.map((stat) => {
               const Icon = stat.icon;
               const colorMap: Record<string, { bg: string; icon: string }> = {
-                blue: { bg: "bg-blue-500/10", icon: "text-blue-400" },
-                yellow: { bg: "bg-yellow-500/10", icon: "text-yellow-400" },
-                sky: { bg: "bg-sky-500/10", icon: "text-sky-400" },
-                emerald: { bg: "bg-emerald-500/10", icon: "text-emerald-400" },
+                blue: { bg: 'bg-blue-500/10', icon: 'text-blue-400' },
+                yellow: { bg: 'bg-yellow-500/10', icon: 'text-yellow-400' },
+                sky: { bg: 'bg-sky-500/10', icon: 'text-sky-400' },
+                emerald: { bg: 'bg-emerald-500/10', icon: 'text-emerald-400' },
               };
               const c = colorMap[stat.accent] ?? colorMap.blue;
               return (
@@ -406,7 +407,7 @@ export default function Dashboard() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {tools.map((tool) => {
               const Icon = tool.icon;
-              const isBlue = tool.color === "blue";
+              const isBlue = tool.color === 'blue';
               return (
                 <Card
                   key={tool.title}
@@ -419,12 +420,12 @@ export default function Dashboard() {
                     <div className="mb-4 flex items-center justify-between">
                       <div
                         className={`flex size-11 items-center justify-center rounded-xl ${
-                          isBlue ? "bg-blue-500/10" : "bg-sky-500/10"
+                          isBlue ? 'bg-blue-500/10' : 'bg-sky-500/10'
                         }`}
                       >
                         <Icon
                           className={`size-5 ${
-                            isBlue ? "text-blue-400" : "text-sky-400"
+                            isBlue ? 'text-blue-400' : 'text-sky-400'
                           }`}
                         />
                       </div>
@@ -442,8 +443,8 @@ export default function Dashboard() {
                       variant="outline"
                       className={`mt-4 text-xs ${
                         isBlue
-                          ? "border-blue-500/20 bg-blue-500/8 text-blue-300"
-                          : "border-sky-500/20 bg-sky-500/8 text-sky-300"
+                          ? 'border-blue-500/20 bg-blue-500/8 text-blue-300'
+                          : 'border-sky-500/20 bg-sky-500/8 text-sky-300'
                       }`}
                     >
                       {tool.tag}
@@ -499,8 +500,8 @@ export default function Dashboard() {
                   key={resume.name}
                   className={`flex cursor-pointer items-center justify-between px-5 py-4 transition-colors hover:bg-white/3 ${
                     idx !== recentResumes.length - 1
-                      ? "border-b border-white/5"
-                      : ""
+                      ? 'border-b border-white/5'
+                      : ''
                   }`}
                 >
                   <div className="flex items-center gap-4">
@@ -526,9 +527,9 @@ export default function Dashboard() {
                     <Badge
                       variant="outline"
                       className={`text-xs ${
-                        resume.tag === "Adaptado"
-                          ? "border-blue-500/20 bg-blue-500/8 text-blue-300"
-                          : "border-white/10 bg-white/5 text-zinc-400"
+                        resume.tag === 'Adaptado'
+                          ? 'border-blue-500/20 bg-blue-500/8 text-blue-300'
+                          : 'border-white/10 bg-white/5 text-zinc-400'
                       }`}
                     >
                       {resume.tag}
@@ -556,25 +557,25 @@ export default function Dashboard() {
             <CardContent className="p-0">
               {recentTools.map((tool, idx) => {
                 const Icon = tool.icon;
-                const isBlue = tool.color === "blue";
+                const isBlue = tool.color === 'blue';
                 return (
                   <div
                     key={tool.name}
                     className={`flex cursor-pointer items-center justify-between px-5 py-4 transition-colors hover:bg-white/3 ${
                       idx !== recentTools.length - 1
-                        ? "border-b border-white/5"
-                        : ""
+                        ? 'border-b border-white/5'
+                        : ''
                     }`}
                   >
                     <div className="flex items-center gap-4">
                       <div
                         className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${
-                          isBlue ? "bg-blue-500/10" : "bg-sky-500/10"
+                          isBlue ? 'bg-blue-500/10' : 'bg-sky-500/10'
                         }`}
                       >
                         <Icon
                           className={`size-4 ${
-                            isBlue ? "text-blue-400" : "text-sky-400"
+                            isBlue ? 'text-blue-400' : 'text-sky-400'
                           }`}
                         />
                       </div>

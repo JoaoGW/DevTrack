@@ -102,6 +102,7 @@ interface CalendarProps {
   placeholder?: string;
   label?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 export function Calendar({
@@ -111,6 +112,7 @@ export function Calendar({
   placeholder,
   label,
   className,
+  disabled = false,
 }: CalendarProps) {
   const today = new Date();
   const parsed = parseStringValue(value);
@@ -198,16 +200,20 @@ export function Calendar({
       {/* ── Trigger ── */}
       <div
         role="button"
-        tabIndex={0}
-        onClick={() => setOpen((o) => !o)}
+        tabIndex={disabled ? -1 : 0}
+        onClick={() => !disabled && setOpen((o) => !o)}
         onKeyDown={(e) =>
-          (e.key === 'Enter' || e.key === ' ') && setOpen((o) => !o)
+          !disabled &&
+          (e.key === 'Enter' || e.key === ' ') &&
+          setOpen((o) => !o)
         }
         className={cn(
           'w-full flex items-center gap-3 rounded-xl border border-white/6 bg-white/2 py-3 px-4',
-          'text-sm outline-none transition-all duration-200 text-left cursor-pointer select-none',
-          'hover:border-white/10 hover:bg-white/4',
-          open && 'border-blue-500/40 bg-white/4',
+          'text-sm outline-none transition-all duration-200 text-left select-none',
+          disabled
+            ? 'cursor-not-allowed opacity-40'
+            : 'cursor-pointer hover:border-white/10 hover:bg-white/4',
+          open && !disabled && 'border-blue-500/40 bg-white/4',
           !hasValue ? 'text-zinc-600' : 'text-white'
         )}
       >

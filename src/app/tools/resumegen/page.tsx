@@ -277,7 +277,7 @@ export default function ResumeGen() {
       } else {
         maxOutputTokens = 2900;
         return (
-          `Adapte o código Tex a seguir preenchendo o molde e adaptando os placeholders {{...}} de acordo com as informações do usuário e a quantidade de itens necessários para as informações. Escreva todo o conteúdo textual do currículo no idioma: ${cvLanguageMap[cvLanguage] ?? 'português'}. Retorne somente código TeX puro sem markdown. Código Tex para adaptar: ` +
+          `Adapte o código Tex a seguir preenchendo o molde e adaptando os placeholders {{...}} de acordo com as informações do usuário e a quantidade de itens necessários para as informações. Escreva todo o conteúdo textual do currículo no idioma: ${cvLanguageMap[cvLanguage] ?? 'português'}. Experiências profissionais e formações acadêmicas devem ser ordenadas em ordem cronológica inversa (a mais recente primeiro, a mais antiga por último). Retorne somente código TeX puro sem markdown. Código Tex para adaptar: ` +
           baseSourceCVLatex
         );
       }
@@ -327,9 +327,49 @@ export default function ResumeGen() {
           fetch(`/api/cv-pdf?userId=${user.uid}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ pdfBase64, latexSource: texCode }),
-          }).catch(() => {
-            /* salvar falhou — PDF ainda é exibido */
+            body: JSON.stringify({
+              pdfBase64,
+              latexSource: texCode,
+              name: fileName || 'Curriculum Vitae',
+            }),
+          })
+            .then((res) => {
+              if (!res.ok)
+                console.error(
+                  '[cv-pdf] Falha ao salvar currículo no banco. Status:',
+                  res.status
+                );
+            })
+            .catch((err) => {
+              console.error('[cv-pdf] Erro de rede ao salvar currículo:', err);
+            });
+
+          // Sincroniza o estado atual do formulário no portfolio para que ao recarregar
+          // a página os campos reflitam os dados usados para gerar o último PDF
+          fetch('/api/portfolio', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: user.uid,
+              nome,
+              email,
+              telefone,
+              localizacao,
+              github: githubUrl,
+              linkedin: linkedinUrl,
+              website,
+              perfil,
+              tituloProfissional,
+              skills,
+              experiences,
+              educations,
+              certifications,
+              languages,
+              projects: [],
+              template: null,
+            }),
+          }).catch((err) => {
+            console.error('[portfolio] Erro ao sincronizar formulário:', err);
           });
         }
 
@@ -701,7 +741,7 @@ export default function ResumeGen() {
                       {!isGenerating ? (
                         <Sparkles className="size-3.5" />
                       ) : (
-                        <Loader />
+                        <Loader className="size-3.5 animate-spin" />
                       )}
                       {!isGenerating
                         ? 'Melhorar texto com IA'
@@ -852,6 +892,7 @@ export default function ResumeGen() {
                             mode="month"
                             value={exp.fim}
                             onChange={(v) => updateExperience(exp.id, 'fim', v)}
+                            disabled={exp.atual}
                           />
                         </div>
                       </div>
@@ -905,7 +946,7 @@ export default function ResumeGen() {
                             {!isGenerating ? (
                               <Sparkles className="size-3.5" />
                             ) : (
-                              <Loader />
+                              <Loader className="size-3.5 animate-spin" />
                             )}
                             {!isGenerating
                               ? 'Melhorar texto com IA'
@@ -1010,6 +1051,7 @@ export default function ResumeGen() {
                             mode="month"
                             value={edu.fim}
                             onChange={(v) => updateEducation(edu.id, 'fim', v)}
+                            disabled={edu.atual}
                           />
                         </div>
                       </div>
@@ -1270,7 +1312,11 @@ export default function ResumeGen() {
                   onClick={() => performAIActivity('update')}
                   className="flex w-full cursor-pointer disabled:cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-blue-500/30 bg-blue-600/10 py-3 text-sm font-semibold text-blue-300 transition-all hover:border-blue-500/60 hover:bg-blue-600/20 hover:text-blue-200"
                 >
-                  {!isGenerating ? <FileText className="size-4" /> : <Loader />}
+                  {!isGenerating ? (
+                    <FileText className="size-4" />
+                  ) : (
+                    <Loader className="size-4 animate-spin" />
+                  )}
                   {!isGenerating
                     ? 'Gerar PDF'
                     : 'Gerando PDF do seu CV otimizado para ATS...'}

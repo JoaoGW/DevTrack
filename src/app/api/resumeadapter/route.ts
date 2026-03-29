@@ -16,7 +16,10 @@ export async function POST(request: NextRequest, response: NextResponse) {
       `
         O CV deve ser adequado para a plataforma do ${payload.platform}.
         As informações da vaga que o CV será adaptado são:${payload.positionDescription}.
+        \n
         Você deve obrigatoriamente: ${adaptOptionsStringfied}.
+        \n
+        REGRA CRÍTICA: O currículo retornado NUNCA pode ser idêntico ao original. As seções modificadas devem apresentar mudanças visíveis e relevantes em relação ao texto original.
       `
     const content = await generateResponseNano(finalDevInput, nanoInput, maxTokens);
     return NextResponse.json({ content });

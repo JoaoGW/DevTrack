@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import type { ResultSetHeader } from "mysql2";
 import { pool } from "@/lib/db";
 
-// Garante que a coluna latex_source existe (roda uma vez por instância do servidor)
+// Garante que as colunas existam (roda uma vez por instância do servidor)
 let schemaReady = false;
 async function ensureSchema() {
   if (schemaReady) return;
   await pool.query(
     "ALTER TABLE cv_pdf ADD COLUMN IF NOT EXISTS latex_source LONGTEXT NULL"
+  ).catch(() => { });
+  await pool.query(
+    "ALTER TABLE cv_pdf ADD COLUMN IF NOT EXISTS name VARCHAR(255) NULL"
   ).catch(() => { });
   schemaReady = true;
 }
@@ -25,17 +28,19 @@ export async function GET(request: NextRequest, response: NextResponse) {
     await ensureSchema();
     try {
       const [rows] = await pool.query(
-        "SELECT user_id, updated_at, latex_source FROM cv_pdf WHERE user_id = ?",
+        "SELECT user_id, updated_at, latex_source, name FROM cv_pdf WHERE user_id = ?",
         [userId]
       );
 
-      const result = rows as { user_id: string; updated_at: Date; latex_source: string | null }[];
+      const result = rows as { user_id: string; updated_at: Date; latex_source: string | null; name: string | null }[];
 
       const content = result.map((row) => ({
         id: row.user_id,
-        name: "Meu Currículo",
+        name: row.name ?? "Meu Currículo",
         created_at: row.updated_at ? new Date(row.updated_at).toLocaleDateString("pt-BR") : "-",
-        latex_source: row.latex_source ?? "",
+        latex_source: Buffer.isBuffer(row.latex_source)
+          ? (row.latex_source as Buffer).toString('utf8')
+          : (row.latex_source ?? ''),
       }));
 
       return NextResponse.json({ content });
@@ -96,12 +101,14 @@ export async function POST(req: NextRequest) {
 
     let pdfBuffer: Buffer;
     let latexSource: string = "";
+    let name: string = "Meu Currículo";
 
     if (contentType.includes("application/json")) {
-      // Novo formato: JSON com pdfBase64 + latexSource
-      const { pdfBase64, latexSource: ls } = await req.json();
+      // Novo formato: JSON com pdfBase64 + latexSource + name
+      const { pdfBase64, latexSource: ls, name: n } = await req.json();
       pdfBuffer = Buffer.from(pdfBase64, "base64");
       latexSource = ls ?? "";
+      name = n ?? "Meu Currículo";
     } else {
       // Formato legado: PDF binário direto
       const arrayBuffer = await req.arrayBuffer();
@@ -110,10 +117,10 @@ export async function POST(req: NextRequest) {
 
     // INSERT ou UPDATE automático com base no UNIQUE de user_id
     await pool.query<ResultSetHeader>(
-      `INSERT INTO cv_pdf (user_id, pdf_data, latex_source)
-       VALUES (?, ?, ?)
-       ON DUPLICATE KEY UPDATE pdf_data = VALUES(pdf_data), latex_source = VALUES(latex_source), updated_at = NOW()`,
-      [userId, pdfBuffer, latexSource],
+      `INSERT INTO cv_pdf (user_id, pdf_data, latex_source, name)
+       VALUES (?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE pdf_data = VALUES(pdf_data), latex_source = VALUES(latex_source), name = VALUES(name), updated_at = NOW()`,
+      [userId, pdfBuffer, latexSource, name],
     );
 
     return NextResponse.json({ success: true });
