@@ -1,21 +1,21 @@
-"use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+'use client';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
-import { Navbar } from "@/components/Navbar";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ImportProjectModal } from "@/components/Modals/importProjectModal";
-import { SelectProfileTemplateModal } from "@/components/Modals/selectProfileTemplateModal";
-import { TemplateType } from "@/components/ProfileTemplates/types";
+import { Navbar } from '@/components/Navbar';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ImportProjectModal } from '@/components/Modals/importProjectModal';
+import { SelectProfileTemplateModal } from '@/components/Modals/selectProfileTemplateModal';
+import { TemplateType } from '@/components/ProfileTemplates/types';
 
-import { useAuthUserFirebase } from "@/store/authUser.store";
+import { useAuthUserFirebase } from '@/store/authUser.store';
 
-import { Certification } from "@/app/contentData/portfolioGen/interfaces/ICertification";
-import { Education } from "@/app/contentData/portfolioGen/interfaces/IEducation";
-import { Experience } from "@/app/contentData/portfolioGen/interfaces/IExperience";
-import { Language } from "@/app/contentData/portfolioGen/interfaces/ILanguage";
-import { Project } from "@/app/contentData/portfolioGen/interfaces/IProject";
+import { Certification } from '@/app/contentData/portfolioGen/interfaces/ICertification';
+import { Education } from '@/app/contentData/portfolioGen/interfaces/IEducation';
+import { Experience } from '@/app/contentData/portfolioGen/interfaces/IExperience';
+import { Language } from '@/app/contentData/portfolioGen/interfaces/ILanguage';
+import { Project } from '@/app/contentData/portfolioGen/interfaces/IProject';
 
 import {
   User,
@@ -43,17 +43,18 @@ import {
   HardDriveUpload,
   RefreshCw,
   Eye,
-} from "lucide-react";
+} from 'lucide-react';
+import { Calendar } from '@/components/Calendar';
 
 // Helpers
 const uid = () => Math.random().toString(36).slice(2, 9);
 const inputCls =
-  "w-full rounded-xl border border-white/6 bg-white/2 py-3 px-4 text-sm text-white placeholder-zinc-600 outline-none transition-all focus:border-blue-500/40 focus:bg-white/4";
-const labelCls = "block text-sm font-medium text-zinc-300 mb-1.5";
-const cardCls = "rounded-2xl border border-white/6 bg-white/2 p-8";
-const innerCardCls = "rounded-xl border border-white/6 bg-white/2 p-5";
+  'w-full rounded-xl border border-white/6 bg-white/2 py-3 px-4 text-sm text-white placeholder-zinc-600 outline-none transition-all focus:border-blue-500/40 focus:bg-white/4';
+const labelCls = 'block text-sm font-medium text-zinc-300 mb-1.5';
+const cardCls = 'rounded-2xl border border-white/6 bg-white/2 p-8';
+const innerCardCls = 'rounded-xl border border-white/6 bg-white/2 p-5';
 const dottedBtnCls =
-  "flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/10 py-3.5 text-sm text-zinc-500 transition-all duration-200 hover:border-blue-500/30 hover:bg-blue-500/4 hover:text-blue-300 cursor-pointer";
+  'flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/10 py-3.5 text-sm text-zinc-500 transition-all duration-200 hover:border-blue-500/30 hover:bg-blue-500/4 hover:text-blue-300 cursor-pointer';
 
 // Sub-component: Section Title
 function SectionTitle({
@@ -97,13 +98,13 @@ function Toggle({
         onClick={onToggle}
         className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border transition-all duration-200 ${
           checked
-            ? "border-blue-500/40 bg-blue-600"
-            : "border-white/10 bg-white/8"
+            ? 'border-blue-500/40 bg-blue-600'
+            : 'border-white/10 bg-white/8'
         }`}
       >
         <span
           className={`pointer-events-none inline-block size-3.5 rounded-full bg-white shadow transition-transform duration-200 ${
-            checked ? "translate-x-4" : "translate-x-0.5"
+            checked ? 'translate-x-4' : 'translate-x-0.5'
           }`}
         />
       </button>
@@ -116,9 +117,9 @@ function Toggle({
 export default function PortfolioGen() {
   const { user } = useAuthUserFirebase();
 
-  const displayName = user?.displayName ?? "Desenvolvedor";
+  const displayName = user?.displayName ?? 'Desenvolvedor';
   const photoURL = user?.photoURL;
-  const handle = user?.email?.split("@")[0] ?? "dev";
+  const handle = user?.email?.split('@')[0] ?? 'dev';
 
   const router = useRouter();
 
@@ -131,27 +132,27 @@ export default function PortfolioGen() {
   const [portfolioFound, setPortfolioFound] = useState<boolean>(false);
 
   // 1. Contato
-  const [nome, setNome] = useState(user?.displayName ?? "");
-  const [email, setEmail] = useState(user?.email ?? "");
-  const [telefone, setTelefone] = useState<string>("");
-  const [localizacao, setLocalizacao] = useState<string>("");
-  const [githubUrl, setGithubUrl] = useState<string>("");
-  const [linkedinUrl, setLinkedinUrl] = useState<string>("");
-  const [website, setWebsite] = useState<string>("");
+  const [nome, setNome] = useState(user?.displayName ?? '');
+  const [email, setEmail] = useState(user?.email ?? '');
+  const [telefone, setTelefone] = useState<string>('');
+  const [localizacao, setLocalizacao] = useState<string>('');
+  const [githubUrl, setGithubUrl] = useState<string>('');
+  const [linkedinUrl, setLinkedinUrl] = useState<string>('');
+  const [website, setWebsite] = useState<string>('');
 
   // 2. Perfil Profissional
-  const [perfil, setPerfil] = useState<string>("");
-  const [tituloProfissional, setTituloProfissional] = useState<string>("");
+  const [perfil, setPerfil] = useState<string>('');
+  const [tituloProfissional, setTituloProfissional] = useState<string>('');
 
   // 3. Habilidades
-  const [skillInput, setSkillInput] = useState<string>("");
+  const [skillInput, setSkillInput] = useState<string>('');
   const [skills, setSkills] = useState<string[]>([]);
 
   const addSkill = () => {
     const trimmed = skillInput.trim();
     if (trimmed && !skills.includes(trimmed)) {
       setSkills((prev) => [...prev, trimmed]);
-      setSkillInput("");
+      setSkillInput('');
     }
   };
 
@@ -162,13 +163,13 @@ export default function PortfolioGen() {
   const [experiences, setExperiences] = useState<Experience[]>([
     {
       id: uid(),
-      cargo: "",
-      empresa: "",
-      local: "",
-      inicio: "",
-      fim: "",
+      cargo: '',
+      empresa: '',
+      local: '',
+      inicio: '',
+      fim: '',
       atual: false,
-      descricao: "",
+      descricao: '',
     },
   ]);
 
@@ -177,13 +178,13 @@ export default function PortfolioGen() {
       ...prev,
       {
         id: uid(),
-        cargo: "",
-        empresa: "",
-        local: "",
-        inicio: "",
-        fim: "",
+        cargo: '',
+        empresa: '',
+        local: '',
+        inicio: '',
+        fim: '',
         atual: false,
-        descricao: "",
+        descricao: '',
       },
     ]);
 
@@ -192,22 +193,22 @@ export default function PortfolioGen() {
 
   const updateExperience = (
     id: string,
-    field: keyof Omit<Experience, "id">,
-    value: string | boolean,
+    field: keyof Omit<Experience, 'id'>,
+    value: string | boolean
   ) =>
     setExperiences((prev) =>
-      prev.map((e) => (e.id === id ? { ...e, [field]: value } : e)),
+      prev.map((e) => (e.id === id ? { ...e, [field]: value } : e))
     );
 
   // 5. Educação
   const [educations, setEducations] = useState<Education[]>([
     {
       id: uid(),
-      curso: "",
-      instituicao: "",
-      grau: "",
-      inicio: "",
-      fim: "",
+      curso: '',
+      instituicao: '',
+      grau: '',
+      inicio: '',
+      fim: '',
       atual: false,
     },
   ]);
@@ -217,11 +218,11 @@ export default function PortfolioGen() {
       ...prev,
       {
         id: uid(),
-        curso: "",
-        instituicao: "",
-        grau: "",
-        inicio: "",
-        fim: "",
+        curso: '',
+        instituicao: '',
+        grau: '',
+        inicio: '',
+        fim: '',
         atual: false,
       },
     ]);
@@ -231,11 +232,11 @@ export default function PortfolioGen() {
 
   const updateEducation = (
     id: string,
-    field: keyof Omit<Education, "id">,
-    value: string | boolean,
+    field: keyof Omit<Education, 'id'>,
+    value: string | boolean
   ) =>
     setEducations((prev) =>
-      prev.map((e) => (e.id === id ? { ...e, [field]: value } : e)),
+      prev.map((e) => (e.id === id ? { ...e, [field]: value } : e))
     );
 
   // 6. Certificações
@@ -244,7 +245,7 @@ export default function PortfolioGen() {
   const addCertification = () =>
     setCertifications((prev) => [
       ...prev,
-      { id: uid(), nome: "", emissor: "", data: "", url: "" },
+      { id: uid(), nome: '', emissor: '', data: '', url: '' },
     ]);
 
   const removeCertification = (id: string) =>
@@ -252,22 +253,22 @@ export default function PortfolioGen() {
 
   const updateCertification = (
     id: string,
-    field: keyof Omit<Certification, "id">,
-    value: string,
+    field: keyof Omit<Certification, 'id'>,
+    value: string
   ) =>
     setCertifications((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, [field]: value } : c)),
+      prev.map((c) => (c.id === id ? { ...c, [field]: value } : c))
     );
 
   // 7. Idiomas
   const [languages, setLanguages] = useState<Language[]>([
-    { id: uid(), idioma: "", nivel: "Intermediário" },
+    { id: uid(), idioma: '', nivel: 'Intermediário' },
   ]);
 
   const addLanguage = () =>
     setLanguages((prev) => [
       ...prev,
-      { id: uid(), idioma: "", nivel: "Intermediário" },
+      { id: uid(), idioma: '', nivel: 'Intermediário' },
     ]);
 
   const removeLanguage = (id: string) =>
@@ -275,11 +276,11 @@ export default function PortfolioGen() {
 
   const updateLanguage = (
     id: string,
-    field: keyof Omit<Language, "id">,
-    value: string,
+    field: keyof Omit<Language, 'id'>,
+    value: string
   ) =>
     setLanguages((prev) =>
-      prev.map((l) => (l.id === id ? { ...l, [field]: value } : l)),
+      prev.map((l) => (l.id === id ? { ...l, [field]: value } : l))
     );
 
   // 8. Projetos
@@ -290,11 +291,11 @@ export default function PortfolioGen() {
       ...prev,
       {
         id: uid(),
-        nome: "",
-        descricao: "",
-        tecnologias: "",
-        url: "",
-        github: "",
+        nome: '',
+        descricao: '',
+        tecnologias: '',
+        url: '',
+        github: '',
       },
     ]);
 
@@ -305,7 +306,7 @@ export default function PortfolioGen() {
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
 
-      if (key && key.startsWith("PROJECT_")) {
+      if (key && key.startsWith('PROJECT_')) {
         items[key] = localStorage.getItem(key);
       }
     }
@@ -317,11 +318,11 @@ export default function PortfolioGen() {
       ...prev,
       {
         id: uid(),
-        nome: "",
-        descricao: "",
-        tecnologias: "",
-        url: "",
-        github: "",
+        nome: '',
+        descricao: '',
+        tecnologias: '',
+        url: '',
+        github: '',
       },
     ]);
   };
@@ -331,30 +332,30 @@ export default function PortfolioGen() {
 
   const updateProject = (
     id: string,
-    field: keyof Omit<Project, "id">,
-    value: string,
+    field: keyof Omit<Project, 'id'>,
+    value: string
   ) =>
     setProjects((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, [field]: value } : p)),
+      prev.map((p) => (p.id === id ? { ...p, [field]: value } : p))
     );
 
   // Progresso
   const sections = [
-    { label: "Contato", done: !!(nome && email) },
-    { label: "Perfil", done: perfil.length > 20 },
-    { label: "Habilidades", done: skills.length > 0 },
+    { label: 'Contato', done: !!(nome && email) },
+    { label: 'Perfil', done: perfil.length > 20 },
+    { label: 'Habilidades', done: skills.length > 0 },
     {
-      label: "Experiências",
+      label: 'Experiências',
       done: experiences.some((e) => e.cargo && e.empresa),
     },
     {
-      label: "Educação",
+      label: 'Educação',
       done: educations.some((e) => e.curso && e.instituicao),
     },
-    { label: "Projetos", done: projects.some((p) => p.nome) },
+    { label: 'Projetos', done: projects.some((p) => p.nome) },
   ];
   const completeness = Math.round(
-    (sections.filter((s) => s.done).length / sections.length) * 100,
+    (sections.filter((s) => s.done).length / sections.length) * 100
   );
 
   const handleGeneratePortfolio = async (selectedTemplate: TemplateType) => {
@@ -378,17 +379,17 @@ export default function PortfolioGen() {
       template: selectedTemplate,
     };
 
-    const response = await fetch("/api/portfolio", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const response = await fetch('/api/portfolio', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
 
     const data = await response.json();
     if (data.success) {
-      router.push("/tools/profile");
+      router.push('/tools/profile');
     } else {
-      alert("Ocorreu uma falha ao enviar suas informações para o servidor");
+      alert('Ocorreu uma falha ao enviar suas informações para o servidor');
     }
   };
 
@@ -413,33 +414,33 @@ export default function PortfolioGen() {
       template: templateSelected === null ? template : templateSelected,
     };
 
-    const response = await fetch("/api/portfolio", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
+    const response = await fetch('/api/portfolio', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
 
     const data = await response.json();
     if (data.success) {
-      router.push("/tools/profile");
+      router.push('/tools/profile');
     } else {
-      alert("Ocorreu uma falha ao atualizar suas informações no servidor");
+      alert('Ocorreu uma falha ao atualizar suas informações no servidor');
     }
   };
 
   const handleTemplateOnlyUpdate = async (selectedTemplate: TemplateType) => {
-    const response = await fetch("/api/portfolio", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+    const response = await fetch('/api/portfolio', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId: user?.uid, template: selectedTemplate }),
     });
 
     const data = await response.json();
     if (data.success) {
       setTemplate(selectedTemplate);
-      router.push("/tools/profile");
+      router.push('/tools/profile');
     } else {
-      alert("Ocorreu uma falha ao alterar o template no servidor");
+      alert('Ocorreu uma falha ao alterar o template no servidor');
     }
   };
 
@@ -459,7 +460,7 @@ export default function PortfolioGen() {
         const dados = data.data;
         const parseArrayField = <T,>(value: unknown): T[] => {
           if (Array.isArray(value)) return value as T[];
-          if (typeof value === "string") {
+          if (typeof value === 'string') {
             try {
               const parsed = JSON.parse(value);
               return Array.isArray(parsed) ? (parsed as T[]) : [];
@@ -480,22 +481,22 @@ export default function PortfolioGen() {
         if (dados.perfil) setPerfil(dados.perfil);
         if (dados.tituloProfissional || dados.titulo_profissional)
           setTituloProfissional(
-            dados.tituloProfissional ?? dados.titulo_profissional,
+            dados.tituloProfissional ?? dados.titulo_profissional
           );
         setSkills(parseArrayField<string>(dados.skills));
         setExperiences(
-          parseArrayField<Experience>(dados.experiences ?? dados.experiencias),
+          parseArrayField<Experience>(dados.experiences ?? dados.experiencias)
         );
         setEducations(
-          parseArrayField<Education>(dados.educations ?? dados.educacoes),
+          parseArrayField<Education>(dados.educations ?? dados.educacoes)
         );
         setCertifications(
           parseArrayField<Certification>(
-            dados.certifications ?? dados.certificacoes,
-          ),
+            dados.certifications ?? dados.certificacoes
+          )
         );
         setLanguages(
-          parseArrayField<Language>(dados.languages ?? dados.idiomas),
+          parseArrayField<Language>(dados.languages ?? dados.idiomas)
         );
         setProjects(parseArrayField<Project>(dados.projects ?? dados.projetos));
         if (dados.template) setTemplate(dados.template);
@@ -511,7 +512,7 @@ export default function PortfolioGen() {
   return (
     <div
       className="min-h-screen bg-[#080810] text-white"
-      style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
+      style={{ fontFamily: 'var(--font-geist-sans), sans-serif' }}
     >
       <Navbar
         displayName={displayName}
@@ -526,14 +527,14 @@ export default function PortfolioGen() {
           className="relative overflow-hidden rounded-2xl border border-white/6 p-10"
           style={{
             background:
-              "linear-gradient(135deg, rgba(37,99,235,0.10) 0%, rgba(8,8,16,0) 60%)",
+              'linear-gradient(135deg, rgba(37,99,235,0.10) 0%, rgba(8,8,16,0) 60%)',
           }}
         >
           <div
             className="pointer-events-none absolute inset-0"
             style={{
               background:
-                "radial-gradient(ellipse at 0% 50%, rgba(59,130,246,0.08) 0%, transparent 60%)",
+                'radial-gradient(ellipse at 0% 50%, rgba(59,130,246,0.08) 0%, transparent 60%)',
             }}
           />
           <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
@@ -596,7 +597,7 @@ export default function PortfolioGen() {
                     <span
                       key={s.label}
                       className={`flex items-center gap-1 text-xs ${
-                        s.done ? "text-emerald-400" : "text-zinc-600"
+                        s.done ? 'text-emerald-400' : 'text-zinc-600'
                       }`}
                     >
                       <CheckCircle2 className="size-3" />
@@ -778,7 +779,7 @@ export default function PortfolioGen() {
                     value={skillInput}
                     onChange={(e) => setSkillInput(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") {
+                      if (e.key === 'Enter') {
                         e.preventDefault();
                         addSkill();
                       }
@@ -856,7 +857,7 @@ export default function PortfolioGen() {
                           placeholder="Ex: Desenvolvedor Front-End Sênior"
                           value={exp.cargo}
                           onChange={(e) =>
-                            updateExperience(exp.id, "cargo", e.target.value)
+                            updateExperience(exp.id, 'cargo', e.target.value)
                           }
                           className={inputCls}
                         />
@@ -869,7 +870,7 @@ export default function PortfolioGen() {
                           placeholder="Ex: Google"
                           value={exp.empresa}
                           onChange={(e) =>
-                            updateExperience(exp.id, "empresa", e.target.value)
+                            updateExperience(exp.id, 'empresa', e.target.value)
                           }
                           className={inputCls}
                         />
@@ -882,7 +883,7 @@ export default function PortfolioGen() {
                           placeholder="São Paulo, SP (Remoto)"
                           value={exp.local}
                           onChange={(e) =>
-                            updateExperience(exp.id, "local", e.target.value)
+                            updateExperience(exp.id, 'local', e.target.value)
                           }
                           className={inputCls}
                         />
@@ -891,25 +892,20 @@ export default function PortfolioGen() {
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className={labelCls}>Início</label>
-                          <input
-                            type="month"
+                          <Calendar
+                            mode="month"
                             value={exp.inicio}
-                            onChange={(e) =>
-                              updateExperience(exp.id, "inicio", e.target.value)
+                            onChange={(v) =>
+                              updateExperience(exp.id, 'inicio', v)
                             }
-                            className={inputCls}
                           />
                         </div>
                         <div>
                           <label className={labelCls}>Fim</label>
-                          <input
-                            type="month"
+                          <Calendar
+                            mode="month"
                             value={exp.fim}
-                            disabled={exp.atual}
-                            onChange={(e) =>
-                              updateExperience(exp.id, "fim", e.target.value)
-                            }
-                            className={`${inputCls} disabled:opacity-40`}
+                            onChange={(v) => updateExperience(exp.id, 'fim', v)}
                           />
                         </div>
                       </div>
@@ -918,7 +914,7 @@ export default function PortfolioGen() {
                         <Toggle
                           checked={exp.atual}
                           onToggle={() =>
-                            updateExperience(exp.id, "atual", !exp.atual)
+                            updateExperience(exp.id, 'atual', !exp.atual)
                           }
                           label="Emprego atual"
                         />
@@ -935,8 +931,8 @@ export default function PortfolioGen() {
                           onChange={(e) =>
                             updateExperience(
                               exp.id,
-                              "descricao",
-                              e.target.value,
+                              'descricao',
+                              e.target.value
                             )
                           }
                           className={`${inputCls} resize-none`}
@@ -991,7 +987,7 @@ export default function PortfolioGen() {
                           placeholder="Ex: Ciência da Computação"
                           value={edu.curso}
                           onChange={(e) =>
-                            updateEducation(edu.id, "curso", e.target.value)
+                            updateEducation(edu.id, 'curso', e.target.value)
                           }
                           className={inputCls}
                         />
@@ -1006,8 +1002,8 @@ export default function PortfolioGen() {
                           onChange={(e) =>
                             updateEducation(
                               edu.id,
-                              "instituicao",
-                              e.target.value,
+                              'instituicao',
+                              e.target.value
                             )
                           }
                           className={inputCls}
@@ -1019,7 +1015,7 @@ export default function PortfolioGen() {
                         <select
                           value={edu.grau}
                           onChange={(e) =>
-                            updateEducation(edu.id, "grau", e.target.value)
+                            updateEducation(edu.id, 'grau', e.target.value)
                           }
                           className={`${inputCls} appearance-none`}
                         >
@@ -1027,15 +1023,15 @@ export default function PortfolioGen() {
                             Selecione...
                           </option>
                           {[
-                            "Técnico",
-                            "Tecnólogo",
-                            "Bacharelado",
-                            "Licenciatura",
-                            "Pós-Graduação",
-                            "MBA",
-                            "Mestrado",
-                            "Doutorado",
-                            "Curso livre",
+                            'Técnico',
+                            'Tecnólogo',
+                            'Bacharelado',
+                            'Licenciatura',
+                            'Pós-Graduação',
+                            'MBA',
+                            'Mestrado',
+                            'Doutorado',
+                            'Curso livre',
                           ].map((g) => (
                             <option key={g} value={g} className="bg-[#080810]">
                               {g}
@@ -1047,25 +1043,20 @@ export default function PortfolioGen() {
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className={labelCls}>Início</label>
-                          <input
-                            type="month"
+                          <Calendar
+                            mode="month"
                             value={edu.inicio}
-                            onChange={(e) =>
-                              updateEducation(edu.id, "inicio", e.target.value)
+                            onChange={(v) =>
+                              updateEducation(edu.id, 'inicio', v)
                             }
-                            className={inputCls}
                           />
                         </div>
                         <div>
                           <label className={labelCls}>Conclusão</label>
-                          <input
-                            type="month"
+                          <Calendar
+                            mode="month"
                             value={edu.fim}
-                            disabled={edu.atual}
-                            onChange={(e) =>
-                              updateEducation(edu.id, "fim", e.target.value)
-                            }
-                            className={`${inputCls} disabled:opacity-40`}
+                            onChange={(v) => updateEducation(edu.id, 'fim', v)}
                           />
                         </div>
                       </div>
@@ -1074,7 +1065,7 @@ export default function PortfolioGen() {
                         <Toggle
                           checked={edu.atual}
                           onToggle={() =>
-                            updateEducation(edu.id, "atual", !edu.atual)
+                            updateEducation(edu.id, 'atual', !edu.atual)
                           }
                           label="Em andamento"
                         />
@@ -1140,7 +1131,7 @@ export default function PortfolioGen() {
                           placeholder="Ex: AWS Certified Developer"
                           value={cert.nome}
                           onChange={(e) =>
-                            updateCertification(cert.id, "nome", e.target.value)
+                            updateCertification(cert.id, 'nome', e.target.value)
                           }
                           className={inputCls}
                         />
@@ -1155,8 +1146,8 @@ export default function PortfolioGen() {
                           onChange={(e) =>
                             updateCertification(
                               cert.id,
-                              "emissor",
-                              e.target.value,
+                              'emissor',
+                              e.target.value
                             )
                           }
                           className={inputCls}
@@ -1169,7 +1160,7 @@ export default function PortfolioGen() {
                           type="month"
                           value={cert.data}
                           onChange={(e) =>
-                            updateCertification(cert.id, "data", e.target.value)
+                            updateCertification(cert.id, 'data', e.target.value)
                           }
                           className={inputCls}
                         />
@@ -1186,8 +1177,8 @@ export default function PortfolioGen() {
                             onChange={(e) =>
                               updateCertification(
                                 cert.id,
-                                "url",
-                                e.target.value,
+                                'url',
+                                e.target.value
                               )
                             }
                             className={`${inputCls} pl-10`}
@@ -1228,7 +1219,7 @@ export default function PortfolioGen() {
                         placeholder="Ex: Inglês, Espanhol…"
                         value={lang.idioma}
                         onChange={(e) =>
-                          updateLanguage(lang.id, "idioma", e.target.value)
+                          updateLanguage(lang.id, 'idioma', e.target.value)
                         }
                         className={inputCls}
                       />
@@ -1239,16 +1230,16 @@ export default function PortfolioGen() {
                       <select
                         value={lang.nivel}
                         onChange={(e) =>
-                          updateLanguage(lang.id, "nivel", e.target.value)
+                          updateLanguage(lang.id, 'nivel', e.target.value)
                         }
                         className={`${inputCls} appearance-none cursor-pointer`}
                       >
                         {[
-                          "Básico",
-                          "Intermediário",
-                          "Avançado",
-                          "Fluente",
-                          "Nativo",
+                          'Básico',
+                          'Intermediário',
+                          'Avançado',
+                          'Fluente',
+                          'Nativo',
                         ].map((n) => (
                           <option key={n} value={n} className="bg-[#080810]">
                             {n}
@@ -1323,7 +1314,7 @@ export default function PortfolioGen() {
                           placeholder="Ex: DevTrack"
                           value={proj.nome}
                           onChange={(e) =>
-                            updateProject(proj.id, "nome", e.target.value)
+                            updateProject(proj.id, 'nome', e.target.value)
                           }
                           className={inputCls}
                         />
@@ -1340,8 +1331,8 @@ export default function PortfolioGen() {
                           onChange={(e) =>
                             updateProject(
                               proj.id,
-                              "tecnologias",
-                              e.target.value,
+                              'tecnologias',
+                              e.target.value
                             )
                           }
                           className={inputCls}
@@ -1358,7 +1349,7 @@ export default function PortfolioGen() {
                             placeholder="https://seusite.com"
                             value={proj.url}
                             onChange={(e) =>
-                              updateProject(proj.id, "url", e.target.value)
+                              updateProject(proj.id, 'url', e.target.value)
                             }
                             className={`${inputCls} pl-10`}
                           />
@@ -1374,7 +1365,7 @@ export default function PortfolioGen() {
                             placeholder="https://github.com/user/repo"
                             value={proj.github}
                             onChange={(e) =>
-                              updateProject(proj.id, "github", e.target.value)
+                              updateProject(proj.id, 'github', e.target.value)
                             }
                             className={`${inputCls} pl-10`}
                             required
@@ -1391,7 +1382,7 @@ export default function PortfolioGen() {
                           placeholder="Descreva o objetivo, funcionalidades e impacto do projeto…"
                           value={proj.descricao}
                           onChange={(e) =>
-                            updateProject(proj.id, "descricao", e.target.value)
+                            updateProject(proj.id, 'descricao', e.target.value)
                           }
                           className={`${inputCls} resize-none`}
                           required
@@ -1462,7 +1453,7 @@ export default function PortfolioGen() {
                     size="lg"
                     className="mt-1 cursor-pointer gap-2 bg-blue-600 px-10 text-white shadow-lg shadow-blue-950/40 hover:bg-blue-500"
                     onClick={() => {
-                      router.push("/tools/profile");
+                      router.push('/tools/profile');
                     }}
                   >
                     <Eye className="size-4" />
@@ -1524,12 +1515,12 @@ export default function PortfolioGen() {
                     <li
                       key={s.label}
                       className={`flex items-center gap-2 text-sm ${
-                        s.done ? "text-zinc-300" : "text-zinc-600"
+                        s.done ? 'text-zinc-300' : 'text-zinc-600'
                       }`}
                     >
                       <span
                         className={`size-1.5 shrink-0 rounded-full ${
-                          s.done ? "bg-emerald-400" : "bg-zinc-700"
+                          s.done ? 'bg-emerald-400' : 'bg-zinc-700'
                         }`}
                       />
                       {s.label}
@@ -1574,7 +1565,7 @@ export default function PortfolioGen() {
                 return prev.map((p) =>
                   p.id === last.id
                     ? { ...p, nome: projectName, descricao: description }
-                    : p,
+                    : p
                 );
               });
             }}

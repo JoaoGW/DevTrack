@@ -1,6 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
 
+import emojiStrip from 'emoji-strip';
+
 import { Navbar } from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -89,7 +91,7 @@ export default function ResumeAdapter() {
   async function handleCVAdapter() {
     setIsAdapting(true);
 
-    const positionDesc = `Cargo:${jobTitle} - Nome da Empresa:${companyName} - Descrição da vaga:${jobDescription}`;
+    const positionDesc = `Cargo:${jobTitle} - Nome da Empresa:${companyName} - Descrição da vaga:${emojiStrip(jobDescription)}`;
 
     const selectedAdaptOptions: string[] = [];
     if (focusTechSkills) {
@@ -125,6 +127,10 @@ export default function ResumeAdapter() {
         payload: payload,
       }),
     });
+
+    if (!apiResponse.ok) {
+      console.error('Ocorreu um erro ao adaptar o currículo');
+    }
 
     setIsAdapting(false);
   }
@@ -602,7 +608,10 @@ export default function ResumeAdapter() {
                 <button
                   type="button"
                   disabled={!canAdapt || isAdapting}
-                  onClick={() => setIsAdapting(true)}
+                  onClick={() => {
+                    setIsAdapting(true);
+                    handleCVAdapter();
+                  }}
                   className="flex w-full cursor-pointer disabled:cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-violet-500/30 bg-violet-600/10 py-3 text-sm font-semibold text-violet-300 transition-all hover:border-violet-500/60 hover:bg-violet-600/20 hover:text-violet-200 disabled:opacity-40"
                 >
                   {isAdapting ? (

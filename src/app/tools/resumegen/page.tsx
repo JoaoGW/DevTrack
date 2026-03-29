@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { SectionTitle } from '@/components/ResumeGenUI/SectionTitle';
 import { Toggle } from '@/components/ResumeGenUI/Toggle';
 import { PdfPreview } from '@/components/ResumeGenUI/PDFPreview';
+import { Calendar } from '@/components/Calendar';
 
 import { useAuthUserFirebase } from '@/store/authUser.store';
 
@@ -837,25 +838,20 @@ export default function ResumeGen() {
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className={labelCls}>Início</label>
-                          <input
-                            type="month"
+                          <Calendar
+                            mode="month"
                             value={exp.inicio}
-                            onChange={(e) =>
-                              updateExperience(exp.id, 'inicio', e.target.value)
+                            onChange={(v) =>
+                              updateExperience(exp.id, 'inicio', v)
                             }
-                            className={inputCls}
                           />
                         </div>
                         <div>
                           <label className={labelCls}>Fim</label>
-                          <input
-                            type="month"
+                          <Calendar
+                            mode="month"
                             value={exp.fim}
-                            disabled={exp.atual}
-                            onChange={(e) =>
-                              updateExperience(exp.id, 'fim', e.target.value)
-                            }
-                            className={`${inputCls} disabled:opacity-40`}
+                            onChange={(v) => updateExperience(exp.id, 'fim', v)}
                           />
                         </div>
                       </div>
@@ -1000,25 +996,20 @@ export default function ResumeGen() {
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className={labelCls}>Início</label>
-                          <input
-                            type="month"
+                          <Calendar
+                            mode="month"
                             value={edu.inicio}
-                            onChange={(e) =>
-                              updateEducation(edu.id, 'inicio', e.target.value)
+                            onChange={(v) =>
+                              updateEducation(edu.id, 'inicio', v)
                             }
-                            className={inputCls}
                           />
                         </div>
                         <div>
                           <label className={labelCls}>Fim</label>
-                          <input
-                            type="month"
+                          <Calendar
+                            mode="month"
                             value={edu.fim}
-                            disabled={edu.atual}
-                            onChange={(e) =>
-                              updateEducation(edu.id, 'fim', e.target.value)
-                            }
-                            className={`${inputCls} disabled:opacity-40`}
+                            onChange={(v) => updateEducation(edu.id, 'fim', v)}
                           />
                         </div>
                       </div>
