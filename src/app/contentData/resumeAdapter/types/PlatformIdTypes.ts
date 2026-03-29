@@ -1,0 +1,1 @@
+export type PlatformId = 'linkedin' | 'gupy' | 'catho';
